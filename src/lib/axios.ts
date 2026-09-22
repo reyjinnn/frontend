@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 
-// Create base instance
 const api = axios.create({
   baseURL: 'http://localhost:8080',
   timeout: 10000,
@@ -11,9 +10,8 @@ const api = axios.create({
   },
 });
 
-// A flag to prevent multiple refresh token requests concurrently
 let isRefreshing = false;
-// Queue to hold failed requests while refreshing
+
 let failedQueue: Array<{
   resolve: (token: string) => void;
   reject: (error: any) => void;
@@ -30,7 +28,6 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Request Interceptor
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const accessToken = useAuthStore.getState().accessToken;
@@ -39,11 +36,10 @@ api.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    // Inject Idempotency-Key for mutating requests
     const method = config.method?.toUpperCase();
     if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
       if (!config.headers['Idempotency-Key']) {
-        // Fallback for crypto.randomUUID in some older environments if needed
+        
         config.headers['Idempotency-Key'] = typeof crypto !== 'undefined' && crypto.randomUUID
           ? crypto.randomUUID()
           : 'idempotency-' + new Date().getTime() + Math.random().toString(36).substring(2);
@@ -57,7 +53,6 @@ api.interceptors.request.use(
   }
 );
 
-// Response Interceptor
 api.interceptors.response.use(
   (response) => {
     return response;
@@ -67,7 +62,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       if (isRefreshing) {
-        // If currently refreshing, add to queue and wait
+        
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
         })
@@ -86,13 +81,13 @@ api.interceptors.response.use(
       const refreshToken = useAuthStore.getState().refreshToken;
 
       if (!refreshToken) {
-        // No refresh token, can't refresh
+        
         useAuthStore.getState().logout();
         return Promise.reject(error);
       }
 
       try {
-        // Trigger silent refresh
+        
         const { data } = await axios.post<{ accessToken: string; refreshToken: string }>(
           'http://localhost:8080/api/v1/auth/refresh',
           { refreshToken }
@@ -101,17 +96,14 @@ api.interceptors.response.use(
         const newAccessToken = data.accessToken;
         const newRefreshToken = data.refreshToken;
 
-        // Save new tokens
         useAuthStore.getState().setTokens(newAccessToken, newRefreshToken);
 
-        // Process queued requests
         processQueue(null, newAccessToken);
-        
-        // Retry original request
+
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (err) {
-        // Refresh failed, logout
+        
         processQueue(err, null);
         useAuthStore.getState().logout();
         return Promise.reject(err);

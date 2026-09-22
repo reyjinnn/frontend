@@ -1,10 +1,5 @@
-import axios from 'axios';
+import api from '../lib/axios';
 
-const api = axios.create({
-  baseURL: '/api/v1',
-});
-
-// Types
 export interface Product {
   id: number;
   categoryId: number;
@@ -41,7 +36,6 @@ export interface Review {
   createdAt: string;
 }
 
-// Mock Data Fallbacks
 const mockCategories: Category[] = [
   { id: 1, name: "Smartphone & Gadgets", slug: "smartphone-gadgets", description: "", parentId: null },
   { id: 2, name: "Laptop & MacBook", slug: "laptop-macbook", description: "", parentId: null },
@@ -79,7 +73,7 @@ const mockProducts: Product[] = [
 export const CatalogService = {
   async getCategories() {
     try {
-      const res = await api.get('/catalog/categories');
+      const res = await api.get('/api/v1/catalog/categories');
       return res.data;
     } catch (e) {
       console.warn("API categories unavailable, using mock");
@@ -88,7 +82,7 @@ export const CatalogService = {
   },
   async getProducts(params?: any) {
     try {
-      const res = await api.get('/catalog/products', { params });
+      const res = await api.get('/api/v1/catalog/products', { params });
       return res.data;
     } catch (e) {
       console.warn("API products unavailable, using mock");
@@ -101,7 +95,7 @@ export const CatalogService = {
   },
   async getProductBySlug(slug: string) {
     try {
-      const res = await api.get(`/catalog/products/${slug}`);
+      const res = await api.get(`/api/v1/catalog/products/${slug}`);
       return res.data;
     } catch (e) {
       console.warn("API product detail unavailable, using mock");
@@ -112,7 +106,7 @@ export const CatalogService = {
   },
   async getProductReviews(id: number) {
     try {
-      const res = await api.get(`/catalog/products/${id}/reviews`);
+      const res = await api.get(`/api/v1/catalog/products/${id}/reviews`);
       return res.data;
     } catch (e) {
       console.warn("API reviews unavailable, using mock");
