@@ -36,13 +36,21 @@ const Modal = ({ isOpen, onClose, title, children, className, fullscreen = false
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
+<<<<<<< HEAD
       {}
+=======
+      {/* Backdrop */}
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
       <div 
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       
+<<<<<<< HEAD
       {}
+=======
+      {/* Modal Dialog */}
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
       <div
         ref={modalRef}
         className={cn(

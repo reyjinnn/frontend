@@ -5,8 +5,12 @@ interface User {
   name: string;
   email: string;
   phone?: string;
+<<<<<<< HEAD
   kycStatus?: 'unverified' | 'pending' | 'verified' | 'rejected';
   role?: 'customer' | 'admin';
+=======
+  isKycVerified?: boolean;
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
 }
 
 interface AuthState {
@@ -18,7 +22,10 @@ interface AuthState {
   setUser: (user: User) => void;
   login: (user: User, accessToken: string, refreshToken: string) => void;
   logout: () => void;
+<<<<<<< HEAD
   setKycStatus: (status: 'unverified' | 'pending' | 'verified' | 'rejected') => void;
+=======
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -38,7 +45,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (user, accessToken, refreshToken) => {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
+<<<<<<< HEAD
     
+=======
+    // Ideally user data would also be cached or fetched after login
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
     set({ user, accessToken, refreshToken, isAuthenticated: true });
   },
   
@@ -47,8 +58,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('refreshToken');
     set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
   },
+<<<<<<< HEAD
   
   setKycStatus: (status) => set((state) => ({
     user: state.user ? { ...state.user, kycStatus: status } : null
   })),
+=======
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
 }));

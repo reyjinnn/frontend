@@ -22,8 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+<<<<<<< HEAD
 
 *.md
 !README.md
 user.html
 admin.html
+=======
+>>>>>>> 80b7fdfac7784469269245387969793b7eabd139
