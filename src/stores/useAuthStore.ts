@@ -6,6 +6,7 @@ interface User {
   email: string;
   phone?: string;
   kycStatus?: 'unverified' | 'pending' | 'verified' | 'rejected';
+  role?: 'customer' | 'admin';
 }
 
 interface AuthState {
@@ -37,7 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (user, accessToken, refreshToken) => {
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
-    // Ideally user data would also be cached or fetched after login
+    
     set({ user, accessToken, refreshToken, isAuthenticated: true });
   },
   
