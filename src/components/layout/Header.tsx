@@ -63,7 +63,17 @@ export function Header() {
               <div className="w-6 h-6 bg-pumpkin/10 text-pumpkin rounded-full flex items-center justify-center text-xs font-bold">
                 {user?.name?.charAt(0) || 'U'}
               </div>
-              <span className="text-sm font-medium hidden sm:block truncate max-w-[100px]">{user?.name}</span>
+              <div className="flex flex-col items-start hidden sm:flex justify-center">
+                <span className="text-sm font-medium truncate max-w-[100px] leading-tight">{user?.name}</span>
+                <span className={`text-[9px] uppercase font-bold tracking-wider mt-0.5 ${
+                  user?.kycStatus === 'verified' ? 'text-green-500' :
+                  user?.kycStatus === 'pending' ? 'text-orange-500' :
+                  user?.kycStatus === 'rejected' ? 'text-red-500' :
+                  'text-slate-400'
+                }`}>
+                  KYC: {user?.kycStatus || 'UNVERIFIED'}
+                </span>
+              </div>
             </Link>
           ) : (
             <button onClick={openLogin} className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] py-1.5 px-3 rounded-full transition-colors text-sm font-medium">

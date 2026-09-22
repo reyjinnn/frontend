@@ -6,6 +6,8 @@ import { CatalogView } from './features/catalog/views/CatalogView';
 import { ProductDetailView } from './features/catalog/views/ProductDetailView';
 import { WishlistView } from './features/catalog/views/WishlistView';
 import { CheckoutView } from './features/checkout/views/CheckoutView';
+import { TlaterHubView } from './features/tlater/views/TlaterHubView';
+import { PointsWalletView } from './features/points/views/PointsWalletView';
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +19,8 @@ export const router = createBrowserRouter([
       { path: 'product/:slug', element: <ProductDetailView /> },
       { path: 'wishlist', element: <WishlistView /> },
       { path: 'checkout', element: <CheckoutView /> },
+      { path: 'tlater', element: <TlaterHubView /> },
+      { path: 'points', element: <PointsWalletView /> },
       { 
         path: 'profile', 
         element: (

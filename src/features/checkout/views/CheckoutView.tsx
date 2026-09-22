@@ -8,8 +8,9 @@ import type { SplitCheckoutRequest } from '../api/checkoutApi';
 import { SplitPaymentSection } from '../components/SplitPaymentSection';
 import { PromoModal } from '../components/PromoModal';
 import { CheckoutSuccessDialog } from '../components/CheckoutSuccessDialog';
+import { KycModal } from '../../auth/components/KycModal';
 import { Button } from '../../../components/ui/Button';
-import { MapPin, ShieldCheck, Ticket, Receipt, ChevronRight } from 'lucide-react';
+import { MapPin, ShieldCheck, Ticket, Receipt, ChevronRight, Info } from 'lucide-react';
 
 export function CheckoutView() {
   const { isAuthenticated, user } = useAuthStore();
@@ -38,6 +39,9 @@ export function CheckoutView() {
   const [useTlater, setUseTlater] = useState(false);
   const [tlaterTenor, setTlaterTenor] = useState(1);
   const [cashGateway, setCashGateway] = useState('bca_va');
+
+  // KYC
+  const [isKycOpen, setIsKycOpen] = useState(false);
 
   // Promo
   const [isPromoOpen, setIsPromoOpen] = useState(false);
@@ -227,6 +231,23 @@ export function CheckoutView() {
           {/* Split Payment Engine */}
           <section>
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">Metode Pembayaran (Split-Payment)</h3>
+            
+            {/* KYC Guard for TLater */}
+            {user?.kycStatus !== 'verified' && (
+              <div className="mb-4 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-xl p-4 flex justify-between items-center">
+                <div className="flex gap-3">
+                  <Info className="w-5 h-5 text-orange-500 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-sm text-orange-900 dark:text-orange-100">Fasilitas TLater Belum Aktif</h4>
+                    <p className="text-xs text-orange-800 dark:text-orange-300">Verifikasi identitas (KYC) Anda untuk mengaktifkan limit PayLater.</p>
+                  </div>
+                </div>
+                <Button variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50" onClick={() => setIsKycOpen(true)}>
+                  Verifikasi Sekarang
+                </Button>
+              </div>
+            )}
+
             <SplitPaymentSection 
               grandTotal={simResult?.grandTotal || (totalItemAmount + shippingFee + (hasInsurance ? 25000 : 0))}
               pointsBalance={pointsBalance}
@@ -237,7 +258,13 @@ export function CheckoutView() {
               tlaterLimit={tlaterLimit}
               useTlater={useTlater}
               tlaterTenor={tlaterTenor}
-              setUseTlater={setUseTlater}
+              setUseTlater={(val) => {
+                if (user?.kycStatus !== 'verified' && val === true) {
+                  setIsKycOpen(true);
+                } else {
+                  setUseTlater(val);
+                }
+              }}
               setTlaterTenor={setTlaterTenor}
             />
           </section>
@@ -357,6 +384,10 @@ export function CheckoutView() {
         onClose={() => setIsPromoOpen(false)} 
         cartTotal={totalItemAmount} 
         onSelectPromo={setAppliedPromo} 
+      />
+      <KycModal 
+        isOpen={isKycOpen} 
+        onClose={() => setIsKycOpen(false)} 
       />
     </div>
   );
