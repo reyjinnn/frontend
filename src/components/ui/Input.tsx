@@ -5,12 +5,16 @@ import { cn } from '../../lib/utils';
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   icon?: ReactNode;
   error?: string;
+  label?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, icon, error, type, ...props }, ref) => {
+  ({ className, icon, error, type, label, ...props }, ref) => {
     return (
       <div className="w-full relative">
+        {label && (
+          <label className="block text-sm font-semibold mb-2">{label}</label>
+        )}
         {icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
             {icon}
