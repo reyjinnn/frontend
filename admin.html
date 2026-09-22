@@ -1,0 +1,2562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tecvibe Admin Panel</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Menghilangkan scrollbar secara global */
+    body::-webkit-scrollbar { display: none; }
+    body { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            logo: ['"Outfit"', 'sans-serif'], 
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            pumpkin: {
+              DEFAULT: '#FD802E',
+              hover: '#E56D1F',
+              light: '#FFF7ED',
+              border: '#FED7AA',
+            },
+            charcoal: {
+              DEFAULT: '#1E293B',
+              dark: '#0F172A',
+            },
+            tlater: {
+              DEFAULT: '#0284C7',
+              light: '#E0F2FE',
+              border: '#BAE6FD',
+            }
+          },
+          boxShadow: {
+            'card': '0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.03)',
+            'card-hover': '0 12px 24px -6px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body id="app-body" class="antialiased selection:bg-pumpkin/20 selection:text-pumpkin">
+
+  <!-- ===================================================================== -->
+  <!-- 1. SIDEBAR NAVIGATION -->
+  <!-- ===================================================================== -->
+  <aside class="fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 z-30 flex flex-col transition-transform duration-300 transform -translate-x-full lg:translate-x-0" id="sidebar">
+    <div class="h-16 flex items-center px-6 border-b border-slate-100">
+      <a href="#" class="flex items-center gap-2 group outline-none">
+        <div class="w-7 h-7 bg-pumpkin rounded-lg flex items-center justify-center transform group-hover:rotate-12 transition-transform shadow-sm">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <span class="font-logo font-black text-xl tracking-tighter text-slate-900 leading-none mt-1">Tecvibe<span class="text-pumpkin">.</span><span class="text-[10px] font-sans font-bold text-slate-400 align-top ml-1">ADMIN</span></span>
+      </a>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 space-y-1">
+      <p class="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 mt-2">Menu Utama</p>
+      
+      <a href="#" id="nav-dashboard" onclick="switchView('dashboard')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl bg-pumpkin/10 text-pumpkin font-bold text-sm transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        Dasbor
+      </a>
+      
+      <!-- Pesanan Group -->
+      <div class="space-y-1">
+        <a href="#" id="nav-orders" onclick="switchView('orders'); setTimeout(()=>filterOrders('all', document.querySelector('#order-tabs-container button:nth-child(1)')), 10);" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            Semua Pesanan
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">12</span>
+        </a>
+        <a href="#" onclick="switchView('orders'); setTimeout(()=>filterOrders('unpaid', document.querySelector('#order-tabs-container button:nth-child(3)')), 10);" class="nav-item flex items-center gap-3 px-3 py-2 pl-11 rounded-xl text-slate-500 font-medium text-xs hover:bg-slate-50 hover:text-slate-900 transition">
+          Belum Dibayar
+        </a>
+        <a href="#" onclick="switchView('orders'); setTimeout(()=>filterOrders('shipping', document.querySelector('#order-tabs-container button:nth-child(4)')), 10);" class="nav-item flex items-center justify-between px-3 py-2 pl-11 rounded-xl text-slate-500 font-medium text-xs hover:bg-slate-50 hover:text-slate-900 transition">
+          Perlu Dikirim
+          <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[9px] font-bold">1</span>
+        </a>
+        <a href="#" onclick="switchView('orders'); setTimeout(()=>filterOrders('shipped', document.querySelector('#order-tabs-container button:nth-child(5)')), 10);" class="nav-item flex items-center gap-3 px-3 py-2 pl-11 rounded-xl text-slate-500 font-medium text-xs hover:bg-slate-50 hover:text-slate-900 transition">
+          Dikirim
+        </a>
+        <a href="#" onclick="switchView('orders'); setTimeout(()=>filterOrders('completed', document.querySelector('#order-tabs-container button:nth-child(6)')), 10);" class="nav-item flex items-center gap-3 px-3 py-2 pl-11 rounded-xl text-slate-500 font-medium text-xs hover:bg-slate-50 hover:text-slate-900 transition">
+          Selesai
+        </a>
+        <a href="#" onclick="switchView('orders'); setTimeout(()=>filterOrders('cancelled', document.querySelector('#order-tabs-container button:nth-child(7)')), 10);" class="nav-item flex items-center gap-3 px-3 py-2 pl-11 rounded-xl text-slate-500 font-medium text-xs hover:bg-slate-50 hover:text-slate-900 transition">
+          Dibatalkan
+        </a>
+      </div>
+
+      <a href="#" id="nav-products" onclick="switchView('products')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Produk
+      </a>
+
+      <a href="#" id="nav-promos" onclick="switchView('promos')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+        Promo & Diskon
+      </a>
+
+      <a href="#" id="nav-shipping" onclick="switchView('shipping')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+        Pengiriman
+      </a>
+
+      <a href="#" id="nav-tlater" onclick="switchView('tlater')" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+          TLater
+        </div>
+        <span class="px-2 py-0.5 rounded-full bg-tlater text-white text-[10px] font-bold">Baru</span>
+      </a>
+
+      <a href="#" id="nav-customers" onclick="switchView('customers')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Pelanggan
+      </a>
+
+      <a href="#" id="nav-tickets" onclick="switchView('tickets')" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          Tiket & Bantuan
+        </div>
+        <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[10px] font-bold">2</span>
+      </a>
+
+      <a href="#" id="nav-points-admin" onclick="switchView('points-admin')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402-2.599-1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Vibe Points
+      </a>
+
+      <p class="px-3 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-2 mt-6">Sistem</p>
+
+
+      <a href="#" id="nav-user-sync" onclick="switchView('user-sync')" class="nav-item flex items-center justify-between px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h10M7 4v16"/></svg>
+          Kontrol Sisi User
+        </div>
+        <span id="user-sync-badge" class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">LIVE</span>
+      </a>
+
+      <a href="#" id="nav-settings" onclick="switchView('settings')" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 font-medium text-sm hover:bg-slate-50 hover:text-slate-900 transition">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Pengaturan
+      </a>
+    </div>
+
+    <div class="p-4 border-t border-slate-100">
+      <div class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition cursor-pointer">
+        <div class="w-8 h-8 rounded-full bg-pumpkin text-white flex items-center justify-center font-bold text-xs">
+          AD
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-slate-900 truncate">Admin Pusat</p>
+          <p class="text-[10px] text-slate-500 truncate">admin@Tecvibe.com</p>
+        </div>
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN CONTENT AREA -->
+  <!-- ===================================================================== -->
+  <main class="lg:ml-64 min-h-screen flex flex-col pb-20">
+    
+    <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-4">
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-500 hover:text-slate-900 outline-none">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <h1 id="page-title" class="text-lg font-extrabold text-slate-900 hidden sm:block">Dasbor Ringkasan</h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="relative hidden sm:block">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Cari ID Pesanan, Pelanggan..." class="w-64 pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition placeholder-slate-400">
+        </div>
+
+        <button class="relative p-2 text-slate-400 hover:text-slate-900 transition rounded-lg hover:bg-slate-50">
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- VIEW: DASHBOARD -->
+    <!-- ========================================== -->
+    <div id="view-dashboard" class="view-section p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      
+      <!-- Date Filter -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <p class="text-xs text-slate-500">Menampilkan data untuk <strong class="text-slate-900">Hari Ini, 23 Okt 2023</strong></p>
+        <div class="flex gap-2">
+          <button class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 shadow-sm transition">
+            Hari Ini
+          </button>
+          <button class="flex items-center gap-2 text-xs font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 shadow-sm transition">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Bulan Ini
+          </button>
+        </div>
+      </div>
+
+      <!-- KEY METRICS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <!-- Metric 1 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-card hover:shadow-card-hover transition group">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-pumpkin/10 text-pumpkin flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
+              12.5%
+            </span>
+          </div>
+          <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Total Pendapatan</p>
+          <h3 class="text-2xl font-black text-slate-900 font-mono tracking-tight">Rp 45.2M</h3>
+        </div>
+        <!-- Metric 2 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-card hover:shadow-card-hover transition group">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
+            <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
+              8.2%
+            </span>
+          </div>
+          <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Pesanan Hari Ini</p>
+          <h3 class="text-2xl font-black text-slate-900 font-mono tracking-tight">124</h3>
+        </div>
+        <!-- Metric 3 -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-card hover:shadow-card-hover transition group">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            </div>
+            <span class="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
+              12
+            </span>
+          </div>
+          <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Pelanggan Baru</p>
+          <h3 class="text-2xl font-black text-slate-900 font-mono tracking-tight">45</h3>
+        </div>
+        <!-- Metric 4 -->
+        <div class="bg-gradient-to-br from-tlater to-sky-700 p-5 rounded-2xl border border-tlater shadow-card hover:shadow-card-hover transition group relative overflow-hidden">
+          <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+          <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+          </div>
+          <p class="text-[11px] font-extrabold text-sky-100 uppercase tracking-wider mb-1 relative z-10">Penyaluran TLater</p>
+          <h3 class="text-2xl font-black text-white font-mono tracking-tight relative z-10">Rp 128M</h3>
+          <p class="text-[10px] text-sky-200 mt-1 relative z-10">92% Pembayaran Tepat Waktu</p>
+        </div>
+      </div>
+
+      <!-- CHARTS & TOP SELLING -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Sales Chart (Simulated) -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-sm font-extrabold text-slate-900">Analisis Pendapatan Mingguan</h2>
+            <select class="text-xs border border-slate-200 rounded-lg px-2 py-1 focus:outline-none"><option>7 Hari Terakhir</option><option>30 Hari</option></select>
+          </div>
+          <div class="h-64 relative mt-2">
+            <!-- Background Lines -->
+            <div class="absolute inset-0 flex flex-col justify-between py-2 z-0 border-y border-slate-100">
+               <div class="w-full border-b border-dashed border-slate-200 opacity-50 flex-1"></div>
+               <div class="w-full border-b border-dashed border-slate-200 opacity-50 flex-1"></div>
+               <div class="w-full border-b border-dashed border-slate-200 opacity-50 flex-1"></div>
+               <div class="w-full"></div>
+            </div>
+            
+            <!-- SVG Line Chart Overlay -->
+            <div class="absolute inset-0 z-10 px-4">
+              <div class="relative w-full h-full">
+                <svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                  <defs>
+                    <linearGradient id="chartBg" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#FD802E" stop-opacity="0.2" />
+                      <stop offset="100%" stop-color="#FD802E" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Area -->
+                  <polygon points="0,70 16.6,50 33.3,60 50,30 66.6,40 83.3,10 100,55 100,100 0,100" fill="url(#chartBg)" />
+                  <!-- Line -->
+                  <polyline points="0,70 16.6,50 33.3,60 50,30 66.6,40 83.3,10 100,55" fill="none" stroke="#FD802E" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                
+                <!-- Dots -->
+                <div class="absolute w-3 h-3 bg-white border-2 border-pumpkin rounded-full group hover:scale-150 transition-transform cursor-pointer" style="left: 0%; top: 70%; transform: translate(-50%, -50%);">
+                  <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Rp 12M</div>
+                </div>
+                <div class="absolute w-3 h-3 bg-white border-2 border-pumpkin rounded-full group hover:scale-150 transition-transform cursor-pointer" style="left: 16.6%; top: 50%; transform: translate(-50%, -50%);">
+                  <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Rp 22M</div>
+                </div>
+                <div class="absolute w-3 h-3 bg-white border-2 border-pumpkin rounded-full group hover:scale-150 transition-transform cursor-pointer" style="left: 33.3%; top: 60%; transform: translate(-50%, -50%);">
+                  <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Rp 18M</div>
+                </div>
+                <div class="absolute w-3 h-3 bg-white border-2 border-pumpkin rounded-full group hover:scale-150 transition-transform cursor-pointer" style="left: 50%; top: 30%; transform: translate(-50%, -50%);">
+                  <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Rp 35M</div>
+                </div>
+                <div class="absolute w-3 h-3 bg-white border-2 border-pumpkin rounded-full group hover:scale-150 transition-transform cursor-pointer" style="left: 66.6%; top: 40%; transform: translate(-50%, -50%);">
+                  <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Rp 28M</div>
+                </div>
+                <!-- Highlight Dot -->
+                <div class="absolute w-4 h-4 bg-pumpkin border-4 border-white shadow-md rounded-full group hover:scale-125 transition-transform cursor-pointer" style="left: 83.3%; top: 10%; transform: translate(-50%, -50%);">
+                  <div class="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap">Rp 45M</div>
+                </div>
+                <div class="absolute w-3 h-3 bg-white border-2 border-pumpkin rounded-full group hover:scale-150 transition-transform cursor-pointer" style="left: 100%; top: 55%; transform: translate(-50%, -50%);">
+                  <div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap">Rp 20M</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between px-4 mt-2 text-[10px] font-bold text-slate-400">
+            <span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span class="text-pumpkin">Sab</span><span>Min</span>
+          </div>
+        </div>
+
+        <!-- Top Selling -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card flex flex-col">
+          <h2 class="text-sm font-extrabold text-slate-900 mb-6">Produk Terlaris</h2>
+          <div class="flex-1 space-y-4">
+            <div class="flex items-center gap-3 group">
+              <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden flex-none relative">
+                <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-0 left-0 bg-pumpkin text-white text-[8px] font-bold px-1.5 py-0.5 rounded-br-lg">#1</div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold text-slate-900 truncate">MacBook Air M2 2022</p>
+                <p class="text-[10px] text-slate-500">Terjual: 45 unit</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-mono font-bold text-slate-900">Rp 18.5M</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-3 group">
+              <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden flex-none relative">
+                <img src="https://images.unsplash.com/photo-1592899677977-9c10ca588bbd" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-0 left-0 bg-slate-400 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-br-lg">#2</div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold text-slate-900 truncate">iPhone 15 Pro Max</p>
+                <p class="text-[10px] text-slate-500">Terjual: 38 unit</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-mono font-bold text-slate-900">Rp 24.9M</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 group">
+              <div class="w-12 h-12 bg-slate-100 rounded-lg overflow-hidden flex-none relative">
+                <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <div class="absolute top-0 left-0 bg-orange-800 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-br-lg">#3</div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold text-slate-900 truncate">Apple Watch Ultra</p>
+                <p class="text-[10px] text-slate-500">Terjual: 22 unit</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-mono font-bold text-slate-900">Rp 14.5M</p>
+              </div>
+            </div>
+          </div>
+          <button class="w-full mt-4 py-2 text-[10px] font-bold text-pumpkin border border-pumpkin/20 rounded-lg hover:bg-pumpkin/5 transition">Lihat Semua Laporan</button>
+        </div>
+      </div>
+
+      <!-- RECENT ORDERS -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h2 class="text-sm font-extrabold text-slate-900">Pesanan Terbaru</h2>
+          <button onclick="switchView('orders')" class="text-[11px] font-bold text-pumpkin hover:text-pumpkin-hover flex items-center gap-1 transition">
+            Lihat Semua
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr class="bg-white text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-100">
+                <th class="py-4 px-5 font-bold">Order ID</th>
+                <th class="py-4 px-5 font-bold">Pelanggan</th>
+                <th class="py-4 px-5 font-bold">Tanggal</th>
+                <th class="py-4 px-5 font-bold">Total Tagihan</th>
+                <th class="py-4 px-5 font-bold">Status</th>
+                <th class="py-4 px-5 font-bold text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="text-xs text-slate-600 divide-y divide-slate-50">
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="py-4 px-5 font-mono font-bold text-slate-900">#TVB-92834</td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[10px] text-slate-600">A</div>
+                    <div>
+                      <span class="font-bold text-slate-900 block">Ahmad Fauzi</span>
+                      <span class="text-[10px] text-slate-500">ahmad@gmail.com</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-slate-500">23 Okt 2023, 14:30</td>
+                <td class="py-4 px-5">
+                  <div class="font-mono font-bold text-slate-900">Rp 18.500.000</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Split: TLater + BCA VA</div>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                    Menunggu Pembayaran
+                  </span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button onclick="openModal('orderDetailModal')" class="text-slate-400 hover:text-pumpkin transition" title="Detail">
+                    <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="py-4 px-5 font-mono font-bold text-slate-900">#TVB-92833</td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[10px] text-slate-600">D</div>
+                    <div>
+                      <span class="font-bold text-slate-900 block">Dewi Sartika</span>
+                      <span class="text-[10px] text-slate-500">dewi@yahoo.com</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-slate-500">23 Okt 2023, 13:15</td>
+                <td class="py-4 px-5">
+                  <div class="font-mono font-bold text-slate-900">Rp 2.450.000</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">Kartu Kredit</div>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                    Diproses
+                  </span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button onclick="openModal('orderDetailModal')" class="text-slate-400 hover:text-pumpkin transition" title="Detail">
+                    <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  </button>
+                </td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="py-4 px-5 font-mono font-bold text-slate-900">#TVB-92832</td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-[10px] text-slate-600">S</div>
+                    <div>
+                      <span class="font-bold text-slate-900 block">Siti Rahma</span>
+                      <span class="text-[10px] text-slate-500">siti@gmail.com</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-slate-500">23 Okt 2023, 11:40</td>
+                <td class="py-4 px-5">
+                  <div class="font-mono font-bold text-slate-900">Rp 12.999.000</div>
+                  <div class="text-[10px] text-slate-400 mt-0.5">TLater (6 Bulan)</div>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    Dikirim
+                  </span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button onclick="openModal('orderDetailModal')" class="text-slate-400 hover:text-pumpkin transition" title="Detail">
+                    <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VIEW: PRODUCTS -->
+    <!-- ========================================== -->
+    <div id="view-products" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900">Inventaris Produk</h2>
+          <p class="text-xs text-slate-500 mt-1">Kelola katalog produk, stok, dan varian.</p>
+        </div>
+        <button onclick="openModal('addProductModal')" class="flex items-center justify-center gap-2 text-xs font-bold text-white bg-pumpkin px-5 py-2.5 rounded-xl hover:bg-pumpkin-hover transition shadow-sm hover:shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          Tambah Produk Baru
+        </button>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div class="relative w-full md:w-96">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Cari nama produk, SKU, atau kategori..." class="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition bg-slate-50 focus:bg-white">
+        </div>
+        <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <select class="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-pumpkin bg-white min-w-[120px]">
+            <option>Semua Kategori</option>
+            <option>Laptop</option>
+            <option>Smartphone</option>
+            <option>Aksesoris</option>
+          </select>
+          <select class="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-pumpkin bg-white min-w-[120px]">
+            <option>Semua Status</option>
+            <option>Aktif</option>
+            <option>Habis</option>
+            <option>Draf</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="overflow-x-auto min-h-[400px]">
+          <table class="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr class="bg-slate-50/50 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                <th class="py-4 px-5 font-bold w-10">
+                  <input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                </th>
+                <th class="py-4 px-5 font-bold">Produk & SKU</th>
+                <th class="py-4 px-5 font-bold">Harga Jual</th>
+                <th class="py-4 px-5 font-bold">Harga Coret</th>
+                <th class="py-4 px-5 font-bold text-center">Stok Gudang</th>
+                <th class="py-4 px-5 font-bold text-center">Wishlist</th>
+                <th class="py-4 px-5 font-bold text-center">Status</th>
+                <th class="py-4 px-5 font-bold text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="text-xs text-slate-600 divide-y divide-slate-50">
+              <!-- Item 1 -->
+              <tr class="hover:bg-slate-50/80 transition group">
+                <td class="py-4 px-5">
+                  <input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                </td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-slate-100 flex-none overflow-hidden border border-slate-200 shadow-sm">
+                      <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-900 text-[13px] group-hover:text-pumpkin transition-colors cursor-pointer">MacBook Air M2 2022</p>
+                      <p class="text-[10px] text-slate-400 font-mono mt-0.5">SKU: MAC-AM2-256-GRY</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5 font-mono font-bold text-slate-900">Rp 18.500.000</td>
+                <td class="py-4 px-5 font-mono text-slate-400 line-through text-[11px]">Rp 20.000.000</td>
+                <td class="py-4 px-5">
+                  <div class="flex flex-col items-center">
+                    <span class="font-bold text-slate-900">45</span>
+                    <span class="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded mt-1">Aman</span>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <div class="flex items-center justify-center gap-1.5 text-rose-500">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    <span class="font-bold text-slate-900 text-[11px]">1,204</span>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Aktif</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="p-1.5 text-slate-400 hover:text-pumpkin hover:bg-pumpkin/10 rounded transition" title="Edit">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded transition" title="Hapus">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Item 2 -->
+              <tr class="hover:bg-slate-50/80 transition group">
+                <td class="py-4 px-5">
+                  <input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                </td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-slate-100 flex-none overflow-hidden border border-slate-200 shadow-sm">
+                      <img src="https://images.unsplash.com/photo-1611186871348-b1ce696e52c9" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-900 text-[13px] group-hover:text-pumpkin transition-colors cursor-pointer">MacBook Pro M3 Max</p>
+                      <p class="text-[10px] text-slate-400 font-mono mt-0.5">SKU: MAC-PM3-1TB-SLV</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5 font-mono font-bold text-slate-900">Rp 55.500.000</td>
+                <td class="py-4 px-5 font-mono text-slate-400 text-[11px]">-</td>
+                <td class="py-4 px-5">
+                  <div class="flex flex-col items-center">
+                    <span class="font-bold text-rose-600">0</span>
+                    <span class="text-[9px] text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded mt-1">Stok Habis</span>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Nonaktif</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="p-1.5 text-slate-400 hover:text-pumpkin hover:bg-pumpkin/10 rounded transition" title="Edit">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded transition" title="Hapus">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Item 3 -->
+              <tr class="hover:bg-slate-50/80 transition group">
+                <td class="py-4 px-5">
+                  <input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                </td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-slate-100 flex-none overflow-hidden border border-slate-200 shadow-sm flex items-center justify-center text-slate-300">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-900 text-[13px] group-hover:text-pumpkin transition-colors cursor-pointer">iPhone 15 Pro Silicone Case</p>
+                      <p class="text-[10px] text-slate-400 font-mono mt-0.5">SKU: ACC-IP15P-SIL-BLU</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5 font-mono font-bold text-slate-900">Rp 899.000</td>
+                <td class="py-4 px-5 font-mono text-slate-400 text-[11px]">-</td>
+                <td class="py-4 px-5">
+                  <div class="flex flex-col items-center">
+                    <span class="font-bold text-amber-600">5</span>
+                    <span class="text-[9px] text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded mt-1">Menipis</span>
+                  </div>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Aktif</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="p-1.5 text-slate-400 hover:text-pumpkin hover:bg-pumpkin/10 rounded transition" title="Edit">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <button class="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded transition" title="Hapus">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 bg-slate-50/50">
+          <p>Menampilkan <strong class="text-slate-900">1</strong> hingga <strong class="text-slate-900">3</strong> dari <strong class="text-slate-900">124</strong> produk</p>
+          <div class="flex gap-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50" disabled>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-pumpkin bg-pumpkin text-white font-bold">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50">2</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50">3</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: PROMOS -->
+    <!-- ========================================== -->
+    <div id="view-promos" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900">Promo &amp; Diskon</h2>
+          <p class="text-xs text-slate-500 mt-1">Kelola voucher, banner, dan kampanye diskon untuk pelanggan.</p>
+        </div>
+        <button onclick="openModal('modalBuatPromo')" class="flex items-center justify-center gap-2 text-xs font-bold text-white bg-pumpkin px-5 py-2.5 rounded-xl hover:bg-pumpkin-hover transition shadow-sm hover:shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          Buat Promo Baru
+        </button>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-card">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Promo Aktif</p>
+          <p class="text-2xl font-black text-slate-900 font-mono mt-1" id="promo-stat-active">3</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-card">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Total Penggunaan</p>
+          <p class="text-2xl font-black text-slate-900 font-mono mt-1" id="promo-stat-used">142</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-card">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Nilai Diskon Tersalur</p>
+          <p class="text-2xl font-black text-pumpkin font-mono mt-1" id="promo-stat-value">Rp 4.2M</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-card">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Akan Berakhir</p>
+          <p class="text-2xl font-black text-rose-500 font-mono mt-1" id="promo-stat-expiring">1</p>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="filterPromos('semua', this)" class="promo-tab text-xs font-bold px-4 py-1.5 rounded-full bg-pumpkin text-white transition">Semua</button>
+        <button onclick="filterPromos('aktif', this)" class="promo-tab text-xs font-bold px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Aktif</button>
+        <button onclick="filterPromos('flash_sale', this)" class="promo-tab text-xs font-bold px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Flash Sale</button>
+        <button onclick="filterPromos('voucher', this)" class="promo-tab text-xs font-bold px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Voucher Kode</button>
+        <button onclick="filterPromos('diskon_otomatis', this)" class="promo-tab text-xs font-bold px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Diskon Otomatis</button>
+        <button onclick="filterPromos('berakhir', this)" class="promo-tab text-xs font-bold px-4 py-1.5 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition">Berakhir</button>
+      </div>
+
+      <!-- Promo List -->
+      <div id="promo-list-container" class="space-y-4">
+
+        <!-- Promo Card 1: Flash Sale -->
+        <div class="promo-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden" data-type="flash_sale" data-status="aktif">
+          <div class="flex flex-col sm:flex-row items-stretch">
+            <!-- Left color band -->
+            <div class="w-full sm:w-1.5 bg-gradient-to-b from-rose-500 to-pink-500 shrink-0 h-1.5 sm:h-auto sm:rounded-l-2xl rounded-t-2xl sm:rounded-t-none"></div>
+            <div class="flex-1 p-5">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h3 class="font-extrabold text-slate-900 text-sm">Flash Sale Weekend Spesial</h3>
+                      <span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[10px] font-bold uppercase">Flash Sale</span>
+                      <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Aktif</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Diskon 25% untuk semua laptop &amp; MacBook. Berlaku untuk semua pelanggan.</p>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Periode:</span> 20 Sep – 22 Sep 2026</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Min. Belanja:</span> Rp 10.000.000</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Maks. Diskon:</span> Rp 2.000.000</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Digunakan:</span> 58x</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 sm:ml-auto">
+                  <div class="text-right">
+                    <p class="text-2xl font-black text-rose-500 font-mono">25%</p>
+                    <p class="text-[10px] text-slate-400 font-medium">Diskon</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                <!-- Progress bar -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                    <span>Berakhir dalam <strong class="text-rose-600">2 hari</strong></span>
+                    <span>Kuota tersisa: <strong>∞</strong></span>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-rose-400 to-pink-400 rounded-full" style="width: 85%"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openEditPromo(0)" class="text-[11px] font-bold text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">Edit</button>
+                  <button class="text-[11px] font-bold text-rose-600 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50 hover:bg-rose-100 transition">Nonaktifkan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Promo Card 2: Voucher Kode -->
+        <div class="promo-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden" data-type="voucher" data-status="aktif">
+          <div class="flex flex-col sm:flex-row items-stretch">
+            <div class="w-full sm:w-1.5 bg-gradient-to-b from-pumpkin to-amber-400 shrink-0 h-1.5 sm:h-auto sm:rounded-l-2xl rounded-t-2xl sm:rounded-t-none"></div>
+            <div class="flex-1 p-5">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-pumpkin/10 text-pumpkin flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h3 class="font-extrabold text-slate-900 text-sm">Voucher New Member</h3>
+                      <span class="px-2 py-0.5 rounded-full bg-pumpkin/10 text-pumpkin text-[10px] font-bold uppercase">Voucher Kode</span>
+                      <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Aktif</span>
+                    </div>
+                    <div class="mt-1.5 flex items-center gap-2">
+                      <code class="text-sm font-mono font-black text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg tracking-widest">NEWVIBE50</code>
+                      <button onclick="navigator.clipboard.writeText('NEWVIBE50').then(()=>showAdminToast('Kode disalin!'))" class="text-[10px] text-pumpkin font-bold hover:underline">Salin</button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Diskon Rp 500.000 untuk pelanggan baru. Hanya 1x per akun.</p>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Berlaku:</span> Hingga 31 Des 2026</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Min. Belanja:</span> Rp 5.000.000</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Kuota:</span> 50 / 100</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Digunakan:</span> 50x</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 sm:ml-auto">
+                  <div class="text-right">
+                    <p class="text-2xl font-black text-pumpkin font-mono">500K</p>
+                    <p class="text-[10px] text-slate-400 font-medium">Diskon Rp</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                    <span>Terpakai: <strong class="text-slate-900">50</strong> / 100 kuota</span>
+                    <span>50%</span>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-pumpkin to-amber-400 rounded-full" style="width: 50%"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openEditPromo(1)" class="text-[11px] font-bold text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">Edit</button>
+                  <button class="text-[11px] font-bold text-rose-600 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50 hover:bg-rose-100 transition">Nonaktifkan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Promo Card 3: Diskon Otomatis -->
+        <div class="promo-card bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden" data-type="diskon_otomatis" data-status="aktif">
+          <div class="flex flex-col sm:flex-row items-stretch">
+            <div class="w-full sm:w-1.5 bg-gradient-to-b from-indigo-500 to-sky-400 shrink-0 h-1.5 sm:h-auto sm:rounded-l-2xl rounded-t-2xl sm:rounded-t-none"></div>
+            <div class="flex-1 p-5">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h3 class="font-extrabold text-slate-900 text-sm">Cashback Vibe Poin 2x</h3>
+                      <span class="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-bold uppercase">Diskon Otomatis</span>
+                      <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">● Aktif</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Cashback Vibe Poin 2% otomatis ditambahkan setiap pembelian ≥ Rp 15.000.000.</p>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Periode:</span> 1 Sep – 30 Sep 2026</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Min. Belanja:</span> Rp 15.000.000</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Berlaku untuk:</span> Semua Produk</span>
+                      <span class="text-[10px] text-slate-500"><span class="font-bold text-slate-700">Digunakan:</span> 34x</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 sm:ml-auto">
+                  <div class="text-right">
+                    <p class="text-2xl font-black text-indigo-500 font-mono">2x</p>
+                    <p class="text-[10px] text-slate-400 font-medium">Poin</p>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="flex justify-between text-[10px] text-slate-500 mb-1">
+                    <span>Berakhir dalam <strong class="text-slate-900">10 hari</strong></span>
+                    <span>Berlaku sepanjang periode</span>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-indigo-400 to-sky-400 rounded-full" style="width: 67%"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openEditPromo(2)" class="text-[11px] font-bold text-slate-600 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">Edit</button>
+                  <button class="text-[11px] font-bold text-rose-600 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50 hover:bg-rose-100 transition">Nonaktifkan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state (shown if no promos match filter) -->
+        <div id="promo-empty-state" class="hidden bg-white rounded-2xl border border-slate-200 shadow-card p-10 flex flex-col items-center justify-center text-center">
+          <div class="w-16 h-16 bg-pumpkin/10 rounded-full flex items-center justify-center text-pumpkin mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Tidak ada promo ditemukan</h3>
+          <p class="text-xs text-slate-500 mt-1 max-w-sm">Coba filter lain atau buat promo baru untuk meningkatkan penjualan.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================================================ -->
+    <!-- MODAL: BUAT / EDIT PROMO BARU -->
+    <!-- ================================================ -->
+    <div id="modalBuatPromo" class="fixed inset-0 z-50 hidden">
+      <!-- Backdrop -->
+      <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeModal('modalBuatPromo')"></div>
+      <!-- Panel -->
+      <div class="absolute inset-y-0 right-0 w-full max-w-xl flex flex-col bg-white shadow-2xl transform transition-transform duration-300 translate-x-full" id="modalBuatPromoContent">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+          <div>
+            <h2 class="text-sm font-extrabold text-slate-900" id="promo-modal-title">Buat Promo Baru</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">Isi detail promo yang akan tampil untuk pelanggan.</p>
+          </div>
+          <button onclick="closeModal('modalBuatPromo')" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Scrollable Body -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+          
+          <!-- Step 1: Jenis Promo -->
+          <div class="space-y-3">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">01 · Jenis Promo</p>
+            <div class="grid grid-cols-3 gap-3" id="promo-type-selector">
+              <label class="promo-type-opt cursor-pointer">
+                <input type="radio" name="promo_type" value="flash_sale" class="sr-only" checked onchange="onPromoTypeChange('flash_sale')">
+                <div class="promo-type-card h-full flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 border-pumpkin bg-pumpkin/5 text-center transition">
+                  <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-500 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  </div>
+                  <span class="text-[11px] font-bold text-slate-900">Flash Sale</span>
+                  <span class="text-[9px] text-slate-500 leading-tight">Diskon terbatas waktu</span>
+                </div>
+              </label>
+              <label class="promo-type-opt cursor-pointer">
+                <input type="radio" name="promo_type" value="voucher" class="sr-only" onchange="onPromoTypeChange('voucher')">
+                <div class="promo-type-card h-full flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 border-slate-200 text-center transition hover:border-pumpkin/50">
+                  <div class="w-8 h-8 rounded-lg bg-pumpkin/10 text-pumpkin flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                  </div>
+                  <span class="text-[11px] font-bold text-slate-900">Voucher Kode</span>
+                  <span class="text-[9px] text-slate-500 leading-tight">Input kode manual</span>
+                </div>
+              </label>
+              <label class="promo-type-opt cursor-pointer">
+                <input type="radio" name="promo_type" value="diskon_otomatis" class="sr-only" onchange="onPromoTypeChange('diskon_otomatis')">
+                <div class="promo-type-card h-full flex flex-col items-center gap-2 p-3.5 rounded-xl border-2 border-slate-200 text-center transition hover:border-pumpkin/50">
+                  <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  </div>
+                  <span class="text-[11px] font-bold text-slate-900">Diskon Otomatis</span>
+                  <span class="text-[9px] text-slate-500 leading-tight">Terapkan otomatis</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Step 2: Info Dasar -->
+          <div class="space-y-4">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">02 · Informasi Dasar</p>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Promo <span class="text-rose-500">*</span></label>
+              <input id="promo-name" type="text" placeholder="contoh: Flash Sale Weekend Spesial" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition placeholder-slate-400">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Deskripsi Singkat</label>
+              <textarea id="promo-desc" rows="2" placeholder="Deskripsikan syarat dan keuntungan promo ini..." class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition placeholder-slate-400 resize-none"></textarea>
+            </div>
+            <!-- Kode Voucher (hanya muncul jika tipe = voucher) -->
+            <div id="voucher-code-field" class="hidden">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Kode Voucher <span class="text-rose-500">*</span></label>
+              <div class="flex gap-2">
+                <input id="promo-code" type="text" placeholder="NEWVIBE50" class="flex-1 px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition placeholder-slate-400 font-mono uppercase">
+                <button type="button" onclick="generateVoucherCode()" class="px-3 py-2 text-[11px] font-bold text-pumpkin border border-pumpkin/30 bg-pumpkin/5 rounded-xl hover:bg-pumpkin/10 transition whitespace-nowrap">Auto Generate</button>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Kode akan tampil di halaman checkout pelanggan.</p>
+            </div>
+          </div>
+
+          <!-- Step 3: Nilai Diskon -->
+          <div class="space-y-4">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">03 · Nilai Diskon</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe Nilai <span class="text-rose-500">*</span></label>
+                <select id="promo-value-type" onchange="onValueTypeChange()" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+                  <option value="persen">Persentase (%)</option>
+                  <option value="nominal">Nominal (Rp)</option>
+                  <option value="poin">Poin Multiplier (x)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1" id="promo-value-label">Besaran Diskon (%) <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <input id="promo-value" type="number" min="0" placeholder="25" class="w-full pl-3 pr-8 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+                  <span id="promo-value-unit" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 font-bold">%</span>
+                </div>
+              </div>
+            </div>
+            <!-- Maks Diskon (hanya untuk tipe persen) -->
+            <div id="promo-max-field">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Maksimal Diskon (Rp)</label>
+              <input id="promo-max" type="number" min="0" placeholder="2000000" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+              <p class="text-[10px] text-slate-400 mt-1">Kosongkan jika tidak ada batas maksimum diskon.</p>
+            </div>
+          </div>
+
+          <!-- Step 4: Syarat & Periode -->
+          <div class="space-y-4">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">04 · Syarat &amp; Periode</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Tanggal Mulai <span class="text-rose-500">*</span></label>
+                <input id="promo-start" type="date" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Tanggal Selesai <span class="text-rose-500">*</span></label>
+                <input id="promo-end" type="date" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Minimum Pembelian (Rp)</label>
+              <input id="promo-min" type="number" min="0" placeholder="5000000" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+              <p class="text-[10px] text-slate-400 mt-1">Kosongkan jika tidak ada minimum belanja.</p>
+            </div>
+            <!-- Kuota (hanya untuk voucher / flash sale) -->
+            <div id="promo-quota-field">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Kuota Penggunaan</label>
+              <div class="flex gap-2 items-center">
+                <input id="promo-quota" type="number" min="0" placeholder="100" class="flex-1 px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+                <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                  <input type="checkbox" id="promo-quota-unlimited" onchange="toggleUnlimitedQuota(this)" class="w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-[11px] text-slate-600 font-medium">Tidak terbatas</span>
+                </label>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Maks. berapa kali total promo ini bisa dipakai.</p>
+            </div>
+            <div id="promo-peruser-field">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Maks. Penggunaan per Akun</label>
+              <select id="promo-peruser" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+                <option value="1">1x per akun</option>
+                <option value="3">3x per akun</option>
+                <option value="5">5x per akun</option>
+                <option value="0">Tidak dibatasi</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 5: Target Produk -->
+          <div class="space-y-4">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">05 · Target Produk</p>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Berlaku untuk</label>
+              <select id="promo-target" onchange="onTargetChange()" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition">
+                <option value="semua">Semua Produk</option>
+                <option value="kategori">Kategori Tertentu</option>
+                <option value="produk">Produk Pilihan</option>
+              </select>
+            </div>
+            <!-- Pilih Kategori (hidden by default) -->
+            <div id="promo-kategori-field" class="hidden">
+              <label class="block text-[11px] font-bold text-slate-700 mb-2">Pilih Kategori</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Laptops" class="promo-cat-check w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">Laptop &amp; MacBook</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Smartphones" class="promo-cat-check w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">iPhone &amp; Flagship</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="PC Components" class="promo-cat-check w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">Komponen PC Gaming</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Gaming Peripherals" class="promo-cat-check w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">Aksesoris &amp; Audio</span>
+                </label>
+              </div>
+            </div>
+            <!-- Pilih Produk Tertentu (hidden by default) -->
+            <div id="promo-produk-field" class="hidden">
+              <label class="block text-[11px] font-bold text-slate-700 mb-2">Cari &amp; Pilih Produk</label>
+              <div class="relative mb-2">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" placeholder="Cari nama produk..." class="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin bg-slate-50">
+              </div>
+              <div class="space-y-2 max-h-40 overflow-y-auto">
+                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">MacBook Air M3 (2024)</span>
+                  <span class="ml-auto text-[10px] text-slate-400 font-mono">Rp 19.499.000</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">iPhone 16 Pro Max</span>
+                  <span class="ml-auto text-[10px] text-slate-400 font-mono">Rp 22.999.000</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">ASUS ROG Zephyrus G16</span>
+                  <span class="ml-auto text-[10px] text-slate-400 font-mono">Rp 28.999.000</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+                  <span class="text-xs text-slate-700">Samsung Galaxy S25 Ultra</span>
+                  <span class="ml-auto text-[10px] text-slate-400 font-mono">Rp 21.999.000</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 6: Target Pelanggan -->
+          <div class="space-y-3">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">06 · Target Pelanggan</p>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-pumpkin/50 transition">
+                <input type="radio" name="promo_audience" value="semua" class="w-4 h-4 border-slate-300 text-pumpkin focus:ring-pumpkin" checked>
+                <span class="text-xs font-medium text-slate-700">Semua Pelanggan</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-pumpkin/50 transition">
+                <input type="radio" name="promo_audience" value="baru" class="w-4 h-4 border-slate-300 text-pumpkin focus:ring-pumpkin">
+                <span class="text-xs font-medium text-slate-700">Pelanggan Baru</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-pumpkin/50 transition">
+                <input type="radio" name="promo_audience" value="member" class="w-4 h-4 border-slate-300 text-pumpkin focus:ring-pumpkin">
+                <span class="text-xs font-medium text-slate-700">Member Aktif</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-pumpkin/50 transition">
+                <input type="radio" name="promo_audience" value="tlater" class="w-4 h-4 border-slate-300 text-pumpkin focus:ring-pumpkin">
+                <span class="text-xs font-medium text-slate-700">Pengguna TLater</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Preview Card -->
+          <div class="space-y-2">
+            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">07 · Preview Voucher di Checkout</p>
+            <div class="rounded-xl border border-dashed border-pumpkin bg-pumpkin/5 p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-pumpkin text-white flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-extrabold text-slate-900" id="preview-promo-name">Nama Promo</p>
+                <p class="text-[11px] text-slate-500 mt-0.5" id="preview-promo-desc">Deskripsi akan muncul di sini...</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <code class="text-[10px] font-mono font-black text-pumpkin bg-white border border-pumpkin/20 px-2 py-0.5 rounded-md" id="preview-promo-code">KODE</code>
+                  <span class="text-[10px] text-slate-400">Min. belanja <span id="preview-promo-min">Rp 0</span></span>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-lg font-black text-pumpkin font-mono" id="preview-promo-value">0%</p>
+                <p class="text-[9px] text-slate-400">Diskon</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="px-6 py-4 border-t border-slate-100 shrink-0 flex items-center justify-between gap-3">
+          <button onclick="closeModal('modalBuatPromo')" class="px-4 py-2.5 text-xs font-bold text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition">Batal</button>
+          <div class="flex items-center gap-3">
+            <button onclick="saveDraftPromo()" class="px-4 py-2.5 text-xs font-bold text-slate-700 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Simpan Draft</button>
+            <button onclick="publishPromo()" class="px-5 py-2.5 text-xs font-bold text-white bg-pumpkin rounded-xl hover:bg-pumpkin-hover transition shadow-sm flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              Publikasikan Promo
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VIEW: ORDERS -->
+    <!-- ========================================== -->
+    <div id="view-orders" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900">Pesanan Masuk</h2>
+          <p class="text-xs text-slate-500 mt-1">Proses pengiriman dan kelola transaksi pembayaran.</p>
+        </div>
+        <button class="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-4 py-2 rounded-xl hover:bg-slate-50 transition shadow-sm">
+          <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Export CSV
+        </button>
+      </div>
+
+      <!-- Order Tabs -->
+      <div class="flex gap-6 text-xs font-bold border-b border-slate-200 overflow-x-auto hide-scrollbar" id="order-tabs-container">
+        <button onclick="filterOrders('all', this)" class="order-tab pb-3 text-pumpkin border-b-2 border-pumpkin whitespace-nowrap">Semua Pesanan</button>
+        <button onclick="filterOrders('tlater', this)" class="order-tab pb-3 text-slate-500 hover:text-slate-900 transition whitespace-nowrap border-b-2 border-transparent">TLater <span class="bg-tlater text-white px-1.5 py-0.5 rounded-full ml-1 text-[9px]">2</span></button>
+        <button onclick="filterOrders('unpaid', this)" class="order-tab pb-3 text-slate-500 hover:text-slate-900 transition whitespace-nowrap border-b-2 border-transparent">Belum Dibayar <span class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded ml-1">1</span></button>
+        <button onclick="filterOrders('shipping', this)" class="order-tab pb-3 text-slate-500 hover:text-slate-900 transition whitespace-nowrap relative border-b-2 border-transparent">
+          Perlu Dikirim 
+          <span class="bg-rose-500 text-white px-1.5 py-0.5 rounded-full ml-1 text-[9px]">1</span>
+        </button>
+        <button onclick="filterOrders('shipped', this)" class="order-tab pb-3 text-slate-500 hover:text-slate-900 transition whitespace-nowrap border-b-2 border-transparent">Dikirim</button>
+        <button onclick="filterOrders('completed', this)" class="order-tab pb-3 text-slate-500 hover:text-slate-900 transition whitespace-nowrap border-b-2 border-transparent">Selesai</button>
+        <button onclick="filterOrders('cancelled', this)" class="order-tab pb-3 text-slate-500 hover:text-slate-900 transition whitespace-nowrap border-b-2 border-transparent">Dibatalkan</button>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
+        <div class="relative w-full max-w-md">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Cari Resi atau Order ID..." class="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin">
+        </div>
+      </div>
+
+      <!-- Order List Full -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="overflow-x-auto min-h-[300px]">
+          <table class="w-full text-left border-collapse min-w-[1000px]">
+            <thead>
+              <tr class="bg-slate-50/50 text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                <th class="py-4 px-4 font-bold w-10"><input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin"></th>
+                <th class="py-4 px-5 font-bold">Detail Pesanan</th>
+                <th class="py-4 px-5 font-bold">Pelanggan & Alamat</th>
+                <th class="py-4 px-5 font-bold">Total Pembayaran</th>
+                <th class="py-4 px-5 font-bold">Metode / TLater</th>
+                <th class="py-4 px-5 font-bold text-center">Status</th>
+                <th class="py-4 px-5 font-bold text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="text-xs text-slate-600 divide-y divide-slate-50">
+              
+              <!-- Item 1: Menunggu Pembayaran -->
+              <tr class="order-row hover:bg-slate-50/50 transition" data-status="unpaid tlater">
+                <td class="py-4 px-4"><input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin"></td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">#TVB-92834</p>
+                  <p class="text-[10px] text-slate-400 mt-1">23 Okt 2023, 14:30</p>
+                  <div class="mt-2 text-[10px] font-medium text-slate-600">
+                    1x MacBook Air M2 2022
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-bold text-slate-900">Ahmad Fauzi</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2 max-w-[200px]">Jl. Sudirman Kav 22, Jakarta Selatan, DKI Jakarta 12190</p>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">Rp 18.500.000</p>
+                  <p class="text-[9px] text-emerald-600 font-bold mt-0.5">- Rp 500.000 (Promo)</p>
+                </td>
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-1 mb-1">
+                    <span class="w-2 h-2 rounded-full bg-pumpkin"></span>
+                    <span class="text-[10px] font-bold text-slate-700">Split Payment</span>
+                  </div>
+                  <p class="text-[9px] text-slate-500 leading-tight">TLater: Rp 5.000.000</p>
+                  <p class="text-[9px] text-slate-500 leading-tight">BCA VA: Rp 13.500.000</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200">Menunggu Pembayaran</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button class="text-[10px] font-bold text-white bg-pumpkin px-3 py-1.5 rounded hover:bg-pumpkin-hover transition shadow-sm mb-1 w-full text-center">Beri Diskon</button>
+                  <button onclick="openModal('orderDetailModal')" class="text-[9px] font-bold text-slate-500 hover:text-slate-800 transition w-full text-center mt-1">Lihat Detail</button>
+                </td>
+              </tr>
+
+              <!-- Item 2: Perlu Dikirim -->
+              <tr class="order-row hover:bg-slate-50/50 transition bg-rose-50/20" data-status="shipping">
+                <td class="py-4 px-4"><input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin"></td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">#TVB-92833</p>
+                  <p class="text-[10px] text-slate-400 mt-1">22 Okt 2023, 10:15</p>
+                  <div class="mt-2 text-[10px] font-medium text-slate-600">
+                    2x Mouse Logitech G102
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-bold text-slate-900">Budi Santoso</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2 max-w-[200px]">Perumahan Asri Blok C2, Bandung, Jawa Barat</p>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">Rp 450.000</p>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="text-[10px] font-bold text-slate-700 block">QRIS</span>
+                  <p class="text-[9px] text-emerald-600 font-bold mt-1">Lunas</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200 animate-pulse">Perlu Dikirim</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button onclick="openModal('orderDetailModal')" class="text-[10px] font-bold text-white bg-pumpkin px-3 py-1.5 rounded hover:bg-pumpkin-hover transition shadow-sm mb-1 w-full text-center">Kirim Pesanan</button>
+                  <button class="text-[9px] font-bold text-slate-500 hover:text-slate-800 transition w-full text-center">Cetak Label</button>
+                </td>
+              </tr>
+              
+              <!-- Item 3: Dikirim -->
+              <tr class="order-row hover:bg-slate-50/50 transition" data-status="shipped tlater">
+                <td class="py-4 px-4"><input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin"></td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">#TVB-92832</p>
+                  <p class="text-[10px] text-slate-400 mt-1">21 Okt 2023, 16:45</p>
+                  <div class="mt-2 text-[10px] font-medium text-slate-600">
+                    1x iPhone 15 Pro Max
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-bold text-slate-900">Citra Kirana</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2 max-w-[200px]">Jl. Malioboro No. 45, Yogyakarta</p>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">Rp 24.900.000</p>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="text-[10px] font-bold text-tlater block">TLater (6 Bulan)</span>
+                  <p class="text-[9px] text-emerald-600 font-bold mt-1">Lunas (Limit Terpotong)</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 border border-indigo-200">Sedang Dikirim</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button class="text-[10px] font-bold text-white bg-slate-800 px-3 py-1.5 rounded hover:bg-slate-700 transition shadow-sm mb-1 w-full text-center">Lacak Paket</button>
+                </td>
+              </tr>
+              
+              <!-- Item 4: Selesai -->
+              <tr class="order-row hover:bg-slate-50/50 transition" data-status="completed">
+                <td class="py-4 px-4"><input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin"></td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">#TVB-92828</p>
+                  <p class="text-[10px] text-slate-400 mt-1">20 Okt 2023, 09:20</p>
+                  <div class="mt-2 text-[10px] font-medium text-slate-600">
+                    1x Mechanical Keyboard Keychron
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-bold text-slate-900">Doni Setiawan</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2 max-w-[200px]">Perumahan Griya Indah, Surabaya, Jawa Timur</p>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">Rp 1.850.000</p>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="text-[10px] font-bold text-slate-700 block">Transfer Bank (Mandiri)</span>
+                  <p class="text-[9px] text-emerald-600 font-bold mt-1">Lunas</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Selesai</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button onclick="openModal('orderDetailModal')" class="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded hover:bg-slate-50 transition shadow-sm w-full text-center">Lihat Transaksi</button>
+                </td>
+              </tr>
+
+              <!-- Item 5: Dibatalkan -->
+              <tr class="order-row hover:bg-slate-50/50 transition" data-status="cancelled">
+                <td class="py-4 px-4"><input type="checkbox" class="rounded border-slate-300 text-pumpkin focus:ring-pumpkin"></td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">#TVB-92820</p>
+                  <p class="text-[10px] text-slate-400 mt-1">19 Okt 2023, 21:00</p>
+                  <div class="mt-2 text-[10px] font-medium text-slate-600">
+                    1x Apple AirPods Pro
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-bold text-slate-900">Eka Putri</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5 line-clamp-2 max-w-[200px]">Jl. Merdeka No. 10, Medan, Sumatera Utara</p>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="font-mono font-bold text-slate-900">Rp 3.500.000</p>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="text-[10px] font-bold text-slate-700 block">BCA Virtual Account</span>
+                  <p class="text-[9px] text-rose-500 font-bold mt-1">Kadaluarsa</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200">Dibatalkan</span>
+                </td>
+                <td class="py-4 px-5 text-right">
+                  <button onclick="openModal('orderDetailModal')" class="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded hover:bg-slate-50 transition shadow-sm w-full text-center">Lihat Detail</button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 bg-slate-50/50">
+          <p>Menampilkan <strong class="text-slate-900">1</strong> hingga <strong class="text-slate-900">5</strong> dari <strong class="text-slate-900">342</strong> pesanan</p>
+          <div class="flex gap-1">
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-50" disabled>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-pumpkin bg-pumpkin text-white font-bold">1</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50">2</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50">3</button>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-slate-200 bg-white hover:bg-slate-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VIEW: CUSTOMERS -->
+    <!-- ========================================== -->
+    <div id="view-customers" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900">Database Pelanggan</h2>
+          <p class="text-xs text-slate-500 mt-1">Pantau performa profil pelanggan dan risiko kredit TLater mereka.</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-4 bg-slate-50/50">
+          <div class="relative w-full max-w-sm">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Cari email atau nama..." class="w-full pl-9 pr-4 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin">
+          </div>
+          <select class="text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:border-pumpkin bg-white">
+            <option>Semua Status TLater</option>
+            <option>Aktif</option>
+            <option>Ditolak</option>
+            <option>Menunggak</option>
+          </select>
+        </div>
+        <table class="w-full text-left border-collapse min-w-[900px]">
+            <thead>
+              <tr class="bg-white text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                <th class="py-4 px-5 font-bold">Pelanggan</th>
+                <th class="py-4 px-5 font-bold">Kontak</th>
+                <th class="py-4 px-5 font-bold">Status TLater & Limit</th>
+                <th class="py-4 px-5 font-bold text-center">Tingkat Risiko</th>
+                <th class="py-4 px-5 font-bold text-right">Total Belanja</th>
+              </tr>
+            </thead>
+            <tbody class="text-xs text-slate-600 divide-y divide-slate-50">
+              <tr class="hover:bg-slate-50/50 transition cursor-pointer" onclick="openModal('customerProfileModal')">
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-400 to-sky-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">B</div>
+                    <div>
+                      <span class="font-bold text-slate-900 block">Budi Santoso</span>
+                      <span class="text-[10px] text-slate-400">Bergabung: Jan 2022</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="text-slate-900 font-medium">budi.s@gmail.com</p>
+                  <p class="text-[10px] text-slate-500 font-mono mt-0.5">+62 812-3456-7890</p>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-700 border border-sky-200 mb-1">Aktif</span>
+                  <div class="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-tlater w-1/3"></div>
+                  </div>
+                  <p class="text-[9px] text-slate-500 mt-1 font-mono">Sisa: Rp 5M / Rp 15M</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="px-2 py-1 rounded text-[10px] font-black bg-emerald-100 text-emerald-700">A+ (Sangat Rendah)</span>
+                </td>
+                <td class="py-4 px-5 font-mono font-bold text-slate-900 text-right">Rp 42.000.000</td>
+              </tr>
+              
+              <tr class="hover:bg-slate-50/50 transition cursor-pointer" onclick="openModal('customerProfileModal')">
+                <td class="py-4 px-5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-400 to-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">F</div>
+                    <div>
+                      <span class="font-bold text-slate-900 block">Fajar Siddiq</span>
+                      <span class="text-[10px] text-slate-400">Bergabung: Okt 2023</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4 px-5">
+                  <p class="text-slate-900 font-medium">fajar.x@hotmail.com</p>
+                  <p class="text-[10px] text-slate-500 font-mono mt-0.5">+62 856-1122-3344</p>
+                </td>
+                <td class="py-4 px-5">
+                  <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 mb-1">Menunggak (2 Hari)</span>
+                  <div class="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-rose-500 w-full"></div>
+                  </div>
+                  <p class="text-[9px] text-slate-500 mt-1 font-mono">Sisa: Rp 0 / Rp 5M</p>
+                </td>
+                <td class="py-4 px-5 text-center">
+                  <span class="px-2 py-1 rounded text-[10px] font-black bg-rose-100 text-rose-700">D (Risiko Tinggi)</span>
+                </td>
+                <td class="py-4 px-5 font-mono font-bold text-slate-900 text-right">Rp 5.000.000</td>
+              </tr>
+            </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- VIEW: SETTINGS (FIXED DOM STRUCTURE) -->
+    <!-- ========================================== -->
+    <div id="view-settings" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 w-full max-w-5xl space-y-6">
+      <h2 class="text-xl font-extrabold text-slate-900">Pengaturan Sistem</h2>
+      
+      <div class="flex flex-col md:flex-row gap-6 items-start">
+        <!-- Settings Tabs -->
+        <div class="w-full md:w-64 bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col p-2 gap-1 flex-none sticky top-20">
+          <button class="text-left px-4 py-3 text-xs font-bold bg-pumpkin/10 text-pumpkin rounded-xl transition">Profil Toko</button>
+          
+          <button class="text-left px-4 py-3 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-xl transition">Notifikasi Email</button>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="flex-1 w-full space-y-6">
+          
+          <!-- General Store Config -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-6 md:p-8">
+            <h3 class="text-sm font-extrabold text-slate-900 mb-6 border-b border-slate-100 pb-4">Informasi Dasar Toko</h3>
+            <div class="space-y-6">
+              <div class="flex items-center gap-6">
+                <div class="w-20 h-20 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:border-pumpkin hover:text-pumpkin cursor-pointer transition">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                  <p class="text-xs font-bold text-slate-900">Logo Toko</p>
+                  <p class="text-[10px] text-slate-500 mb-2">Disarankan ukuran 512x512px (PNG transparan).</p>
+                  <button class="text-[10px] font-bold text-white bg-slate-800 px-3 py-1.5 rounded hover:bg-slate-700 transition">Unggah Gambar</button>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Nama Toko Resmi</label>
+                  <input type="text" value="Tecvibe Official Store" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition bg-slate-50">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Email Dukungan Pelanggan</label>
+                  <input type="email" value="support@Tecvibe.com" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition bg-slate-50">
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Alamat Gudang Utama</label>
+                  <textarea rows="3" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition bg-slate-50">Jl. Teknologi No. 45, Gedung Cyber Lt. 3, Jakarta Selatan, 12190</textarea>
+                </div>
+              </div>
+            </div>
+          </div> <!-- PENUTUP YANG DIPERBAIKI (Tadinya </div) -->
+          
+          <!-- Email Settings -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-6 md:p-8 mt-6">
+            <h3 class="text-sm font-extrabold text-slate-900 mb-6 border-b border-slate-100 pb-4">Pengaturan Notifikasi Email</h3>
+            <div class="space-y-6">
+              <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50">
+                <div>
+                  <p class="font-bold text-xs text-slate-900">Konfirmasi Pesanan Baru</p>
+                  <p class="text-[10px] text-slate-500 mt-1">Kirim struk otomatis saat pelanggan berhasil checkout.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" value="" class="sr-only peer" checked>
+                  <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pumpkin"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50">
+                <div>
+                  <p class="font-bold text-xs text-slate-900">Pembaruan Status Pengiriman</p>
+                  <p class="text-[10px] text-slate-500 mt-1">Beritahu pelanggan saat pesanan dikirim atau resi diinput.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" value="" class="sr-only peer" checked>
+                  <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pumpkin"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50">
+                <div>
+                  <p class="font-bold text-xs text-slate-900">Tagihan TLater Jatuh Tempo</p>
+                  <p class="text-[10px] text-slate-500 mt-1">Kirim pengingat H-3 dan H-1 sebelum tanggal jatuh tempo cicilan.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" value="" class="sr-only peer" checked>
+                  <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pumpkin"></div>
+                </label>
+              </div>
+            </div>
+            <div class="pt-4 mt-6 border-t border-slate-100 flex justify-end">
+              <button class="px-5 py-2.5 bg-pumpkin text-white text-xs font-bold rounded-xl hover:bg-pumpkin-hover transition shadow-sm">Simpan Preferensi</button>
+            </div>
+          </div>
+
+        </div> <!-- DITAMBAHKAN: Penutup <div class="flex-1 w-full space-y-6"> -->
+      </div> <!-- DITAMBAHKAN: Penutup <div class="flex flex-col md:flex-row..."> -->
+    </div> <!-- DITAMBAHKAN: Penutup <div id="view-settings"> -->
+
+      
+    <!-- ========================================== -->
+    <!-- VIEW: TLATER MANAGEMENT -->
+    <!-- ========================================== -->
+    <div id="view-tlater" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-900">TLater Management</h2>
+        <p class="text-xs text-slate-500 mt-1">Pantau penyaluran limit kredit dan risiko Non-Performing Loan (NPL).</p>
+      </div>
+      
+      <!-- TLater Metrics -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <div class="bg-gradient-to-br from-charcoal to-slate-800 p-5 rounded-2xl shadow-lg relative overflow-hidden text-white">
+          <svg class="absolute right-0 bottom-0 w-24 h-24 text-white/5 -mb-4 -mr-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          <div class="relative z-10">
+            <p class="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Total Limit Tersalurkan</p>
+            <p class="text-2xl font-black text-pumpkin mt-1">Rp 1.25B</p>
+            <p class="text-[10px] text-emerald-400 mt-2 font-bold">+Rp 150M bulan ini</p>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-card border border-slate-200 flex flex-col justify-between">
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Pengguna Aktif TLater</p>
+          <p class="text-2xl font-black text-slate-900 mt-1">4,293</p>
+          <p class="text-[10px] text-emerald-600 mt-2 font-bold">12% dari total pengguna</p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-card border border-rose-200 flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-2 h-full bg-rose-500"></div>
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Kredit Macet (NPL)</p>
+          <p class="text-2xl font-black text-rose-600 mt-1">1.2%</p>
+          <p class="text-[10px] text-slate-500 mt-2">Batas aman: &lt; 5%</p>
+        </div>
+      </div>
+
+      <!-- TLater Risk Config -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-6 md:p-8">
+        <h3 class="text-sm font-extrabold text-slate-900 mb-1">Manajemen Risiko TLater (Fintech)</h3>
+        <p class="text-xs text-slate-500 mb-6 border-b border-slate-100 pb-4">Atur batas kredit dan parameter cicilan yang ditawarkan ke pelanggan.</p>
+        
+        <div class="space-y-6">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1.5 flex justify-between">
+              <span>Default Global Limit</span>
+              <span class="text-pumpkin">Rp 15.000.000</span>
+            </label>
+            <input type="range" min="1000000" max="50000000" step="1000000" value="15000000" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pumpkin">
+            <p class="text-[10px] text-slate-500 mt-2">Limit awal otomatis untuk pelanggan dengan skoring kredit rata-rata.</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Bunga 1 Bulan</p>
+              <div class="flex items-center gap-1 mt-1">
+                <input type="number" value="0" class="w-12 text-sm font-bold bg-transparent border-b border-slate-300 focus:border-pumpkin focus:outline-none text-slate-900">
+                <span class="text-sm font-bold text-slate-900">%</span>
+              </div>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Bunga 3 Bulan</p>
+              <div class="flex items-center gap-1 mt-1">
+                <input type="number" value="1.5" step="0.1" class="w-12 text-sm font-bold bg-transparent border-b border-slate-300 focus:border-pumpkin focus:outline-none text-slate-900">
+                <span class="text-sm font-bold text-slate-900">%</span>
+              </div>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Bunga 6 Bulan</p>
+              <div class="flex items-center gap-1 mt-1">
+                <input type="number" value="2.0" step="0.1" class="w-12 text-sm font-bold bg-transparent border-b border-slate-300 focus:border-pumpkin focus:outline-none text-slate-900">
+                <span class="text-sm font-bold text-slate-900">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 mt-2 border-t border-slate-100 flex justify-end">
+            <button class="px-5 py-2.5 bg-pumpkin text-white text-xs font-bold rounded-xl hover:bg-pumpkin-hover transition shadow-sm">Simpan Parameter Sistem</button>
+          </div>
+        </div>
+      </div>
+    </div> <!-- PERBAIKAN: Menghapus 4 tag </div> yatim berlebih di sini -->
+    
+
+    <!-- ========================================== -->
+    <!-- VIEW: SHIPPING MANAGEMENT -->
+    <!-- ========================================== -->
+    <div id="view-shipping" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div>
+        <h2 class="text-xl font-extrabold text-slate-900">Manajemen Pengiriman</h2>
+        <p class="text-xs text-slate-500 mt-1">Konfigurasi opsi kurir, tarif, dan pemantauan resi pengiriman.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Courier Options -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+          <h3 class="text-sm font-extrabold text-slate-900 mb-6 border-b border-slate-100 pb-4">Opsi Kurir Aktif</h3>
+          <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-blue-100 rounded text-blue-700 flex items-center justify-center font-black">JNE</div>
+                <div>
+                  <p class="font-bold text-xs text-slate-900">JNE Express</p>
+                  <p class="text-[10px] text-slate-500">YES, REG, OKE</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" value="" class="sr-only peer" checked>
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pumpkin"></div>
+              </label>
+            </div>
+            <div class="flex items-center justify-between p-4 border border-slate-100 rounded-xl bg-slate-50">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-red-100 rounded text-red-700 flex items-center justify-center font-black">SCT</div>
+                <div>
+                  <p class="font-bold text-xs text-slate-900">SiCepat</p>
+                  <p class="text-[10px] text-slate-500">BEST, HALU</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" value="" class="sr-only peer" checked>
+                <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-pumpkin"></div>
+              </label>
+            </div>
+          </div>
+          <button class="w-full mt-4 py-2.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">+ Tambah Kurir (API)</button>
+        </div>
+
+        <!-- Issue Tracking -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-card p-6">
+          <h3 class="text-sm font-extrabold text-slate-900 mb-6 border-b border-slate-100 pb-4">Pemantauan Kendala Pengiriman</h3>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4 p-4 border-l-4 border-rose-500 bg-rose-50 rounded-r-xl">
+              <svg class="w-5 h-5 text-rose-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <p class="text-xs font-bold text-slate-900">Paket Hilang (JNE-129381203)</p>
+                <p class="text-[10px] text-slate-600 mt-1">Status tidak berubah sejak 3 hari. Pesanan #TVB-1283</p>
+                <button class="text-[10px] font-bold text-rose-600 mt-2 hover:underline">Investigasi &gt;</button>
+              </div>
+            </div>
+            <div class="flex items-start gap-4 p-4 border-l-4 border-amber-500 bg-amber-50 rounded-r-xl">
+              <svg class="w-5 h-5 text-amber-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <p class="text-xs font-bold text-slate-900">Alamat Tidak Ditemukan</p>
+                <p class="text-[10px] text-slate-600 mt-1">Kurir SiCepat kesulitan mencari alamat. Pesanan #TVB-3491</p>
+                <button class="text-[10px] font-bold text-amber-600 mt-2 hover:underline">Hubungi Pelanggan &gt;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: TICKETS & HELP -->
+    <!-- ========================================== -->
+    <div id="view-tickets" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900">Pusat Tiket & Bantuan</h2>
+          <p class="text-xs text-slate-500 mt-1">Kelola pertanyaan pelanggan, komplain, dan pengajuan retur.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Tiket Terbuka</p>
+          <h3 class="text-2xl font-black text-rose-600 font-mono mt-1">12</h3>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Sedang Diproses</p>
+          <h3 class="text-2xl font-black text-amber-500 font-mono mt-1">5</h3>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Tiket Selesai (Bulan Ini)</p>
+          <h3 class="text-2xl font-black text-emerald-600 font-mono mt-1">124</h3>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-[10px] text-slate-500 uppercase">
+              <tr>
+                <th class="p-4 font-bold border-b border-slate-100">ID Tiket</th>
+                <th class="p-4 font-bold border-b border-slate-100">Pelanggan</th>
+                <th class="p-4 font-bold border-b border-slate-100">Subjek</th>
+                <th class="p-4 font-bold text-center border-b border-slate-100">Status</th>
+                <th class="p-4 font-bold text-right border-b border-slate-100">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-600">
+              <tr class="hover:bg-slate-50/80 transition">
+                <td class="p-4 font-mono font-bold text-slate-900">#TK-9923</td>
+                <td class="p-4">
+                  <p class="font-bold text-slate-900">Reyhan Pratama</p>
+                  <p class="text-[10px] text-slate-500 mt-0.5">reyhan.pratama@email.com</p>
+                </td>
+                <td class="p-4">
+                  <p class="font-bold text-slate-800">Barang belum sampai</p>
+                  <p class="text-[10px] text-slate-500 line-clamp-1 max-w-[200px] mt-0.5">Halo admin, pesanan saya sudah 3 hari tidak ada update resi...</p>
+                </td>
+                <td class="p-4 text-center">
+                  <span class="inline-flex items-center px-2 py-1 rounded bg-rose-100 text-rose-700 font-bold text-[10px]">Menunggu Balasan</span>
+                </td>
+                <td class="p-4 text-right">
+                  <button class="bg-slate-900 text-white px-3 py-1.5 rounded hover:bg-slate-800 font-bold transition shadow-sm text-[10px]">Balas</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: VIBE POINTS ADMIN -->
+    <!-- ========================================== -->
+    <div id="view-points-admin" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold text-slate-900">Manajemen Vibe Points</h2>
+          <p class="text-xs text-slate-500 mt-1">Konfigurasi poin loyalitas pelanggan dan pantau sirkulasi poin.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+          <h3 class="font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100">Saldo Poin Pelanggan</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-[10px] text-slate-500 uppercase">
+                <tr>
+                  <th class="p-3 font-bold">Pelanggan</th>
+                  <th class="p-3 font-bold text-right">Total Poin Aktif</th>
+                  <th class="p-3 font-bold text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-600">
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="p-3">Ahmad Fauzi</td>
+                  <td class="p-3 text-right font-mono font-bold text-pumpkin">14,500 Pts</td>
+                  <td class="p-3 text-right"><button class="text-[10px] text-pumpkin hover:underline">Detail Transaksi</button></td>
+                </tr>
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="p-3">Siti Rahma</td>
+                  <td class="p-3 text-right font-mono font-bold text-pumpkin">2,150 Pts</td>
+                  <td class="p-3 text-right"><button class="text-[10px] text-pumpkin hover:underline">Detail Transaksi</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-card">
+          <h3 class="font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100">Pengaturan Rasio Poin</h3>
+          <div class="space-y-4 text-xs font-semibold text-slate-600">
+            <div class="flex justify-between items-center">
+              <span>Nilai Tukar Poin saat Belanja:</span>
+              <span class="px-3 py-1 bg-slate-100 rounded-lg text-slate-900">1 Poin = Rp 1</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Cashback Standar (dari Total Belanja):</span>
+              <span class="px-3 py-1 bg-slate-100 rounded-lg text-slate-900">1%</span>
+            </div>
+          </div>
+          <button class="w-full mt-5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 rounded-xl transition">Simpan Pengaturan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW: USER EXPERIENCE CONTROL CENTER -->
+    <!-- ========================================== -->
+    <div id="view-user-sync" class="view-section hidden p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div>
+          <p class="text-[10px] font-extrabold uppercase tracking-[.16em] text-pumpkin">ADMIN → USER</p>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-1">Kontrol Sisi User</h2>
+          <p class="text-xs text-slate-500 mt-1">Kontrol data dan status yang benar-benar dilihat pelanggan di storefront.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="user-sync-last" class="text-[10px] text-slate-400"></span>
+          <button onclick="tvAdminRefreshUserSync()" class="px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs font-bold hover:bg-slate-50">Refresh</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-card"><p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Pesanan User</p><p id="sync-metric-orders" class="text-2xl font-black text-slate-900 font-mono mt-2">0</p><p class="text-[10px] text-slate-500 mt-1">status dari operasi admin</p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-card"><p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Tiket Customer</p><p id="sync-metric-tickets" class="text-2xl font-black text-rose-600 font-mono mt-2">0</p><p class="text-[10px] text-slate-500 mt-1">masih terbuka / diproses</p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-card"><p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Kurir Default</p><p id="sync-metric-courier" class="text-base font-black text-slate-900 mt-3">-</p><p class="text-[10px] text-slate-500 mt-1">yang dipakai checkout user</p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-card"><p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Vibe Points</p><p id="sync-metric-points" class="text-2xl font-black text-amber-500 font-mono mt-2">50.000</p><p class="text-[10px] text-slate-500 mt-1">saldo yang tampil di akun</p></div>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <section class="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold text-slate-900">Pesanan pelanggan</h3><p class="text-[10px] text-slate-500 mt-1">Ubah status agar alur Admin → Pesanan User konsisten.</p></div><select id="sync-order-status" class="px-3 py-2 rounded-lg border border-slate-200 text-xs font-bold bg-white"><option value="all">Semua Status</option><option value="unpaid">Belum Dibayar</option><option value="shipping">Perlu Dikirim</option><option value="shipped">Dikirim</option><option value="completed">Selesai</option><option value="cancelled">Dibatalkan</option><option value="tlater">TLater Aktif</option></select></div>
+          <div id="sync-order-list" class="divide-y divide-slate-100"></div>
+        </section>
+        <section class="xl:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden"><div class="p-5 border-b border-slate-100"><h3 class="text-sm font-extrabold text-slate-900">Profil & alamat user</h3><p class="text-[10px] text-slate-500 mt-1">Sesuai data Account Center dan checkout.</p></div><div id="sync-profile-panel" class="p-5 space-y-4"></div></section>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <section class="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden"><div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold text-slate-900">Tiket & Customer Care</h3><p class="text-[10px] text-slate-500 mt-1">Status dan balasan di sini tampil pada pusat bantuan user.</p></div><button onclick="tvAdminOpenNewTicket()" class="px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold">Catat Tiket</button></div><div id="sync-ticket-list" class="divide-y divide-slate-100"></div></section>
+        <section class="xl:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden"><div class="p-5 border-b border-slate-100"><h3 class="text-sm font-extrabold text-slate-900">Notifikasi User</h3><p class="text-[10px] text-slate-500 mt-1">Order, promo, tiket, atau points dapat dikirim langsung.</p></div><div class="p-5 space-y-3"><input id="sync-notif-title" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-xs" placeholder="Judul notifikasi"><textarea id="sync-notif-body" rows="3" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-xs" placeholder="Pesan ke pelanggan..."></textarea><div class="grid grid-cols-2 gap-3"><select id="sync-notif-type" class="px-3 py-2.5 rounded-lg border border-slate-200 text-xs"><option value="shipping">Pengiriman</option><option value="promo">Promo</option><option value="ticket">Tiket</option><option value="points">Vibe Points</option><option value="general">Umum</option></select><button onclick="tvAdminSendNotification()" class="px-3 py-2.5 rounded-lg bg-pumpkin text-white text-xs font-extrabold">Kirim</button></div><div id="sync-notif-history" class="pt-3 border-t border-slate-100 space-y-2"></div></div></section>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        <section class="xl:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden"><div class="p-5 border-b border-slate-100"><h3 class="text-sm font-extrabold text-slate-900">Pengiriman sisi user</h3><p class="text-[10px] text-slate-500 mt-1">Atur kurir aktif dan default untuk checkout.</p></div><div id="sync-courier-list" class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3"></div></section>
+        <section class="xl:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-card overflow-hidden"><div class="p-5 border-b border-slate-100"><h3 class="text-sm font-extrabold text-slate-900">TLater & Vibe Points</h3><p class="text-[10px] text-slate-500 mt-1">Ringkasan pembiayaan yang terlihat di akun pelanggan.</p></div><div class="p-5 space-y-3"><div class="flex items-center justify-between p-3 rounded-xl bg-sky-50 border border-sky-100"><div><p class="text-[10px] font-extrabold text-sky-700 uppercase tracking-wider">Limit TLater</p><p id="sync-tlater-limit" class="text-sm font-black text-slate-900 mt-1">Rp 25.000.000</p></div><button onclick="tvAdminEditFinance('tlater')" class="text-[10px] font-bold text-sky-700">Ubah</button></div><div class="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-100"><div><p class="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider">Saldo Vibe Points</p><p id="sync-points-balance" class="text-sm font-black text-slate-900 mt-1">50.000</p></div><button onclick="tvAdminEditFinance('points')" class="text-[10px] font-bold text-amber-700">Ubah</button></div></div></section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- 3. MODALS (OVERLAYS) -->
+  <!-- ===================================================================== -->
+
+  <!-- Modal Tambah Produk -->
+  <div id="addProductModal" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeModal('addProductModal')"></div>
+    <!-- Modal Content -->
+    <div class="absolute inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 overflow-hidden" id="addProductModalContent">
+      
+      <!-- Header -->
+      <div class="h-16 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <h2 class="text-sm font-extrabold text-slate-900">Tambah Produk Baru</h2>
+        <button onclick="closeModal('addProductModal')" class="text-slate-400 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-200 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-8">
+        
+        <!-- Info Dasar -->
+        <section>
+          <h3 class="text-xs font-extrabold text-slate-900 mb-4 uppercase tracking-wider text-pumpkin">Informasi Dasar</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Produk <span class="text-rose-500">*</span></label>
+              <input type="text" placeholder="Misal: iPhone 15 Pro Max 256GB" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin bg-slate-50">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">Kategori</label>
+                <select class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin bg-slate-50">
+                  <option>Pilih Kategori...</option>
+                  <option>Elektronik &gt; Smartphone</option>
+                  <option>Elektronik &gt; Laptop</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">SKU Induk</label>
+                <input type="text" placeholder="Misal: IP15-PM-256" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin bg-slate-50">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Deskripsi Lengkap</label>
+              <textarea rows="5" placeholder="Tuliskan keunggulan dan spesifikasi..." class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-pumpkin bg-slate-50"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Media Upload -->
+        <section>
+          <h3 class="text-xs font-extrabold text-slate-900 mb-4 uppercase tracking-wider text-pumpkin">Media Produk</h3>
+          <div class="w-full h-32 border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center text-slate-400 hover:border-pumpkin hover:text-pumpkin hover:bg-pumpkin/5 cursor-pointer transition">
+            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            <p class="text-xs font-bold">Tarik &amp; Lepas Gambar ke Sini</p>
+            <p class="text-[10px]">atau klik untuk menelusuri file JPG/PNG</p>
+          </div>
+        </section>
+
+        <!-- Harga & Inventaris -->
+        <section>
+          <h3 class="text-xs font-extrabold text-slate-900 mb-4 uppercase tracking-wider text-pumpkin">Harga &amp; Inventaris (Default)</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Harga Jual Normal (Rp) <span class="text-rose-500">*</span></label>
+              <input type="number" placeholder="0" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg font-mono focus:outline-none focus:border-pumpkin bg-slate-50">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Harga Diskon / Coret (Opsional)</label>
+              <input type="number" placeholder="0" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg font-mono focus:outline-none focus:border-pumpkin bg-slate-50">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Stok Fisik</label>
+              <input type="number" value="0" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg font-mono focus:outline-none focus:border-pumpkin bg-slate-50">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Berat Paket (Gram)</label>
+              <input type="number" value="1000" class="w-full text-xs px-3 py-2.5 border border-slate-200 rounded-lg font-mono focus:outline-none focus:border-pumpkin bg-slate-50">
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="p-4 border-t border-slate-200 bg-white flex justify-end gap-3">
+        <button onclick="closeModal('addProductModal')" class="px-5 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">Batalkan</button>
+        <button class="px-5 py-2 text-xs font-bold text-white bg-pumpkin rounded-xl hover:bg-pumpkin-hover transition shadow-md">Simpan ke Katalog</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail Pesanan -->
+  <div id="orderDetailModal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal('orderDetailModal')"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl bg-white rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden opacity-0 scale-95 transition-all duration-300" id="orderDetailModalContent">
+      
+      <!-- Header -->
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div>
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-black text-slate-900 font-mono">#TVB-92834</h2>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Menunggu Pembayaran</span>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-1">Dibuat pada: 23 Okt 2023, 14:30 WIB</p>
+        </div>
+        <button onclick="closeModal('orderDetailModal')" class="text-slate-400 hover:text-slate-900 bg-white rounded-full p-2 border border-slate-200 shadow-sm transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-8">
+        
+        <!-- Grid Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Detail Pelanggan</h3>
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <p class="font-bold text-slate-900 text-sm mb-1">Ahmad Fauzi</p>
+              <p class="text-xs text-slate-600 mb-1">ahmad@gmail.com | +62 812-9988-7766</p>
+              <div class="mt-3 pt-3 border-t border-slate-200">
+                <p class="text-[10px] font-bold text-slate-500 mb-1">ALAMAT PENGIRIMAN</p>
+                <p class="text-xs text-slate-700">Jl. Sudirman Kav 22, Gedung Cyber Lt 12<br>Jakarta Selatan, DKI Jakarta 12190</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="space-y-4">
+            <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Metode Pembayaran (Split)</h3>
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-xl shadow-inner relative overflow-hidden">
+              <svg class="absolute right-0 bottom-0 w-32 h-32 text-white/5 -mb-6 -mr-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              <div class="relative z-10 space-y-3">
+                <div class="flex justify-between items-center text-slate-300 text-xs border-b border-white/10 pb-2">
+                  <span>TLater (Cicilan 3x)</span>
+                  <span class="font-mono text-white">Rp 5.000.000</span>
+                </div>
+                <div class="flex justify-between items-center text-slate-300 text-xs border-b border-white/10 pb-2">
+                  <span>BCA Virtual Account</span>
+                  <span class="font-mono text-white">Rp 13.500.000</span>
+                </div>
+                <div class="flex justify-between items-center text-white text-sm font-bold pt-1">
+                  <span>Total Tagihan</span>
+                  <span class="font-mono text-pumpkin">Rp 18.500.000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ordered Items -->
+        <div>
+          <h3 class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-4">Produk yang Dipesan</h3>
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <table class="w-full text-left">
+              <thead class="bg-slate-50 text-[10px] text-slate-500 uppercase">
+                <tr>
+                  <th class="p-3">Produk</th>
+                  <th class="p-3 text-center">Qty</th>
+                  <th class="p-3 text-right">Harga Satuan</th>
+                  <th class="p-3 text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody class="text-xs text-slate-700 divide-y divide-slate-100">
+                <tr>
+                  <td class="p-3 flex items-center gap-3">
+                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8" class="w-10 h-10 rounded object-cover border border-slate-200">
+                    <span class="font-bold">MacBook Air M2 2022 - Space Gray</span>
+                  </td>
+                  <td class="p-3 text-center">1</td>
+                  <td class="p-3 text-right font-mono">Rp 18.500.000</td>
+                  <td class="p-3 text-right font-mono font-bold">Rp 18.500.000</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="bg-slate-50 p-4 space-y-2 border-t border-slate-200 text-xs">
+              <div class="flex justify-between text-slate-500"><span>Subtotal Produk</span><span class="font-mono text-slate-700">Rp 18.500.000</span></div>
+              <div class="flex justify-between text-slate-500"><span>Biaya Pengiriman (JNE Yes)</span><span class="font-mono text-slate-700">Rp 0 (Gratis)</span></div>
+              <div class="flex justify-between font-bold text-sm pt-2 border-t border-slate-200"><span>Grand Total</span><span class="font-mono text-pumpkin">Rp 18.500.000</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger Zone (Admin Actions) -->
+        <div class="p-4 bg-rose-50 rounded-xl border border-rose-100 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-rose-800">Batalkan Pesanan</p>
+            <p class="text-[10px] text-rose-600 mt-0.5">Tindakan ini tidak bisa dibatalkan. Dana TLater akan dikembalikan ke limit pelanggan.</p>
+          </div>
+          <button class="text-xs font-bold text-white bg-rose-600 px-4 py-2 rounded hover:bg-rose-700 transition shadow-sm">Batalkan Order</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script>
+    // --- Navigation Logic ---
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+
+    // Menampilkan toast setelah 2 detik
+    setTimeout(() => {
+      const toast = document.getElementById('tlaterToast');
+      if(toast) {
+        toast.classList.remove('translate-y-[200%]', 'opacity-0');
+      }
+    }, 2000);
+
+    // Filter Pesanan
+    function filterOrders(status, btn) {
+      const container = document.getElementById('order-tabs-container');
+      if (container) {
+        const tabs = container.querySelectorAll('.order-tab');
+        tabs.forEach(tab => {
+          tab.classList.remove('text-pumpkin', 'border-pumpkin');
+          tab.classList.add('text-slate-500', 'border-transparent');
+        });
+        btn.classList.remove('text-slate-500', 'border-transparent');
+        btn.classList.add('text-pumpkin', 'border-pumpkin');
+      }
+
+      const rows = document.querySelectorAll('.order-row');
+      rows.forEach(row => {
+        if (status === 'all') {
+          row.style.display = '';
+        } else {
+          const rowStatus = row.getAttribute('data-status');
+          if (rowStatus && rowStatus.includes(status)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    function switchView(viewId, element) {
+      const viewName = viewId;
+      document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+      const activeView = document.getElementById(`view-${viewName}`);
+      if(activeView) activeView.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-pumpkin/10', 'text-pumpkin', 'font-bold');
+        el.classList.add('text-slate-600', 'font-medium');
+        const svg = el.querySelector('svg');
+        if(svg) {
+          svg.classList.add('opacity-70');
+          svg.setAttribute('stroke-width', '2');
+        }
+      });
+      
+      const activeNav = document.getElementById(`nav-${viewName}`);
+      if(activeNav) {
+        activeNav.classList.remove('text-slate-600', 'font-medium');
+        activeNav.classList.add('bg-pumpkin/10', 'text-pumpkin', 'font-bold');
+        const svg = activeNav.querySelector('svg');
+        if(svg) {
+          svg.classList.remove('opacity-70');
+          svg.setAttribute('stroke-width', '2.5');
+        }
+      }
+      
+      const titles = {
+        'dashboard': 'Dasbor Ringkasan',
+        'orders': 'Manajemen Pesanan',
+        'products': 'Inventaris Produk',
+        'customers': 'Database Pelanggan',
+        'settings': 'Pengaturan Sistem',
+        'promos': 'Promo & Diskon',
+        'shipping': 'Manajemen Pengiriman',
+        'tlater': 'TLater Management',
+        'tickets': 'Pusat Tiket & Bantuan',
+        'points-admin': 'Manajemen Vibe Points',
+        'user-sync': 'Kontrol Sisi User'
+      };
+      const titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.innerText = titles[viewName] || 'Admin Panel';
+      
+      if (window.innerWidth < 1024) {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+      }
+    }
+
+    // --- Modal Logic ---
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      
+      setTimeout(() => {
+        const content = document.getElementById(modalId + 'Content');
+        if (content) {
+          if (content.classList.contains('translate-x-full')) {
+            content.classList.remove('translate-x-full');
+            content.classList.add('translate-x-0');
+          } else if (content.classList.contains('scale-95')) {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+          }
+        }
+      }, 10);
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (!modal) return;
+      const content = document.getElementById(modalId + 'Content');
+      
+      if (content) {
+        if (content.classList.contains('translate-x-0')) {
+          content.classList.remove('translate-x-0');
+          content.classList.add('translate-x-full');
+        } else if (content.classList.contains('scale-100')) {
+          content.classList.remove('scale-100', 'opacity-100');
+          content.classList.add('scale-95', 'opacity-0');
+        }
+      }
+      
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+
+    // --- Admin Toast ---
+    function showAdminToast(msg) {
+      let t = document.getElementById('admin-toast-notif');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'admin-toast-notif';
+        t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 z-[999] bg-slate-900 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-xl transition-all duration-300 opacity-0 translate-y-4';
+        document.body.appendChild(t);
+      }
+      t.innerText = msg;
+      t.classList.remove('opacity-0', 'translate-y-4');
+      t.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        t.classList.add('opacity-0', 'translate-y-4');
+        t.classList.remove('opacity-100', 'translate-y-0');
+      }, 2500);
+    }
+
+    // --- Promo Form Logic ---
+    function onPromoTypeChange(type) {
+      // Update border on cards
+      document.querySelectorAll('.promo-type-card').forEach(c => {
+        c.classList.remove('border-pumpkin', 'bg-pumpkin/5');
+        c.classList.add('border-slate-200');
+      });
+      const sel = document.querySelector(`input[name="promo_type"][value="${type}"]`);
+      if (sel) {
+        const card = sel.closest('label').querySelector('.promo-type-card');
+        card.classList.add('border-pumpkin', 'bg-pumpkin/5');
+        card.classList.remove('border-slate-200');
+      }
+      // Show/hide voucher code field
+      const codeField = document.getElementById('voucher-code-field');
+      codeField.classList.toggle('hidden', type !== 'voucher');
+      // Hide quota for diskon_otomatis
+      const quotaField = document.getElementById('promo-quota-field');
+      quotaField.classList.toggle('hidden', type === 'diskon_otomatis');
+      updatePreview();
+    }
+
+    function onValueTypeChange() {
+      const type = document.getElementById('promo-value-type').value;
+      const label = document.getElementById('promo-value-label');
+      const unit = document.getElementById('promo-value-unit');
+      const maxField = document.getElementById('promo-max-field');
+      if (type === 'persen') { label.innerHTML = 'Besaran Diskon (%) <span class="text-rose-500">*</span>'; unit.innerText = '%'; maxField.classList.remove('hidden'); }
+      else if (type === 'nominal') { label.innerHTML = 'Besaran Diskon (Rp) <span class="text-rose-500">*</span>'; unit.innerText = 'Rp'; maxField.classList.add('hidden'); }
+      else { label.innerHTML = 'Multiplier Poin (x) <span class="text-rose-500">*</span>'; unit.innerText = 'x'; maxField.classList.add('hidden'); }
+      updatePreview();
+    }
+
+    function onTargetChange() {
+      const val = document.getElementById('promo-target').value;
+      document.getElementById('promo-kategori-field').classList.toggle('hidden', val !== 'kategori');
+      document.getElementById('promo-produk-field').classList.toggle('hidden', val !== 'produk');
+    }
+
+    function toggleUnlimitedQuota(cb) {
+      const input = document.getElementById('promo-quota');
+      input.disabled = cb.checked;
+      input.placeholder = cb.checked ? '∞ Tidak terbatas' : '100';
+      if (cb.checked) input.value = '';
+    }
+
+    function generateVoucherCode() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let code = 'TVB';
+      for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      document.getElementById('promo-code').value = code;
+      document.getElementById('preview-promo-code').innerText = code;
+    }
+
+    function updatePreview() {
+      const name = document.getElementById('promo-name').value || 'Nama Promo';
+      const desc = document.getElementById('promo-desc').value || 'Deskripsi akan muncul di sini...';
+      const code = document.getElementById('promo-code')?.value || 'KODE';
+      const val = document.getElementById('promo-value').value || '0';
+      const type = document.getElementById('promo-value-type').value;
+      const min = document.getElementById('promo-min').value;
+      const unit = type === 'persen' ? '%' : type === 'nominal' ? 'Rp' : 'x';
+      document.getElementById('preview-promo-name').innerText = name;
+      document.getElementById('preview-promo-desc').innerText = desc;
+      document.getElementById('preview-promo-code').innerText = code || 'KODE';
+      document.getElementById('preview-promo-value').innerText = type === 'nominal' ? `Rp ${Number(val).toLocaleString('id-ID')}` : `${val}${unit}`;
+      document.getElementById('preview-promo-min').innerText = min ? `Rp ${Number(min).toLocaleString('id-ID')}` : 'Rp 0';
+    }
+
+    // Bind live preview updates
+    ['promo-name','promo-desc','promo-code','promo-value','promo-min'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updatePreview);
+    });
+
+    function saveDraftPromo() {
+      showAdminToast('Draft promo berhasil disimpan.');
+      closeModal('modalBuatPromo');
+    }
+
+    function publishPromo() {
+      const name = document.getElementById('promo-name').value.trim();
+      const startDate = document.getElementById('promo-start').value;
+      const endDate = document.getElementById('promo-end').value;
+      if (!name) { showAdminToast('⚠️ Nama promo wajib diisi!'); return; }
+      if (!startDate || !endDate) { showAdminToast('⚠️ Periode promo wajib diisi!'); return; }
+      if (new Date(endDate) <= new Date(startDate)) { showAdminToast('⚠️ Tanggal selesai harus setelah tanggal mulai!'); return; }
+      // Simulate adding promo to list
+      const statActive = document.getElementById('promo-stat-active');
+      if (statActive) statActive.innerText = parseInt(statActive.innerText) + 1;
+      showAdminToast('✓ Promo "' + name + '" berhasil dipublikasikan!');
+      closeModal('modalBuatPromo');
+      // Reset form
+      document.getElementById('promo-name').value = '';
+      document.getElementById('promo-desc').value = '';
+      document.getElementById('promo-value').value = '';
+      document.getElementById('promo-min').value = '';
+      document.getElementById('promo-start').value = '';
+      document.getElementById('promo-end').value = '';
+      updatePreview();
+    }
+
+    function openEditPromo(index) {
+      document.getElementById('promo-modal-title').innerText = 'Edit Promo';
+      openModal('modalBuatPromo');
+      showAdminToast('Mode edit promo diaktifkan.');
+    }
+
+    // --- Promo Filter ---
+    function filterPromos(type, btn) {
+      document.querySelectorAll('.promo-tab').forEach(t => {
+        t.classList.remove('bg-pumpkin', 'text-white');
+        t.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+      });
+      btn.classList.add('bg-pumpkin', 'text-white');
+      btn.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+      const cards = document.querySelectorAll('.promo-card');
+      let visible = 0;
+      cards.forEach(card => {
+        const t = card.getAttribute('data-type');
+        const s = card.getAttribute('data-status');
+        const show = type === 'semua' || t === type || s === type;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      const emptyState = document.getElementById('promo-empty-state');
+      if (emptyState) emptyState.classList.toggle('hidden', visible > 0);
+    }
+  </script>
+
+
+
+  <!-- ========================================== -->
+  <!-- USER-SIDE SYNC CONTROLLER -->
+  <!-- ========================================== -->
+  <script>
+  (function(){
+    'use strict';
+    const USER_KEY='tecvibe_user_enhanced_v1';
+    const ADMIN_KEY='tecvibe_admin_sync_v1';
+    const defaults={
+      couriers:[{name:'JNE YES',eta:'1–2 hari',price:25000,active:true},{name:'SiCepat REG',eta:'2–3 hari',price:18000,active:true},{name:'JNE REG',eta:'2–4 hari',price:16000,active:true},{name:'Instant delivery',eta:'Hari ini',price:25000,active:true}],
+      tlaterLimit:25000000,
+      pointsBalance:50000
+    };
+    const userState=()=>{ try{return JSON.parse(localStorage.getItem(USER_KEY))||{};}catch(e){return {};} };
+    function adminState(){ try{const a=JSON.parse(localStorage.getItem(ADMIN_KEY))||{}; return Object.assign({},defaults,a);}catch(e){return {...defaults};} }
+    function saveAdmin(a){localStorage.setItem(ADMIN_KEY,JSON.stringify(a));}
+    function fmt(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);}
+    function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));}
+    function uid(prefix){return prefix+'-'+Date.now().toString(36).toUpperCase();}
+    function getData(){const u=userState(); const a=adminState(); return {u,a};}
+
+    window.tvAdminRefreshUserSync=function(){
+      const {u,a}=getData();
+      const orders=u.orders||[
+        {id:'TVB-20260918001',status:'shipping',statusLabel:'Perlu Dikirim',total:18499000,courier:'JNE YES'},
+        {id:'TVB-20260915004',status:'shipped',statusLabel:'Dikirim',total:34999000,courier:'SiCepat REG'},
+        {id:'TVB-20260908012',status:'completed',statusLabel:'Selesai',total:7250000,courier:'JNE REG'},
+        {id:'TVB-20260919002',status:'unpaid',statusLabel:'Belum Dibayar',total:14500000,courier:'JNE YES'},
+        {id:'TVB-20260903009',status:'cancelled',statusLabel:'Dibatalkan',total:2499000,courier:'-'},
+        {id:'TVB-20260917006',status:'tlater',statusLabel:'TLater Aktif',total:21999000,courier:'SiCepat REG'}
+      ];
+      document.getElementById('sync-metric-orders').textContent=orders.length;
+      const openTickets=(u.tickets||[]).filter(t=>t.status!=='completed').length;
+      document.getElementById('sync-metric-tickets').textContent=openTickets;
+      document.getElementById('sync-metric-courier').textContent=u.activeCourier||a.couriers.find(c=>c.active)?.name||'-';
+      document.getElementById('sync-metric-points').textContent=(a.pointsBalance||50000).toLocaleString('id-ID');
+      document.getElementById('sync-points-balance').textContent=(a.pointsBalance||50000).toLocaleString('id-ID');
+      document.getElementById('sync-tlater-limit').textContent=fmt(a.tlaterLimit||25000000);
+      document.getElementById('user-sync-last').textContent='Update '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+      const filter=document.getElementById('sync-order-status')?.value||'all';
+      const list=orders.filter(o=>filter==='all'||o.status===filter);
+      document.getElementById('sync-order-list').innerHTML=list.map(o=>`<div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><span class="font-mono text-[10px] font-bold text-slate-500">${esc(o.id)}</span><span class="px-2 py-1 rounded-full text-[9px] font-bold ${tvStatusClass(o.status)}">${esc(o.statusLabel||o.status)}</span></div><p class="text-xs font-extrabold text-slate-900 mt-1">${esc(o.product||'Pesanan pelanggan')}</p><p class="text-[10px] text-slate-500 mt-1">${esc(o.courier||'-')} • ${fmt(o.total||0)}</p></div><div class="flex flex-wrap items-center gap-2"><select onchange="tvAdminChangeOrderStatus('${esc(o.id)}',this.value)" class="px-2.5 py-2 rounded-lg border border-slate-200 bg-white text-[10px] font-bold"><option value="unpaid" ${o.status==='unpaid'?'selected':''}>Belum Dibayar</option><option value="shipping" ${o.status==='shipping'?'selected':''}>Perlu Dikirim</option><option value="shipped" ${o.status==='shipped'?'selected':''}>Dikirim</option><option value="completed" ${o.status==='completed'?'selected':''}>Selesai</option><option value="cancelled" ${o.status==='cancelled'?'selected':''}>Dibatalkan</option><option value="tlater" ${o.status==='tlater'?'selected':''}>TLater Aktif</option></select><button onclick="tvAdminNotifyOrder('${esc(o.id)}')" class="px-3 py-2 rounded-lg bg-slate-900 text-white text-[10px] font-bold">Notif</button></div></div>`).join('')||'<div class="p-8 text-center text-xs text-slate-400">Tidak ada pesanan.</div>';
+
+      const profile=u.profile||{name:'Reyhan P.',email:'reyhan@example.com',phone:'0812-3456-7890'};
+      const addresses=u.addresses||[];
+      document.getElementById('sync-profile-panel').innerHTML=`<div class="p-4 rounded-xl bg-slate-50 border border-slate-200"><p class="text-[9px] uppercase font-bold tracking-wider text-slate-400">Akun aktif</p><p class="text-sm font-black text-slate-900 mt-1">${esc(profile.name||'-')}</p><p class="text-[10px] text-slate-500 mt-1">${esc(profile.email||'-')} • ${esc(profile.phone||'-')}</p></div><div class="space-y-2">${addresses.map(ad=>`<div class="p-3 rounded-xl border ${ad.primary?'border-pumpkin bg-pumpkin/5':'border-slate-200'}"><div class="flex items-center justify-between gap-3"><p class="text-xs font-extrabold text-slate-900">${esc(ad.label||'Alamat')} ${ad.primary?'<span class="text-[9px] text-pumpkin ml-1">UTAMA</span>':''}</p><button onclick="tvAdminSetPrimaryAddress('${esc(ad.id)}')" class="text-[9px] font-bold text-slate-500">Jadikan utama</button></div><p class="text-[10px] text-slate-500 mt-1">${esc(ad.address||'')}<br>${esc(ad.city||'')} ${esc(ad.postal||'')}</p></div>`).join('')}</div><button onclick="tvAdminAddNotification('Akun pelanggan','Profil dan alamat user sudah direview.','general')" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-[10px] font-bold hover:bg-slate-50">Kirim konfirmasi ke user</button>`;
+
+      const tickets=u.tickets||[];
+      document.getElementById('sync-ticket-list').innerHTML=tickets.map(t=>`<div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-3"><div><div class="flex gap-2 items-center"><span class="font-mono text-[9px] font-bold text-slate-500">${esc(t.id)}</span><span class="px-2 py-1 rounded-full text-[9px] font-bold ${tvTicketClass(t.status)}">${tvTicketLabel(t.status)}</span></div><p class="text-xs font-extrabold text-slate-900 mt-1">${esc(t.subject||'-')}</p><p class="text-[10px] text-slate-500 mt-1">${esc(t.category||'Bantuan')} • ${esc(t.message||'')}</p></div><div class="flex gap-2"><select onchange="tvAdminChangeTicketStatus('${esc(t.id)}',this.value)" class="px-2.5 py-2 rounded-lg border border-slate-200 text-[10px] font-bold"><option value="open" ${t.status==='open'?'selected':''}>Terbuka</option><option value="in_progress" ${t.status==='in_progress'?'selected':''}>Diproses</option><option value="completed" ${t.status==='completed'?'selected':''}>Selesai</option></select><button onclick="tvAdminReplyTicket('${esc(t.id)}')" class="px-3 py-2 rounded-lg bg-slate-900 text-white text-[10px] font-bold">Balas</button></div></div>`).join('')||'<div class="p-8 text-center text-xs text-slate-400">Belum ada tiket pelanggan.</div>';
+      document.getElementById('sync-notif-history').innerHTML=(u.notifications||[]).slice(0,5).map(n=>`<div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100"><p class="text-[10px] font-bold text-slate-800">${esc(n.title)}</p><p class="text-[9px] text-slate-500 mt-0.5">${esc(n.body)}</p></div>`).join('')||'<p class="text-[10px] text-slate-400">Belum ada notifikasi.</p>';
+      document.getElementById('sync-courier-list').innerHTML=a.couriers.map(c=>`<div class="p-4 rounded-xl border ${c.active?'border-emerald-200 bg-emerald-50/50':'border-slate-200 bg-slate-50'}"><div class="flex items-center justify-between gap-3"><div><p class="text-xs font-extrabold text-slate-900">${esc(c.name)}</p><p class="text-[10px] text-slate-500 mt-1">${esc(c.eta)} • ${fmt(c.price)}</p></div><div class="flex items-center gap-2"><button onclick="tvAdminToggleCourier('${esc(c.name)}')" class="px-2.5 py-1.5 rounded-lg text-[9px] font-bold ${c.active?'bg-emerald-600 text-white':'bg-white border border-slate-200 text-slate-600'}">${c.active?'Aktif':'Nonaktif'}</button>${c.active?`<button onclick="tvAdminSetCourier('${esc(c.name)}')" class="px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[9px] font-bold">Default</button>`:''}</div></div></div>`).join('');
+    };
+    function tvStatusClass(s){return ({unpaid:'bg-amber-100 text-amber-700',shipping:'bg-rose-100 text-rose-600',shipped:'bg-sky-100 text-sky-700',completed:'bg-emerald-100 text-emerald-700',cancelled:'bg-slate-100 text-slate-500',tlater:'bg-indigo-100 text-indigo-700'}[s]||'bg-slate-100 text-slate-600');}
+    function tvTicketClass(s){return ({open:'bg-amber-100 text-amber-700',in_progress:'bg-sky-100 text-sky-700',completed:'bg-emerald-100 text-emerald-700'}[s]||'bg-slate-100 text-slate-600');}
+    function tvTicketLabel(s){return ({open:'Terbuka',in_progress:'Diproses',completed:'Selesai'}[s]||'Terbuka');}
+    function mutateUser(fn){const u=userState(); fn(u); localStorage.setItem(USER_KEY,JSON.stringify(u)); localStorage.setItem(ADMIN_KEY,JSON.stringify(Object.assign(adminState(),{lastUpdate:new Date().toISOString()}))); tvAdminRefreshUserSync();}
+    window.tvAdminChangeOrderStatus=function(id,status){ const labels={unpaid:'Belum Dibayar',shipping:'Perlu Dikirim',shipped:'Dikirim',completed:'Selesai',cancelled:'Dibatalkan',tlater:'TLater Aktif'}; const a=adminState(); a.orders=a.orders||[]; const u=userState(); const source=(u.orders||[]).find(x=>x.id===id); let o=a.orders.find(x=>x.id===id); if(!o){o=Object.assign({},source||{id}, {status,statusLabel:labels[status]||status}); a.orders.push(o);} else {o.status=status; o.statusLabel=labels[status]||status;} a.lastUpdate=new Date().toISOString(); saveAdmin(a); tvAdminRefreshUserSync(); showAdminToast('Status pesanan '+id+' diteruskan ke sisi user.');};
+    window.tvAdminNotifyOrder=function(id){tvAdminAddNotification('Update pesanan '+id,'Status pesanan Anda baru saja diperbarui oleh TechVibe Care.','shipping');};
+    window.tvAdminAddNotification=function(title,body,type){mutateUser(u=>{u.notifications=u.notifications||[];u.notifications.unshift({id:uid('N'),title,body,time:'Baru saja',unread:true,type});}); showAdminToast('Notifikasi dikirim ke user.');};
+    window.tvAdminSendNotification=function(){const title=document.getElementById('sync-notif-title').value.trim(),body=document.getElementById('sync-notif-body').value.trim(),type=document.getElementById('sync-notif-type').value;if(!title||!body){showAdminToast('Judul dan pesan wajib diisi.');return;} tvAdminAddNotification(title,body,type);document.getElementById('sync-notif-title').value='';document.getElementById('sync-notif-body').value='';};
+    window.tvAdminSetPrimaryAddress=function(id){mutateUser(u=>{(u.addresses||[]).forEach(a=>a.primary=a.id===id);}); showAdminToast('Alamat utama user diperbarui.');};
+    window.tvAdminToggleCourier=function(name){const a=adminState();const c=a.couriers.find(x=>x.name===name);if(c){c.active=!c.active;if(!c.active&&a.activeCourier===name){a.activeCourier=(a.couriers.find(x=>x.active)||{}).name||'';}saveAdmin(a);localStorage.setItem(USER_KEY,JSON.stringify(Object.assign(userState(),{activeCourier:a.activeCourier})));tvAdminRefreshUserSync();showAdminToast('Opsi kurir diperbarui.');}};
+    window.tvAdminSetCourier=function(name){const a=adminState();a.activeCourier=name;saveAdmin(a);localStorage.setItem(USER_KEY,JSON.stringify(Object.assign(userState(),{activeCourier:name})));tvAdminRefreshUserSync();showAdminToast('Kurir default user: '+name);};
+    window.tvAdminChangeTicketStatus=function(id,status){mutateUser(u=>{const t=(u.tickets||[]).find(x=>x.id===id);if(t){t.status=status;t.updated='Baru saja';}});tvAdminAddNotification('Tiket diperbarui','Tiket '+id+' kini berstatus '+tvTicketLabel(status)+'.','ticket');};
+    window.tvAdminReplyTicket=function(id){const u=userState(),t=(u.tickets||[]).find(x=>x.id===id);if(!t)return;const reply=prompt('Balasan untuk pelanggan:',t.reply||'');if(reply===null)return;mutateUser(u=>{const tt=(u.tickets||[]).find(x=>x.id===id);if(tt){tt.reply=reply;tt.status=tt.status==='completed'?'completed':'in_progress';tt.updated='Baru saja';}});tvAdminAddNotification('Balasan Tiket','Admin membalas tiket '+id+'.','ticket');};
+    window.tvAdminOpenNewTicket=function(){const subject=prompt('Subjek tiket user:','Bantuan pesanan');if(!subject)return;const message=prompt('Ringkas kebutuhan pelanggan:','');if(message===null)return;mutateUser(u=>{u.tickets=u.tickets||[];u.tickets.unshift({id:uid('TVC'),subject,category:'Customer Care',status:'open',updated:'Baru saja',message,reply:''});});showAdminToast('Tiket dicatat dan terlihat di sisi user.');};
+    window.tvAdminEditFinance=function(type){const a=adminState();const current=type==='points'?a.pointsBalance:a.tlaterLimit;const val=prompt(type==='points'?'Saldo Vibe Points baru:':'Limit TLater baru (Rp):',String(current));if(val===null)return;const n=Number(String(val).replace(/[^0-9]/g,''));if(!Number.isFinite(n))return;if(type==='points')a.pointsBalance=n;else a.tlaterLimit=n;saveAdmin(a);showAdminToast('Konfigurasi keuangan user diperbarui.');tvAdminRefreshUserSync();};
+    document.addEventListener('DOMContentLoaded',()=>{const f=document.getElementById('sync-order-status');if(f)f.addEventListener('change',tvAdminRefreshUserSync);tvAdminRefreshUserSync();});
+  })();
+  </script>
+
+
+
+
+  <!-- ========================================== -->
+  <!-- VIEW: ADMIN LOGIN (FULLSCREEN OVERLAY) -->
+  <!-- ========================================== -->
+  <div id="view-admin-login" class="fixed inset-0 z-[100] bg-slate-100 flex items-center justify-center p-4 selection:bg-pumpkin/20 selection:text-pumpkin hidden">
+    <div class="max-w-[420px] w-full animate-fade-in-up">
+      <!-- Header Logo -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-pumpkin rounded-2xl shadow-lg shadow-pumpkin/20 mb-4 transform -rotate-6">
+          <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <h1 class="font-logo font-black text-3xl tracking-tighter text-slate-900 leading-none">Tecvibe<span class="text-pumpkin">.</span><span class="text-xs font-sans font-bold text-slate-400 align-top ml-1 uppercase">ADMIN</span></h1>
+        <p class="text-xs text-slate-500 mt-3">Silakan login untuk mengakses dasbor manajemen.</p>
+      </div>
+
+      <!-- Login Card -->
+      <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200/60">
+        <form onsubmit="event.preventDefault(); document.getElementById('view-admin-login').classList.add('hidden'); showAdminToast('Berhasil login sebagai Admin', 'success');" class="space-y-5">
+          <div>
+            <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wide mb-2">Email Admin</label>
+            <div class="relative">
+              <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
+              <input type="email" placeholder="admin@tecvibe.com" class="w-full pl-11 pr-4 py-3.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition placeholder-slate-400 font-medium" required>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-extrabold text-slate-700 uppercase tracking-wide">Kata Sandi</label>
+              <button type="button" class="text-[11px] font-bold text-pumpkin hover:underline">Lupa Sandi?</button>
+            </div>
+            <div class="relative">
+              <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <input type="password" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-pumpkin focus:ring-1 focus:ring-pumpkin transition placeholder-slate-400 font-medium" required>
+            </div>
+          </div>
+
+          <div class="flex items-center pt-1">
+            <input type="checkbox" id="remember" class="w-4 h-4 rounded border-slate-300 text-pumpkin focus:ring-pumpkin">
+            <label for="remember" class="ml-2 text-xs font-semibold text-slate-600 cursor-pointer">Ingat saya perangkat ini</label>
+          </div>
+
+          <button type="submit" class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-extrabold transition shadow-lg flex items-center justify-center gap-2 mt-4 group">
+            Login ke Dasbor
+            <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Security Info -->
+      <div class="mt-8 text-center text-[10px] font-semibold text-slate-400 flex items-center justify-center gap-2">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        Akses Terenkripsi & Terlindungi
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+  </style>
+</body>
+</html>

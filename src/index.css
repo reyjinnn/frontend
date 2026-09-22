@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #0f172a; /* charcoal-dark */
+  }
+
+  /* Wait, user requirement says:
+     - Warna Latar: Kontainer utama menggunakan #000000 (Pure Black). 
+       Permukaan kartu dan modal dialog yang terangkat (elevated) menggunakan #141414 dan #262626.
+     - Kontras & Teks: Teks primer #F8FAFC, teks sekunder #94A3B8. 
+  */
+  body {
+    @apply bg-white text-slate-900 transition-colors duration-200 antialiased;
+  }
+
+  body.dark-theme {
+    @apply bg-black text-slate-50 transition-colors duration-200;
+  }
+}
