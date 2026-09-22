@@ -34,7 +34,7 @@ export function PointsWalletView() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-        {/* Main Points Card */}
+        {}
         <div className="lg:col-span-1 relative overflow-hidden rounded-3xl p-8 text-orange-950 shadow-xl shadow-orange-500/20" 
              style={{ background: 'linear-gradient(135deg, #FDE68A 0%, #D97706 100%)' }}>
           
@@ -62,7 +62,7 @@ export function PointsWalletView() {
           </div>
         </div>
 
-        {/* Ledger Info */}
+        {}
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white dark:bg-[#1A1A1A] p-6 rounded-3xl border border-slate-100 dark:border-slate-800 h-full flex flex-col justify-center">
             <h3 className="text-lg font-bold flex items-center gap-2 mb-4">

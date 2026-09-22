@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: '/api/v1/points',
-});
+import api from '../../../lib/axios';
 
 export interface PointsWallet {
   userId: number;
@@ -24,7 +20,7 @@ export interface LedgerEntry {
   createdAt: string;
 }
 
-const mockWallet: PointsWallet = {
+export let mockWallet: PointsWallet = {
   userId: 101,
   balance: 50000,
   lockedBalance: 0,
@@ -32,7 +28,7 @@ const mockWallet: PointsWallet = {
   updatedAt: new Date().toISOString()
 };
 
-const mockLedger: LedgerEntry[] = [
+export const mockLedger: LedgerEntry[] = [
   {
     id: 901,
     idempotencyKey: "pt-reward-TV-801A",
@@ -49,7 +45,7 @@ const mockLedger: LedgerEntry[] = [
 export const PointsApi = {
   getWallet: async (): Promise<PointsWallet> => {
     try {
-      const res = await api.get('/wallet');
+      const res = await api.get('/api/v1/points/wallet');
       return res.data;
     } catch (e) {
       return mockWallet;
@@ -58,10 +54,34 @@ export const PointsApi = {
 
   getHistory: async (): Promise<{ items: LedgerEntry[], total: number }> => {
     try {
-      const res = await api.get('/history');
+      const res = await api.get('/api/v1/points/history');
       return res.data;
     } catch (e) {
       return { items: mockLedger, total: mockLedger.length };
     }
+  },
+
+  creditPoints: async (amount: number, description: string, referenceId: string): Promise<void> => {
+    
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        mockWallet.balance += amount;
+        mockWallet.availableBalance += amount;
+        mockWallet.updatedAt = new Date().toISOString();
+        
+        mockLedger.unshift({
+          id: Date.now(),
+          idempotencyKey: `pt-reward-${referenceId}-${Date.now()}`,
+          type: 'credit',
+          amount,
+          balanceAfter: mockWallet.availableBalance,
+          referenceType: 'order_reward',
+          referenceId,
+          description,
+          createdAt: new Date().toISOString()
+        });
+        resolve();
+      }, 500);
+    });
   }
 };
