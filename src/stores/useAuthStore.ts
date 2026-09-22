@@ -5,7 +5,7 @@ interface User {
   name: string;
   email: string;
   phone?: string;
-  isKycVerified?: boolean;
+  kycStatus?: 'unverified' | 'pending' | 'verified' | 'rejected';
 }
 
 interface AuthState {
@@ -17,6 +17,7 @@ interface AuthState {
   setUser: (user: User) => void;
   login: (user: User, accessToken: string, refreshToken: string) => void;
   logout: () => void;
+  setKycStatus: (status: 'unverified' | 'pending' | 'verified' | 'rejected') => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -45,4 +46,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('refreshToken');
     set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
   },
+  
+  setKycStatus: (status) => set((state) => ({
+    user: state.user ? { ...state.user, kycStatus: status } : null
+  })),
 }));
