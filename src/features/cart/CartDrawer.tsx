@@ -24,13 +24,13 @@ export function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
+      {}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
         onClick={closeCart}
       />
       
-      {/* Drawer Panel */}
+      {}
       <div className="absolute inset-y-0 right-0 w-full max-w-md bg-white dark:bg-[#1A1A1A] shadow-2xl flex flex-col translate-x-0 transition-transform duration-300 ease-in-out border-l border-slate-100 dark:border-slate-800">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <h2 className="text-xl font-bold">Keranjang Belanja</h2>
@@ -43,7 +43,7 @@ export function CartDrawer() {
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-4">
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🛒</span>
+                <span className="text-2xl"></span>
               </div>
               <p>Keranjang masih kosong.</p>
             </div>

@@ -27,15 +27,14 @@ export function TlaterHubView() {
   };
 
   const handleRepaySuccess = () => {
-    // Refresh account limits silently
+    
     fetchData();
   };
 
   const percentUsed = (account.usedLimit / account.creditLimit) * 100;
-  
-  // Calculate nearest bill (mocking logic by looking at active loans)
+
   const activeLoans = loans.filter(l => l.status === 'active');
-  const nearestBill = activeLoans.length > 0 ? 1259166.67 : 0; // Mock calculation based on endpoint 30
+  const nearestBill = activeLoans.length > 0 ? 1259166.67 : 0; 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -45,7 +44,7 @@ export function TlaterHubView() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Main Credit Card */}
+        {}
         <div className="lg:col-span-2 relative overflow-hidden rounded-3xl p-8 text-white shadow-xl flex flex-col justify-between min-h-[220px]" 
              style={{ background: 'linear-gradient(135deg, #111 0%, #2a2a2a 100%)' }}>
           
@@ -76,7 +75,7 @@ export function TlaterHubView() {
           </div>
         </div>
 
-        {/* Nearest Bill Widget */}
+        {}
         <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex items-center gap-2 mb-4 text-slate-500">
@@ -103,7 +102,7 @@ export function TlaterHubView() {
         </div>
       </div>
 
-      {/* Metrics */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 p-6 rounded-2xl flex items-center gap-4">
           <div className="w-12 h-12 bg-slate-50 dark:bg-[#141414] rounded-full flex items-center justify-center text-slate-400"><Wallet className="w-6 h-6"/></div>
@@ -128,7 +127,7 @@ export function TlaterHubView() {
         </div>
       </div>
 
-      {/* Installment Tables */}
+      {}
       <div className="space-y-6">
         <h2 className="text-xl font-bold mb-4">Rincian Angsuran Aktif</h2>
         {activeLoans.map(loan => (

@@ -23,7 +23,7 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     }
   },
   toggleWishlist: async (productId: number) => {
-    // Optimistic UI update
+    
     const current = new Set(get().items);
     const wasInWishlist = current.has(productId);
     
@@ -35,10 +35,10 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     set({ items: current });
 
     try {
-      // Actually sync with server
+      
       await WishlistService.toggleWishlist(productId);
     } catch (e) {
-      // Revert if failed
+      
       const reverted = new Set(get().items);
       if (wasInWishlist) {
         reverted.add(productId);

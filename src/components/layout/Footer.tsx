@@ -1,4 +1,5 @@
 import { ShieldCheck, Truck, CreditCard, RotateCcw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Footer() {
   return (
@@ -48,8 +49,8 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
               <li><a href="#" className="hover:text-pumpkin">Cara Belanja</a></li>
               <li><a href="#" className="hover:text-pumpkin">Pengiriman</a></li>
-              <li><a href="#" className="hover:text-pumpkin">Lacak Pesanan</a></li>
-              <li><a href="#" className="hover:text-pumpkin">Hubungi Kami</a></li>
+              <li><Link to="/orders" className="hover:text-pumpkin">Lacak Pesanan</Link></li>
+              <li><Link to="/care" className="hover:text-pumpkin">Pusat Bantuan</Link></li>
             </ul>
           </div>
           <div>

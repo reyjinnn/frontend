@@ -3,13 +3,18 @@ import { useThemeStore } from '../../stores/useThemeStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useCartStore } from '../../features/cart/useCartStore';
-import { Moon, Sun, Search, Bell, Heart, ShoppingCart, User } from 'lucide-react';
+import { Moon, Sun, Search, Bell, Heart, ShoppingCart, User, ChevronDown, Package, LifeBuoy, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export function Header() {
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { isAuthenticated, user } = useAuthStore();
   const { openLogin } = useUIStore();
   const { items, openCart } = useCartStore();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -38,10 +43,22 @@ export function Header() {
             {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           
-          <button className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] rounded-full transition-colors relative">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-[#141414]"></span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setIsNotifOpen(!isNotifOpen)}
+              className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] rounded-full transition-colors relative"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadNotifs > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-[#141414]"></span>
+              )}
+            </button>
+            <NotificationDropdown 
+              isOpen={isNotifOpen} 
+              onClose={() => setIsNotifOpen(false)} 
+              onUnreadCountChange={setUnreadNotifs}
+            />
+          </div>
 
           <Link to="/wishlist" className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] rounded-full transition-colors">
             <Heart className="w-5 h-5" />
@@ -59,22 +76,46 @@ export function Header() {
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
 
           {isAuthenticated ? (
-            <Link to="/profile" className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] py-1.5 px-3 rounded-full transition-colors">
-              <div className="w-6 h-6 bg-pumpkin/10 text-pumpkin rounded-full flex items-center justify-center text-xs font-bold">
-                {user?.name?.charAt(0) || 'U'}
-              </div>
-              <div className="flex flex-col items-start hidden sm:flex justify-center">
-                <span className="text-sm font-medium truncate max-w-[100px] leading-tight">{user?.name}</span>
-                <span className={`text-[9px] uppercase font-bold tracking-wider mt-0.5 ${
-                  user?.kycStatus === 'verified' ? 'text-green-500' :
-                  user?.kycStatus === 'pending' ? 'text-orange-500' :
-                  user?.kycStatus === 'rejected' ? 'text-red-500' :
-                  'text-slate-400'
-                }`}>
-                  KYC: {user?.kycStatus || 'UNVERIFIED'}
-                </span>
-              </div>
-            </Link>
+            <div className="relative" onMouseLeave={() => setIsUserMenuOpen(false)}>
+              <button 
+                onMouseEnter={() => setIsUserMenuOpen(true)}
+                className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] py-1.5 px-3 rounded-full transition-colors"
+              >
+                <div className="w-6 h-6 bg-pumpkin/10 text-pumpkin rounded-full flex items-center justify-center text-xs font-bold">
+                  {user?.name?.charAt(0) || 'U'}
+                </div>
+                <div className="flex flex-col items-start hidden sm:flex justify-center">
+                  <span className="text-sm font-medium truncate max-w-[100px] leading-tight">{user?.name}</span>
+                  <span className={`text-[9px] uppercase font-bold tracking-wider mt-0.5 ${
+                    user?.kycStatus === 'verified' ? 'text-green-500' :
+                    user?.kycStatus === 'pending' ? 'text-orange-500' :
+                    user?.kycStatus === 'rejected' ? 'text-red-500' :
+                    'text-slate-400'
+                  }`}>
+                    KYC: {user?.kycStatus || 'UNVERIFIED'}
+                  </span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+              </button>
+              
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-1 w-56 bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden py-2 z-50 animate-fade-in-up">
+                  <Link to="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-[#141414] transition-colors">
+                    <User className="w-4 h-4 text-slate-400" /> Profil Saya
+                  </Link>
+                  <Link to="/orders" className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-[#141414] transition-colors">
+                    <Package className="w-4 h-4 text-slate-400" /> Pesanan Saya
+                  </Link>
+                  <Link to="/care" className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-[#141414] transition-colors">
+                    <LifeBuoy className="w-4 h-4 text-slate-400" /> TechVibe Care
+                  </Link>
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+                    <LogOut className="w-4 h-4" /> Keluar
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <button onClick={openLogin} className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-[#1A1A1A] py-1.5 px-3 rounded-full transition-colors text-sm font-medium">
               <User className="w-4 h-4" /> Masuk

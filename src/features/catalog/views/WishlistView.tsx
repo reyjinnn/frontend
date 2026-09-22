@@ -13,8 +13,7 @@ export function WishlistView() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, backend would have GET /api/v1/catalog/wishlist returning full product data
-    // Here we simulate it by fetching all and filtering
+
     setIsLoading(true);
     CatalogService.getProducts()
       .then(res => {

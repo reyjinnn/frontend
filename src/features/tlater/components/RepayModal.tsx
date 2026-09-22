@@ -30,7 +30,7 @@ export function RepayModal({ installmentId, amount, isOpen, onClose, onSuccess }
       
       setSuccess(true);
       setTimeout(() => {
-        onSuccess(); // Triggers store refresh
+        onSuccess(); 
         setSuccess(false);
         onClose();
       }, 2000);

@@ -10,14 +10,13 @@ export function CatalogView() {
   const [filters, setFilters] = useState<{ categoryId?: number; maxPrice?: number; tlaterOnly?: boolean }>({});
 
   useEffect(() => {
-    // Note: mock backend doesn't implement all these filters fully, but we simulate some
+    
     CatalogService.getProducts({ maxPrice: filters.maxPrice, categoryId: filters.categoryId }).then(res => {
       let filtered = res.items;
       if (filters.tlaterOnly) {
         filtered = filtered.filter((p: Product) => p.tlaterMonthly);
       }
-      
-      // Sort
+
       if (sortBy === 'price_asc') {
         filtered = filtered.sort((a: Product, b: Product) => a.price - b.price);
       } else if (sortBy === 'price_desc') {

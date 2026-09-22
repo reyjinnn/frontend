@@ -17,51 +17,41 @@ export function CheckoutView() {
   const { openLogin } = useUIStore();
   const { items, totalItemAmount, fetchCart } = useCartStore();
 
-  // Redirect if not authenticated (though router should handle it, double checking)
   if (!isAuthenticated) {
     openLogin();
     return <Navigate to="/" replace />;
   }
 
-  // State
   const [shippingCity] = useState("Jakarta Selatan");
-  const [shippingFee, setShippingFee] = useState(25000); // Mock default
+  const [shippingFee, setShippingFee] = useState(25000); 
   const [selectedShipping, setSelectedShipping] = useState('instant');
   const [hasInsurance, setHasInsurance] = useState(false);
-  
-  // Wallets
+
   const [pointsBalance, setPointsBalance] = useState(0);
   const [tlaterLimit, setTlaterLimit] = useState(0);
-  
-  // Split Payment states
+
   const [usePoints, setUsePoints] = useState(false);
   const [pointsAmount, setPointsAmount] = useState(0);
   const [useTlater, setUseTlater] = useState(false);
   const [tlaterTenor, setTlaterTenor] = useState(1);
   const [cashGateway, setCashGateway] = useState('bca_va');
 
-  // KYC
   const [isKycOpen, setIsKycOpen] = useState(false);
 
-  // Promo
   const [isPromoOpen, setIsPromoOpen] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<any | null>(null);
 
-  // Simulation Results
   const [simResult, setSimResult] = useState<any>(null);
-  
-  // Execution
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
 
-  // Load Wallets
   useEffect(() => {
     fetchCart();
     CheckoutApi.getPointsWallet().then(res => setPointsBalance(res.availableBalance));
     CheckoutApi.getTlaterAccount().then(res => setTlaterLimit(res.availableLimit));
   }, []);
 
-  // Simulate Checkout
   useEffect(() => {
     const insuranceFee = hasInsurance ? 25000 : 0;
     
@@ -74,7 +64,7 @@ export function CheckoutView() {
     };
 
     CheckoutApi.simulateCheckout(req).then(res => {
-      // We manually add insurance and promo logic on top of the sim for display simplicity
+      
       let grandTotal = res.grandTotal + insuranceFee;
       let promoDiscount = 0;
       
@@ -88,7 +78,6 @@ export function CheckoutView() {
       
       grandTotal = Math.max(0, grandTotal - promoDiscount);
 
-      // Re-adjust points/tlater caps based on new grandTotal
       let finalPointsUsed = usePoints ? Math.min(pointsAmount, grandTotal) : 0;
       let remaining = grandTotal - finalPointsUsed;
       
@@ -123,7 +112,6 @@ export function CheckoutView() {
       });
     });
   }, [items, shippingCity, usePoints, pointsAmount, useTlater, tlaterTenor, hasInsurance, appliedPromo, tlaterLimit]);
-
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
@@ -162,10 +150,10 @@ export function CheckoutView() {
       <h1 className="text-2xl md:text-3xl font-bold mb-8">Checkout</h1>
       
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-        {/* Left Column */}
+        {}
         <div className="flex-1 space-y-8">
           
-          {/* Address */}
+          {}
           <section className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-lg flex items-center gap-2">
@@ -180,7 +168,7 @@ export function CheckoutView() {
             </div>
           </section>
 
-          {/* Items & Shipping */}
+          {}
           <section className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6">
             <h3 className="font-bold text-lg mb-6">Barang & Pengiriman</h3>
             
@@ -228,11 +216,11 @@ export function CheckoutView() {
             </div>
           </section>
 
-          {/* Split Payment Engine */}
+          {}
           <section>
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2">Metode Pembayaran (Split-Payment)</h3>
             
-            {/* KYC Guard for TLater */}
+            {}
             {user?.kycStatus !== 'verified' && (
               <div className="mb-4 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-xl p-4 flex justify-between items-center">
                 <div className="flex gap-3">
@@ -269,7 +257,7 @@ export function CheckoutView() {
             />
           </section>
 
-          {/* Cash Gateway required? */}
+          {}
           {simResult && simResult.gatewayCashRequired > 0 && (
             <section className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6 animate-in slide-in-from-bottom-2">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">Pilih Metode Tunai untuk Sisa Tagihan</h3>
@@ -290,11 +278,11 @@ export function CheckoutView() {
 
         </div>
 
-        {/* Right Column - Summary */}
+        {}
         <div className="w-full lg:w-[400px] flex-shrink-0">
           <div className="sticky top-24 space-y-6">
             
-            {/* Promo Selector */}
+            {}
             <div 
               className="bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-pumpkin transition-colors"
               onClick={() => setIsPromoOpen(true)}
@@ -309,7 +297,7 @@ export function CheckoutView() {
               <ChevronRight className="w-5 h-5 text-slate-400" />
             </div>
 
-            {/* Bill Summary */}
+            {}
             <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6">
               <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                 <Receipt className="w-5 h-5 text-slate-500" />
@@ -339,7 +327,7 @@ export function CheckoutView() {
                 )}
               </div>
 
-              {/* Split Breakdown */}
+              {}
               <div className="space-y-3 text-sm font-semibold border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
                 <div className="flex justify-between text-orange-500">
                   <span>Dibayar dengan Poin</span>

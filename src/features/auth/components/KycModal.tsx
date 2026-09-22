@@ -70,7 +70,7 @@ export function KycModal({ isOpen, onClose }: KycModalProps) {
     try {
       // Mock API delay
       await new Promise(r => setTimeout(r, 1500));
-      setKycStatus('pending'); // The user status is now pending approval
+      setKycStatus('pending'); 
       setSuccess(true);
       setTimeout(() => {
         onClose();

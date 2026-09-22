@@ -40,14 +40,14 @@ export function ProductDetailView() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
         
-        {/* Left: Gallery */}
+        {}
         <div className="w-full lg:w-[480px] xl:w-[540px] flex-shrink-0">
           <div className="sticky top-24">
             <ProductGallery images={product.images} />
           </div>
         </div>
 
-        {/* Right: Info */}
+        {}
         <div className="flex-1 min-w-0 pb-16">
           <div className="mb-6">
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-4 leading-tight">
@@ -65,7 +65,7 @@ export function ProductDetailView() {
             </div>
           </div>
 
-          {/* Pricing */}
+          {}
           <div className="bg-slate-50 dark:bg-[#141414] border border-slate-100 dark:border-slate-800/60 rounded-3xl p-6 md:p-8 mb-8">
             {product.originalPrice && (
               <div className="flex items-center gap-3 mb-2">
@@ -103,7 +103,7 @@ export function ProductDetailView() {
                 className="flex-1 font-semibold h-14"
                 onClick={() => {
                    useCartStore.getState().addToCart(product);
-                   // Navigate to checkout in a real flow, but just opening cart is fine
+                   
                 }}
               >
                 Beli Langsung
@@ -111,7 +111,7 @@ export function ProductDetailView() {
             </div>
           </div>
 
-          {/* Store Info */}
+          {}
           <div className="flex items-center gap-4 py-6 border-b border-slate-200 dark:border-slate-800 mb-8">
             <div className="w-14 h-14 bg-pumpkin text-white rounded-full flex items-center justify-center">
               <Store className="w-6 h-6" />
@@ -125,7 +125,7 @@ export function ProductDetailView() {
             </div>
           </div>
 
-          {/* Specs */}
+          {}
           <div className="mb-12">
             <h3 className="text-lg font-bold mb-4">Spesifikasi Utama</h3>
             <ul className="space-y-3">
@@ -143,7 +143,7 @@ export function ProductDetailView() {
             </ul>
           </div>
 
-          {/* Description */}
+          {}
           <div className="mb-12">
             <h3 className="text-lg font-bold mb-4">Deskripsi Produk</h3>
             <div className="text-slate-600 dark:text-slate-400 leading-relaxed space-y-4">
@@ -152,7 +152,7 @@ export function ProductDetailView() {
             </div>
           </div>
 
-          {/* Reviews Section */}
+          {}
           <div className="mb-12">
             <h3 className="text-lg font-bold mb-6">Ulasan Pembeli ({reviews.length})</h3>
             

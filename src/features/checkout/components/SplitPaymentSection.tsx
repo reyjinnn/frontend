@@ -2,14 +2,13 @@ import { Coins, CreditCard, Info } from 'lucide-react';
 
 interface SplitPaymentProps {
   grandTotal: number;
-  // Points
+  
   pointsBalance: number;
   usePoints: boolean;
   pointsAmount: number;
   setUsePoints: (use: boolean) => void;
   setPointsAmount: (amount: number) => void;
-  
-  // TLater
+
   tlaterLimit: number;
   useTlater: boolean;
   tlaterTenor: number;
@@ -41,11 +40,9 @@ export function SplitPaymentSection({
     else setPointsAmount(Math.min(pointsBalance, grandTotal));
   };
 
-  // Logic calculation for display purposes
   const pointsDeduction = usePoints ? pointsAmount : 0;
   const remainingAfterPoints = grandTotal - pointsDeduction;
-  
-  // Auto-capped Split Check
+
   const isTlaterCapped = useTlater && (remainingAfterPoints > tlaterLimit);
   const tlaterPrincipal = useTlater ? Math.min(remainingAfterPoints, tlaterLimit) : 0;
   const gatewayCashRequired = useTlater ? Math.max(0, remainingAfterPoints - tlaterLimit) : remainingAfterPoints;
@@ -53,7 +50,7 @@ export function SplitPaymentSection({
   return (
     <div className="space-y-6">
       
-      {/* Vibe Points */}
+      {}
       <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -90,7 +87,7 @@ export function SplitPaymentSection({
         )}
       </div>
 
-      {/* TLater BNPL */}
+      {}
       <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6 overflow-hidden relative">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">

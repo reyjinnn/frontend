@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { CatalogService } from '../../../services/catalog.service';
 import type { Product } from '../../../services/catalog.service';
-import { ProductCard } from './ProductCard'; // We will create this
+import { ProductCard } from './ProductCard'; 
 
 export function FlashDeals() {
   const [products, setProducts] = useState<Product[]>([]);
-  
-  // Timer state
+
   const [timeLeft, setTimeLeft] = useState({ h: 2, m: 45, s: 30 });
 
   useEffect(() => {
@@ -37,7 +36,7 @@ export function FlashDeals() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <h3 className="text-2xl font-bold flex items-center gap-2">
-            ⚡ Flash Deals
+             Flash Deals
           </h3>
           <div className="flex items-center gap-1.5 font-mono text-sm font-bold">
             <span className="bg-red-500 text-white px-2 py-1 rounded">{formatTime(timeLeft.h)}</span>:

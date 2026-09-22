@@ -31,8 +31,7 @@ export const AddressList = () => {
     setActionLoading(id);
     try {
       await addressService.setPrimary(id);
-      
-      // Update local state for mock
+
       setAddresses((prev) => 
         prev.map(addr => ({ ...addr, isPrimary: addr.id === id }))
       );

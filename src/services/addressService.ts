@@ -1,6 +1,6 @@
 export interface Address {
   id: string;
-  label: string; // e.g. Rumah, Kantor
+  label: string; 
   recipientName: string;
   phone: string;
   fullAddress: string;
@@ -11,7 +11,7 @@ export interface Address {
 
 export const addressService = {
   getAddresses: async (): Promise<Address[]> => {
-    // MOCK DATA for Sprint 1 Local Testing
+    
     return [
       {
         id: 'addr_1',
@@ -34,15 +34,11 @@ export const addressService = {
         isPrimary: false,
       }
     ];
-    // const response = await api.get('/api/v1/user/addresses');
-    // return response.data;
+
   },
 
   addAddress: async (data: Omit<Address, 'id' | 'isPrimary'>): Promise<Address> => {
-    // const response = await api.post('/api/v1/user/addresses', data);
-    // return response.data;
-    
-    // MOCK RESPONSE
+
     return {
       ...data,
       id: `addr_${Math.random().toString(36).substr(2, 9)}`,
@@ -51,12 +47,12 @@ export const addressService = {
   },
 
   setPrimary: async (_id: string): Promise<void> => {
-    // await api.patch(`/api/v1/user/addresses/${id}/primary`);
+    
     return Promise.resolve();
   },
   
   deleteAddress: async (_id: string): Promise<void> => {
-    // await api.delete(`/api/v1/user/addresses/${id}`);
+    
     return Promise.resolve();
   }
 };
