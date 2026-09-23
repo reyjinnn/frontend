@@ -26,12 +26,12 @@
     @apply shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_32px_rgba(15,23,42,0.10)] transition-shadow;
   }
   
-  .hide-scrollbar {
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
+  * {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
   
-  .hide-scrollbar::-webkit-scrollbar { 
-    display: none; 
+  *::-webkit-scrollbar { 
+    display: none; /* Chrome, Safari and Opera */
   }
 }
