@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '../../lib/utils';
 import { X } from 'lucide-react';
 
@@ -33,8 +34,9 @@ const Modal = ({ isOpen, onClose, title, children, className, fullscreen = false
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {}
       <div 
@@ -71,7 +73,8 @@ const Modal = ({ isOpen, onClose, title, children, className, fullscreen = false
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
