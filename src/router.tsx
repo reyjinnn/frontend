@@ -18,6 +18,8 @@ import { AdminPromosView } from './features/admin/views/AdminPromosView';
 import { AdminTlaterRiskView } from './features/admin/views/AdminTlaterRiskView';
 import { AdminTicketsView } from './features/admin/views/AdminTicketsView';
 import { AdminLoginView } from './features/admin/views/AdminLoginView';
+import { AdminShippingView } from './features/admin/views/AdminShippingView';
+import { AdminPointsView } from './features/admin/views/AdminPointsView';
 
 export const router = createBrowserRouter([
   {
@@ -63,9 +65,9 @@ export const router = createBrowserRouter([
       { path: 'promos', element: <AdminPromosView /> },
       { path: 'tlater-risk', element: <AdminTlaterRiskView /> },
       { path: 'customers', element: <div className="p-8">Customer Management (Coming Soon)</div> },
-      { path: 'shipping', element: <div className="p-8">Shipping Management (Coming Soon)</div> },
+      { path: 'shipping', element: <AdminShippingView /> },
       { path: 'tickets', element: <AdminTicketsView /> },
-      { path: 'points', element: <div className="p-8">Vibe Points Management (Coming Soon)</div> },
+      { path: 'points', element: <AdminPointsView /> },
     ]
   }
 ]);
