@@ -31,12 +31,7 @@ export const AddressList = () => {
     setActionLoading(id);
     try {
       await addressService.setPrimary(id);
-<<<<<<< HEAD
 
-=======
-      
-      // Update local state for mock
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
       setAddresses((prev) => 
         prev.map(addr => ({ ...addr, isPrimary: addr.id === id }))
       );
@@ -86,7 +81,7 @@ export const AddressList = () => {
                     <span className="font-semibold text-slate-900 dark:text-slate-100">{address.label}</span>
                     {address.isPrimary && <Badge variant="warning">Utama</Badge>}
                   </div>
-                  <p className="font-medium text-sm text-slate-800 dark:text-slate-200 mb-1">{address.recipientName} • {address.phone}</p>
+                  <p className="font-medium text-sm text-slate-800 dark:text-slate-200 mb-1">{address.recipientName} â€¢ {address.phone}</p>
                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                     {address.fullAddress}<br />
                     {address.city}, {address.postalCode}

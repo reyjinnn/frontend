@@ -20,11 +20,7 @@ export const useToastStore = create<ToastStore>((set) => ({
   addToast: (toast) => {
     const id = Math.random().toString(36).substring(2, 9);
     set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }));
-<<<<<<< HEAD
     
-=======
-    // Auto remove after 3s
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 3000);
@@ -33,10 +29,7 @@ export const useToastStore = create<ToastStore>((set) => ({
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
 
-<<<<<<< HEAD
-=======
-// Utility hook
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
+
 export const useToast = () => {
   const { addToast } = useToastStore();
   return {

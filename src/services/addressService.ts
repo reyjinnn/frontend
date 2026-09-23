@@ -1,10 +1,6 @@
 export interface Address {
   id: string;
-<<<<<<< HEAD
   label: string; 
-=======
-  label: string; // e.g. Rumah, Kantor
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
   recipientName: string;
   phone: string;
   fullAddress: string;
@@ -15,11 +11,7 @@ export interface Address {
 
 export const addressService = {
   getAddresses: async (): Promise<Address[]> => {
-<<<<<<< HEAD
     
-=======
-    // MOCK DATA for Sprint 1 Local Testing
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
     return [
       {
         id: 'addr_1',
@@ -42,23 +34,11 @@ export const addressService = {
         isPrimary: false,
       }
     ];
-<<<<<<< HEAD
 
   },
 
   addAddress: async (data: Omit<Address, 'id' | 'isPrimary'>): Promise<Address> => {
 
-=======
-    // const response = await api.get('/api/v1/user/addresses');
-    // return response.data;
-  },
-
-  addAddress: async (data: Omit<Address, 'id' | 'isPrimary'>): Promise<Address> => {
-    // const response = await api.post('/api/v1/user/addresses', data);
-    // return response.data;
-    
-    // MOCK RESPONSE
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
     return {
       ...data,
       id: `addr_${Math.random().toString(36).substr(2, 9)}`,
@@ -67,20 +47,12 @@ export const addressService = {
   },
 
   setPrimary: async (_id: string): Promise<void> => {
-<<<<<<< HEAD
     
-=======
-    // await api.patch(`/api/v1/user/addresses/${id}/primary`);
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
     return Promise.resolve();
   },
   
   deleteAddress: async (_id: string): Promise<void> => {
-<<<<<<< HEAD
     
-=======
-    // await api.delete(`/api/v1/user/addresses/${id}`);
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
     return Promise.resolve();
   }
 };

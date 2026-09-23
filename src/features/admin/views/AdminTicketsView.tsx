@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TicketsApi, type Ticket, type TicketReply } from '../../care/api/ticketsApi';
+import { TicketsApi } from '../../care/api/ticketsApi';
+import type { Ticket } from '../../care/types';
 import { Button } from '../../../components/ui/Button';
 import { 
   Search, 
@@ -33,12 +34,8 @@ export function AdminTicketsView() {
     fetchTickets();
   }, []);
 
-  const handleReplySuccess = (newReply: TicketReply) => {
+  const handleReplySuccess = (updatedTicket: Ticket) => {
     if (selectedTicket) {
-      const updatedTicket = {
-        ...selectedTicket,
-        replies: [...selectedTicket.replies, newReply]
-      };
       setSelectedTicket(updatedTicket);
       setTickets(tickets.map(t => t.id === updatedTicket.id ? updatedTicket : t));
     }
@@ -46,7 +43,7 @@ export function AdminTicketsView() {
 
   const handleResolveSuccess = () => {
     if (selectedTicket) {
-      const updatedTicket = { ...selectedTicket, status: 'resolved' as const };
+      const updatedTicket = { ...selectedTicket, status: 'closed' as const };
       setSelectedTicket(updatedTicket);
       setTickets(tickets.map(t => t.id === updatedTicket.id ? updatedTicket : t));
     }
@@ -76,7 +73,7 @@ export function AdminTicketsView() {
           <select className="bg-white dark:bg-[#1a1a1a] border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary">
             <option value="">Semua Status</option>
             <option value="open">Open (Perlu Balasan)</option>
-            <option value="resolved">Resolved</option>
+            <option value="closed">Closed (Selesai)</option>
           </select>
         </div>
 
@@ -165,7 +162,7 @@ function AdminReplyTicketModal({
 }: { 
   ticket: Ticket, 
   onClose: () => void,
-  onReplySuccess: (r: TicketReply) => void,
+  onReplySuccess: (r: Ticket) => void,
   onResolveSuccess: () => void
 }) {
   const [replyMessage, setReplyMessage] = useState('');
@@ -223,24 +220,8 @@ function AdminReplyTicketModal({
 
         {/* Conversation */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          {/* Customer's Initial Message */}
-          <div className="flex gap-4">
-            <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center shrink-0">
-              <User className="w-5 h-5 text-slate-500" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="font-bold text-sm">Pelanggan</span>
-                <span className="text-xs text-slate-500">{new Date(ticket.createdAt).toLocaleString('id-ID')}</span>
-              </div>
-              <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl rounded-tl-none shadow-sm border border-slate-200 dark:border-slate-800 text-sm whitespace-pre-wrap">
-                {ticket.message}
-              </div>
-            </div>
-          </div>
-
-          {/* Replies */}
-          {ticket.replies.map(reply => (
+          {/* Conversation */}
+          {ticket.messages?.map(reply => (
             <div key={reply.id} className={`flex gap-4 ${reply.isAdmin ? 'flex-row-reverse' : ''}`}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${reply.isAdmin ? 'bg-primary/10 text-primary' : 'bg-slate-200 dark:bg-slate-800 text-slate-500'}`}>
                 {reply.isAdmin ? <span className="font-bold font-space text-sm">TV</span> : <User className="w-5 h-5" />}
@@ -248,7 +229,7 @@ function AdminReplyTicketModal({
               <div className={`flex-1 flex flex-col ${reply.isAdmin ? 'items-end' : 'items-start'}`}>
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="font-bold text-sm">{reply.isAdmin ? reply.senderName : 'Pelanggan'}</span>
-                  <span className="text-xs text-slate-500">{new Date(reply.createdAt).toLocaleString('id-ID')}</span>
+                  <span className="text-xs text-slate-500">{new Date(reply.timestamp).toLocaleString('id-ID')}</span>
                 </div>
                 <div className={`p-4 rounded-2xl shadow-sm text-sm whitespace-pre-wrap max-w-[85%] ${
                   reply.isAdmin 
@@ -261,7 +242,7 @@ function AdminReplyTicketModal({
             </div>
           ))}
 
-          {ticket.status === 'resolved' && (
+          {ticket.status === 'closed' && (
             <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-500 py-4 bg-green-50 dark:bg-green-900/10 rounded-xl">
               <CheckCircle2 className="w-5 h-5" />
               <span className="font-medium text-sm">Tiket ini telah diselesaikan.</span>

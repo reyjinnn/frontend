@@ -15,8 +15,7 @@ import {
   Menu,
   Bell,
   Search,
-  LogOut,
-  ChevronRight
+  LogOut
 } from 'lucide-react';
 
 interface AdminLayoutProps {

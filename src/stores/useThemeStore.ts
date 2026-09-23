@@ -7,11 +7,7 @@ interface ThemeState {
 }
 
 export const useThemeStore = create<ThemeState>((set) => {
-<<<<<<< HEAD
   
-=======
-  // Initialize from localStorage or system preference
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
   const isDark = typeof window !== 'undefined' 
     ? localStorage.getItem('theme') === 'dark' || 
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)

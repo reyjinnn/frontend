@@ -31,15 +31,7 @@ export const LoginModal = ({ isOpen, onClose, onOpenRegister }: LoginModalProps)
 
   const onSubmit = async (data: LoginForm) => {
     try {
-<<<<<<< HEAD
 
-=======
-      // API call (Mocking for now as per instructions)
-      // const res = await api.post('/api/v1/auth/login', data);
-      // const { user, accessToken, refreshToken } = res.data;
-      
-      // MOCK DATA for local testing fallback
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
       const mockResponse = {
         user: { id: 'usr_1', name: 'TechVibe User', email: 'user@techvibe.id', phone: data.phone },
         accessToken: 'mock_jwt_access_token',

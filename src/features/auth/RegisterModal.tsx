@@ -31,14 +31,7 @@ export const RegisterModal = ({ isOpen, onClose, onOpenLogin }: RegisterModalPro
 
   const onSubmit = async (_data: RegisterForm) => {
     try {
-<<<<<<< HEAD
 
-=======
-      // MOCK API call
-      // await api.post('/api/v1/auth/register', data);
-      
-      // Simulate network request
->>>>>>> 80b7fdfac7784469269245387969793b7eabd139
       await new Promise((resolve) => setTimeout(resolve, 800));
       
       toast({ title: 'Registrasi Berhasil', message: 'Silakan login menggunakan nomor HP Anda.', type: 'success' });

@@ -153,5 +153,24 @@ export const TicketsApi = {
         }, 500);
       });
     }
+  },
+
+  resolveTicket: async (ticketId: string): Promise<void> => {
+    try {
+      await api.patch(`/api/v1/tickets/${ticketId}/resolve`);
+    } catch (e) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const idx = mockTickets.findIndex(t => t.id === ticketId);
+          if (idx !== -1) {
+            mockTickets[idx].status = 'closed';
+            mockTickets[idx].updatedAt = new Date().toISOString();
+            resolve();
+          } else {
+            reject(new Error('Ticket not found'));
+          }
+        }, 500);
+      });
+    }
   }
 };

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { AdminApi, type KycApplication } from '../api/adminApi';
 import { Button } from '../../../components/ui/Button';
 import { 
-  ShieldAlert, 
   CheckCircle, 
   XCircle, 
   Search,

@@ -5,7 +5,6 @@ import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { 
   Search, 
-  Filter, 
   Plus, 
   UploadCloud, 
   X,
