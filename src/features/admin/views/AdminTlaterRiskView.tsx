@@ -14,6 +14,10 @@ export function AdminTlaterRiskView() {
   const [applications, setApplications] = useState<KycApplication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('kyc'); // 'kyc' | 'risk'
+  
+  const [maxLimit, setMaxLimit] = useState(15000000);
+  const [interestRate, setInterestRate] = useState(2.5);
+  const [lateFee, setLateFee] = useState(0.1);
 
   const fetchKyc = async () => {
     setIsLoading(true);
@@ -181,9 +185,9 @@ export function AdminTlaterRiskView() {
               <div>
                 <div className="flex justify-between mb-2">
                   <label className="text-sm font-semibold">Limit Maksimal (Rp)</label>
-                  <span className="font-mono text-primary font-bold">15.000.000</span>
+                  <span className="font-mono text-primary font-bold">{new Intl.NumberFormat('id-ID').format(maxLimit)}</span>
                 </div>
-                <input type="range" min="1000000" max="30000000" step="500000" defaultValue="15000000" className="w-full accent-primary" />
+                <input type="range" min="1000000" max="30000000" step="500000" value={maxLimit} onChange={(e) => setMaxLimit(Number(e.target.value))} className="w-full accent-primary" />
                 <p className="text-xs text-slate-500 mt-2">Batas pagu kredit tertinggi yang bisa didapatkan oleh nasabah berisiko rendah.</p>
               </div>
               
@@ -192,17 +196,17 @@ export function AdminTlaterRiskView() {
               <div>
                 <div className="flex justify-between mb-2">
                   <label className="text-sm font-semibold">Suku Bunga Bulanan (%)</label>
-                  <span className="font-mono text-orange-500 font-bold">2.5%</span>
+                  <span className="font-mono text-orange-500 font-bold">{interestRate}%</span>
                 </div>
-                <input type="range" min="0" max="5" step="0.1" defaultValue="2.5" className="w-full accent-orange-500" />
+                <input type="range" min="0" max="5" step="0.1" value={interestRate} onChange={(e) => setInterestRate(Number(e.target.value))} className="w-full accent-orange-500" />
               </div>
 
               <div>
                 <div className="flex justify-between mb-2">
                   <label className="text-sm font-semibold">Denda Keterlambatan Harian (%)</label>
-                  <span className="font-mono text-red-500 font-bold">0.1%</span>
+                  <span className="font-mono text-red-500 font-bold">{lateFee}%</span>
                 </div>
-                <input type="range" min="0" max="1" step="0.05" defaultValue="0.1" className="w-full accent-red-500" />
+                <input type="range" min="0" max="1" step="0.05" value={lateFee} onChange={(e) => setLateFee(Number(e.target.value))} className="w-full accent-red-500" />
               </div>
 
               <div className="pt-4 flex justify-end">
