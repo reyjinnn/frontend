@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, Package, ShieldCheck, CreditCard, ChevronDown, MessageSquare, LifeBuoy } from 'lucide-react';
+import { Search, ChevronDown, MessageSquare, LifeBuoy } from 'lucide-react';
 import { TicketsApi } from '../api/ticketsApi';
 import type { Ticket, CreateTicketPayload } from '../types';
 import { CreateTicketModal } from '../components/CreateTicketModal';
