@@ -3,7 +3,6 @@ import {
   Truck, 
   Map, 
   Settings2, 
-  CheckCircle, 
   Search, 
   MapPin, 
   Package, 

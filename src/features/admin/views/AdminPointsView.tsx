@@ -7,7 +7,6 @@ import {
   TrendingUp, 
   UserPlus, 
   Search,
-  ArrowRight,
   PlusCircle,
   MinusCircle
 } from 'lucide-react';
