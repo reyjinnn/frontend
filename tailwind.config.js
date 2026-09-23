@@ -14,6 +14,12 @@ export default {
           light: "#FFF7ED",
           border: "#FED7AA"
         },
+        "primary": {
+          DEFAULT: "#FD802E",
+          hover: "#E56D1F",
+          light: "#FFF7ED",
+          border: "#FED7AA"
+        },
         "charcoal": {
           DEFAULT: "#1E293B",
           dark: "#0F172A"
