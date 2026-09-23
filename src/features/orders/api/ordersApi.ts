@@ -112,7 +112,7 @@ let mockOrders: Order[] = [
 export const OrdersApi = {
   getOrders: async (): Promise<Order[]> => {
     try {
-      const res = await api.get('/api/v1/orders');
+      const res = await api.get('localhost:3000/api/v1/orders');
       return res.data;
     } catch (e) {
       // Simulate network delay
@@ -122,7 +122,7 @@ export const OrdersApi = {
 
   getOrder: async (orderNumber: string): Promise<Order> => {
     try {
-      const res = await api.get(`/api/v1/orders/${orderNumber}`);
+      const res = await api.get(`localhost:3000/api/v1/orders/${orderNumber}`);
       return res.data;
     } catch (e) {
       return new Promise((resolve, reject) => {
@@ -137,7 +137,7 @@ export const OrdersApi = {
 
   cancelOrder: async (orderNumber: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/orders/${orderNumber}/cancel`);
+      await api.post(`localhost:3000/api/v1/orders/${orderNumber}/cancel`);
     } catch (e) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -155,7 +155,7 @@ export const OrdersApi = {
 
   completeOrder: async (orderNumber: string): Promise<void> => {
     try {
-      await api.patch(`/api/v1/orders/${orderNumber}/complete`);
+      await api.patch(`localhost:3000/api/v1/orders/${orderNumber}/complete`);
     } catch (e) {
       return new Promise((resolve, reject) => {
         setTimeout(async () => {
@@ -181,7 +181,7 @@ export const OrdersApi = {
 
   getTrackingInfo: async (orderId: string): Promise<TrackingInfo> => {
     try {
-      const res = await api.get(`/api/v1/orders/${orderId}/tracking`);
+      const res = await api.get(`localhost:3000/api/v1/orders/${orderId}/tracking`);
       return res.data;
     } catch (e) {
       return new Promise((resolve) => {

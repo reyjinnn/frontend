@@ -66,7 +66,7 @@ export const AdminApi = {
   // KYC Risk
   getKycApplications: async (): Promise<KycApplication[]> => {
     try {
-      const res = await api.get('/api/v1/kyc/admin/applications');
+      const res = await api.get('localhost:3000/api/v1/kyc/admin/applications');
       return res.data;
     } catch (e) {
       return new Promise(resolve => setTimeout(() => resolve([...mockKycApplications]), 500));
@@ -75,7 +75,7 @@ export const AdminApi = {
   
   verifyKyc: async (userId: number, approved: boolean, reason?: string): Promise<void> => {
     try {
-      await api.patch(`/api/v1/kyc/admin/verify/${userId}`, { approved, reason });
+      await api.patch(`localhost:3000/api/v1/kyc/admin/verify/${userId}`, { approved, reason });
     } catch (e) {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -92,7 +92,7 @@ export const AdminApi = {
   // Promos
   getPromos: async (): Promise<PromoData[]> => {
     try {
-      const res = await api.get('/api/v1/admin/promos');
+      const res = await api.get('localhost:3000/api/v1/admin/promos');
       return res.data;
     } catch (e) {
       return new Promise(resolve => setTimeout(() => resolve([...mockPromos]), 500));
@@ -101,7 +101,7 @@ export const AdminApi = {
 
   createPromo: async (payload: PromoData): Promise<PromoData> => {
     try {
-      const res = await api.post('/api/v1/admin/promos', payload);
+      const res = await api.post('localhost:3000/api/v1/admin/promos', payload);
       return res.data;
     } catch (e) {
       return new Promise((resolve) => {
@@ -122,7 +122,7 @@ export const AdminApi = {
   // Products
   addProduct: async (payload: any): Promise<any> => {
     try {
-      const res = await api.post('/api/v1/catalog/products', payload);
+      const res = await api.post('localhost:3000/api/v1/catalog/products', payload);
       return res.data;
     } catch (e) {
       return new Promise((resolve) => {

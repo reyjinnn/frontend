@@ -41,7 +41,7 @@ let mockNotifications: AppNotification[] = [
 export const NotificationsApi = {
   getNotifications: async (): Promise<AppNotification[]> => {
     try {
-      const res = await api.get('/api/v1/notifications');
+      const res = await api.get('localhost:3000/api/v1/notifications');
       return res.data;
     } catch (e) {
       return new Promise(resolve => setTimeout(() => resolve([...mockNotifications]), 400));
@@ -50,7 +50,7 @@ export const NotificationsApi = {
 
   markAsRead: async (id: string): Promise<void> => {
     try {
-      await api.patch(`/api/v1/notifications/${id}/read`);
+      await api.patch(`localhost:3000/api/v1/notifications/${id}/read`);
     } catch (e) {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -66,7 +66,7 @@ export const NotificationsApi = {
 
   markAllAsRead: async (): Promise<void> => {
     try {
-      await api.patch('/api/v1/notifications/read-all');
+      await api.patch('localhost:3000/api/v1/notifications/read-all');
     } catch (e) {
       return new Promise((resolve) => {
         setTimeout(() => {

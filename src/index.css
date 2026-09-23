@@ -5,19 +5,33 @@
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #0f172a; /* charcoal-dark */
+    --foreground: #0f172a;
   }
 
-  /* Wait, user requirement says:
-     - Warna Latar: Kontainer utama menggunakan #000000 (Pure Black). 
-       Permukaan kartu dan modal dialog yang terangkat (elevated) menggunakan #141414 dan #262626.
-     - Kontras & Teks: Teks primer #F8FAFC, teks sekunder #94A3B8. 
-  */
   body {
-    @apply bg-white text-slate-900 transition-colors duration-200 antialiased;
+    @apply bg-slate-100/70 text-slate-800 transition-colors duration-200 antialiased selection:bg-pumpkin selection:text-white;
   }
 
-  body.dark-theme {
+  body.dark-theme, .dark body {
     @apply bg-black text-slate-50 transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .liquid-glass-header {
+    @apply bg-white/70 dark:bg-black/75 backdrop-blur-[20px] backdrop-saturate-200;
+  }
+  
+  .product-card-clean {
+    @apply shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:shadow-[0_16px_32px_rgba(15,23,42,0.10)] transition-shadow;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar { 
+    display: none; 
   }
 }

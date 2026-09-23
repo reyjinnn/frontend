@@ -72,7 +72,7 @@ let mockTickets: Ticket[] = [
 export const TicketsApi = {
   getTickets: async (): Promise<Ticket[]> => {
     try {
-      const res = await api.get('/api/v1/tickets');
+      const res = await api.get('localhost:3000/api/v1/tickets');
       return res.data;
     } catch (e) {
       return new Promise(resolve => setTimeout(() => resolve([...mockTickets]), 500));
@@ -81,7 +81,7 @@ export const TicketsApi = {
 
   createTicket: async (payload: CreateTicketPayload): Promise<Ticket> => {
     try {
-      const res = await api.post('/api/v1/tickets', payload);
+      const res = await api.post('localhost:3000/api/v1/tickets', payload);
       return res.data;
     } catch (e) {
       return new Promise((resolve) => {
@@ -116,7 +116,7 @@ export const TicketsApi = {
 
   replyTicket: async (ticketId: string, message: string): Promise<Ticket> => {
     try {
-      const res = await api.post(`/api/v1/tickets/${ticketId}/reply`, { message });
+      const res = await api.post(`localhost:3000/api/v1/tickets/${ticketId}/reply`, { message });
       return res.data;
     } catch (e) {
       return new Promise((resolve, reject) => {
@@ -157,7 +157,7 @@ export const TicketsApi = {
 
   resolveTicket: async (ticketId: string): Promise<void> => {
     try {
-      await api.patch(`/api/v1/tickets/${ticketId}/resolve`);
+      await api.patch(`localhost:3000/api/v1/tickets/${ticketId}/resolve`);
     } catch (e) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {

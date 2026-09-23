@@ -23,7 +23,7 @@ export interface SplitCheckoutRequest {
 export const CheckoutApi = {
   async getCart() {
     try {
-      const res = await api.get('/api/v1/cart');
+      const res = await api.get('localhost:3000/api/v1/cart');
       return res.data;
     } catch (e) {
       console.warn("API /cart offline, using mock.");
@@ -34,7 +34,7 @@ export const CheckoutApi = {
 
   async addToCart(product: Product, quantity: number = 1) {
     try {
-      const res = await api.post('/api/v1/cart/items', { productId: product.id, quantity });
+      const res = await api.post('localhost:3000/api/v1/cart/items', { productId: product.id, quantity });
       return res.data;
     } catch (e) {
       const existing = mockCart.find(i => i.productId === product.id);
@@ -58,7 +58,7 @@ export const CheckoutApi = {
 
   async updateCartItem(productId: number, quantity: number) {
     try {
-      const res = await api.patch(`/api/v1/cart/items/${productId}`, { quantity });
+      const res = await api.patch(`localhost:3000/api/v1/cart/items/${productId}`, { quantity });
       return res.data;
     } catch (e) {
       const existing = mockCart.find(i => i.productId === productId);
@@ -76,7 +76,7 @@ export const CheckoutApi = {
 
   async removeCartItem(productId: number) {
     try {
-      const res = await api.delete(`/api/v1/cart/items/${productId}`);
+      const res = await api.delete(`localhost:3000/api/v1/cart/items/${productId}`);
       return res.data;
     } catch (e) {
       mockCart = mockCart.filter(i => i.productId !== productId);
@@ -86,7 +86,7 @@ export const CheckoutApi = {
 
   async getPointsWallet() {
     try {
-      const res = await api.get('/api/v1/points/wallet');
+      const res = await api.get('localhost:3000/api/v1/points/wallet');
       return res.data;
     } catch (e) {
       return { userId: 101, balance: 150000, lockedBalance: 0, availableBalance: 150000, updatedAt: new Date().toISOString() };
@@ -95,7 +95,7 @@ export const CheckoutApi = {
 
   async getTlaterAccount() {
     try {
-      const res = await api.get('/api/v1/tlater/account');
+      const res = await api.get('localhost:3000/api/v1/tlater/account');
       return res.data;
     } catch (e) {
       return { id: 301, userId: 101, creditLimit: 10000000.0, availableLimit: 6500000.0, usedLimit: 3500000.0, interestRateMonthly: 2.5, lateFeeDaily: 0.1, status: "active" };
@@ -104,7 +104,7 @@ export const CheckoutApi = {
 
   async simulateCheckout(req: SplitCheckoutRequest) {
     try {
-      const res = await api.post('/api/v1/checkout/simulate', req);
+      const res = await api.post('localhost:3000/api/v1/checkout/simulate', req);
       return res.data;
     } catch (e) {
       
@@ -160,7 +160,7 @@ export const CheckoutApi = {
 
   async checkout(req: any, idempotencyKey: string) {
     try {
-      const res = await api.post('/api/v1/checkout', req, {
+      const res = await api.post('localhost:3000/api/v1/checkout', req, {
         headers: { 'Idempotency-Key': idempotencyKey }
       });
       return res.data;

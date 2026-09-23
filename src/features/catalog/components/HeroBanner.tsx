@@ -1,23 +1,41 @@
-import { Button } from '../../../components/ui/Button';
+import { Link } from 'react-router-dom';
 
 export function HeroBanner() {
   return (
-    <div className="relative bg-slate-950 rounded-3xl overflow-hidden mt-6 mx-4 sm:mx-6 lg:mx-8">
-      {}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-pumpkin/20 rounded-full blur-[100px] pointer-events-none"></div>
-      
-      <div className="relative z-10 px-8 py-16 md:px-16 md:py-24 text-center">
-        <h2 className="text-4xl md:text-6xl font-logo font-bold text-white mb-6">
-          Teknologi Terbaru, <br className="hidden md:block" /> 
-          <span className="text-pumpkin">Hanya di Tech Vibe.</span>
-        </h2>
-        <p className="text-slate-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto">
-          Temukan gadget flagship dan komponen PC terbaik dengan pengiriman cepat, jaminan original 100%, dan cicilan fleksibel.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button variant="primary" size="lg" className="w-full sm:w-auto">Lihat Koleksi</Button>
-          <Button variant="outline" size="lg" className="w-full sm:w-auto text-white border-slate-700 hover:bg-slate-800">Lacak Pesanan</Button>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        {/* Editorial hero: one clear message and one primary action. */}
+        <div className="lg:col-span-8 lg:col-start-3 rounded-2xl bg-slate-950 text-white p-8 sm:p-12 flex flex-col items-center justify-between relative overflow-hidden shadow-md min-h-[350px] text-center">
+          <div className="absolute inset-y-0 right-0 w-1/2 opacity-60 bg-[radial-gradient(circle_at_70%_35%,#fd802e_0,transparent_32%),radial-gradient(circle_at_80%_75%,#2563eb_0,transparent_38%)]"></div>
+          
+          <div className="relative z-10 max-w-xl w-full space-y-4 flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 text-white text-[10px] font-extrabold uppercase tracking-[.16em]">
+              Pilihan kurasi September
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.05]">
+              Teknologi yang tepat untuk ritme kerja Anda.
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-md mx-auto">
+              Jelajahi laptop, smartphone, dan perangkat gaming dari distributor resmi—dengan informasi stok, garansi, dan pengiriman yang transparan.
+            </p>
+            <div className="pt-2 flex items-center gap-3">
+              <Link to="/catalog" className="px-6 py-3 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold transition shadow-sm">
+                Lihat koleksi
+              </Link>
+              <Link to="/orders" className="px-5 py-3 rounded-xl bg-transparent hover:bg-white/10 text-white text-xs font-bold transition border border-white/25">
+                Lacak pesanan
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-12 flex items-center justify-center gap-6 text-[11px] text-slate-300 text-center w-full">
+            <span>Garansi distributor resmi</span>
+            <span className="w-1 h-1 rounded-full bg-pumpkin"></span>
+            <span>Pengiriman terlindungi</span>
+          </div>
         </div>
+
       </div>
     </div>
   );

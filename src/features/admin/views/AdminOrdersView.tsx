@@ -59,7 +59,7 @@ export function AdminOrdersView() {
   };
 
   const handleShipOrder = (_trackingNumber: string) => {
-    // In a real app, call PATCH /api/v1/admin/orders/{id}/shipment
+    // In a real app, call PATCH localhost:3000/api/v1/admin/orders/{id}/shipment
     // Here we just update the local state for demonstration
     setOrders(orders.map(o => o.id === selectedOrder?.id ? { ...o, status: 'shipped' } : o));
     setIsShipModalOpen(false);

@@ -1,32 +1,77 @@
-import { useEffect, useState } from 'react';
-import { CatalogService } from '../../../services/catalog.service';
-import type { Category } from '../../../services/catalog.service';
+import { useNavigate } from 'react-router-dom';
 
 export function CategoryTiles() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    CatalogService.getCategories().then(setCategories);
-  }, []);
+  const handleCategoryClick = (category: string) => {
+    navigate(`/catalog?category=${category}`);
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-      <h3 className="text-2xl font-bold mb-8">Kategori Pilihan</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        {categories.slice(0, 4).map((cat) => (
-          <div key={cat.id} className="group relative bg-slate-100 dark:bg-[#1A1A1A] rounded-2xl overflow-hidden aspect-square cursor-pointer transition-transform hover:-translate-y-1">
-            {}
-            <div className="absolute inset-0 flex items-center justify-center p-8 transition-transform group-hover:scale-105">
-              <div className="w-full h-full bg-slate-200 dark:bg-slate-800 rounded-xl flex items-center justify-center">
-                <span className="text-slate-400 dark:text-slate-600 font-medium">{cat.name}</span>
-              </div>
-            </div>
-            <div className="absolute inset-x-0 bottom-0 p-4 md:p-6 bg-gradient-to-t from-black/60 to-transparent">
-              <h4 className="text-white font-semibold text-lg md:text-xl">{cat.name}</h4>
-              <p className="text-white/80 text-sm mt-1">Mulai dari Rp1.999.000</p>
-            </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="space-y-1 mb-5">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Jelajahi Produk Berdasarkan Kategori</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Koleksi perangkat keras resmi terlengkap dengan dukungan cicilan TLater</p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        
+        {/* Cat 1 */}
+        <div 
+          onClick={() => handleCategoryClick('Laptops')} 
+          className="p-4 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-slate-200/90 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin cursor-pointer transition shadow-card flex flex-col items-center text-center space-y-2 group"
+        >
+          <div className="w-20 h-20 flex items-center justify-center">
+            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=200&auto=format&fit=crop&q=80" alt="Laptops" className="h-16 object-contain group-hover:scale-105 transition" />
           </div>
-        ))}
+          <div>
+            <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">Laptop & MacBook</h3>
+            <p className="text-[10px] text-slate-500">Mulai dari Rp 14.500.000</p>
+          </div>
+        </div>
+
+        {/* Cat 2 */}
+        <div 
+          onClick={() => handleCategoryClick('Smartphones')} 
+          className="p-4 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-slate-200/90 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin cursor-pointer transition shadow-card flex flex-col items-center text-center space-y-2 group"
+        >
+          <div className="w-20 h-20 flex items-center justify-center">
+            <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200&auto=format&fit=crop&q=80" alt="Smartphones" className="h-16 object-contain group-hover:scale-105 transition" />
+          </div>
+          <div>
+            <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">iPhone & Flagship</h3>
+            <p className="text-[10px] text-slate-500">Mulai dari Rp 18.499.000</p>
+          </div>
+        </div>
+
+        {/* Cat 3 */}
+        <div 
+          onClick={() => handleCategoryClick('PC Components')} 
+          className="p-4 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-slate-200/90 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin cursor-pointer transition shadow-card flex flex-col items-center text-center space-y-2 group"
+        >
+          <div className="w-20 h-20 flex items-center justify-center">
+            <img src="https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=200&auto=format&fit=crop&q=80" alt="PC Components" className="h-16 object-contain group-hover:scale-105 transition" />
+          </div>
+          <div>
+            <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">Komponen PC Gaming</h3>
+            <p className="text-[10px] text-slate-500">Mulai dari Rp 4.750.000</p>
+          </div>
+        </div>
+
+        {/* Cat 4 */}
+        <div 
+          onClick={() => handleCategoryClick('Gaming Peripherals')} 
+          className="p-4 rounded-2xl bg-white dark:bg-[#1A1A1A] border border-slate-200/90 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin cursor-pointer transition shadow-card flex flex-col items-center text-center space-y-2 group"
+        >
+          <div className="w-20 h-20 flex items-center justify-center">
+            <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200&auto=format&fit=crop&q=80" alt="Gaming Gear" className="h-16 object-contain group-hover:scale-105 transition" />
+          </div>
+          <div>
+            <h3 className="font-bold text-xs text-slate-900 dark:text-slate-100">Aksesoris & Audio</h3>
+            <p className="text-[10px] text-slate-500">Mulai dari Rp 2.299.000</p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

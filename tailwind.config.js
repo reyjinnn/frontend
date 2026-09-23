@@ -26,9 +26,9 @@ export default {
         "vibe-points": "#F59E0B",
       },
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "sans-serif"],
-        logo: ["Poppins", "Outfit", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        logo: ['"Poppins"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
         "card": "0 2px 8px -2px rgba(0, 0, 0, 0.05), 0 1px 4px -1px rgba(0, 0, 0, 0.03)",

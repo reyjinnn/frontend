@@ -45,7 +45,7 @@ export const mockLedger: LedgerEntry[] = [
 export const PointsApi = {
   getWallet: async (): Promise<PointsWallet> => {
     try {
-      const res = await api.get('/api/v1/points/wallet');
+      const res = await api.get('localhost:3000/api/v1/points/wallet');
       return res.data;
     } catch (e) {
       return mockWallet;
@@ -54,7 +54,7 @@ export const PointsApi = {
 
   getHistory: async (): Promise<{ items: LedgerEntry[], total: number }> => {
     try {
-      const res = await api.get('/api/v1/points/history');
+      const res = await api.get('localhost:3000/api/v1/points/history');
       return res.data;
     } catch (e) {
       return { items: mockLedger, total: mockLedger.length };

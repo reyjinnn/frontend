@@ -75,7 +75,7 @@ let mockLoans: TlaterLoan[] = [
 export const TlaterApi = {
   getAccount: async (): Promise<TlaterAccount> => {
     try {
-      const res = await api.get('/api/v1/tlater/account');
+      const res = await api.get('localhost:3000/api/v1/tlater/account');
       return res.data;
     } catch (e) {
       return mockAccount;
@@ -84,7 +84,7 @@ export const TlaterApi = {
 
   getLoans: async (): Promise<{ items: TlaterLoan[], total: number }> => {
     try {
-      const res = await api.get('/api/v1/tlater/loans');
+      const res = await api.get('localhost:3000/api/v1/tlater/loans');
       return res.data;
     } catch (e) {
       return { items: mockLoans, total: mockLoans.length };
@@ -93,7 +93,7 @@ export const TlaterApi = {
 
   getLoanDetails: async (loanCode: string): Promise<{ loan: TlaterLoan, installments: TlaterInstallment[] }> => {
     try {
-      const res = await api.get(`/api/v1/tlater/loans/${loanCode}`);
+      const res = await api.get(`localhost:3000/api/v1/tlater/loans/${loanCode}`);
       return res.data;
     } catch (e) {
       const loan = mockLoans.find(l => l.loanCode === loanCode) || mockLoans[0];
@@ -122,7 +122,7 @@ export const TlaterApi = {
 
   repayInstallment: async (req: RepaymentRequest, idempotencyKey: string): Promise<any> => {
     try {
-      const res = await api.post('/api/v1/tlater/repayments', req, {
+      const res = await api.post('localhost:3000/api/v1/tlater/repayments', req, {
         headers: { 'Idempotency-Key': idempotencyKey }
       });
       return res.data;
