@@ -54,13 +54,22 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Pembayaran</h4>
-            <div className="flex gap-2 flex-wrap">
-              <div className="bg-white dark:bg-black px-2 py-1 border border-slate-200 dark:border-slate-800 rounded text-xs font-mono font-bold">VISA</div>
-              <div className="bg-white dark:bg-black px-2 py-1 border border-slate-200 dark:border-slate-800 rounded text-xs font-mono font-bold">Mastercard</div>
-              <div className="bg-white dark:bg-black px-2 py-1 border border-slate-200 dark:border-slate-800 rounded text-xs font-mono font-bold text-[#0056A3]">BCA VA</div>
-              <div className="bg-white dark:bg-black px-2 py-1 border border-slate-200 dark:border-slate-800 rounded text-xs font-mono font-bold text-red-600">QRIS</div>
-              <div className="bg-white dark:bg-black px-2 py-1 border border-tlater-border rounded text-xs font-mono font-bold text-tlater">TLater</div>
+            <h4 className="font-semibold mb-4">Pembayaran Aman</h4>
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px] max-w-sm">Pembayaran diproses melalui mitra terverifikasi. Informasi harga, biaya pengiriman, dan cicilan ditampilkan sebelum pesanan dikonfirmasi.</p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <div className="h-7 w-12 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1A1A1A] flex items-center justify-center">
+                <span className="text-[12px] font-black italic text-blue-800 dark:text-blue-500 tracking-tighter">VISA</span>
+              </div>
+              <div className="h-7 w-12 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1A1A1A] flex items-center justify-center p-1">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-full w-full object-contain" />
+              </div>
+              <div className="h-7 w-14 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1A1A1A] flex items-center justify-center p-1">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS" className="h-full w-full object-contain" />
+              </div>
+              <div className="h-7 px-3 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1A1A1A] flex items-center justify-center gap-1">
+                <svg className="w-3 h-3 text-blue-600 dark:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span className="text-[10px] font-black text-blue-600 dark:text-blue-500 tracking-wide">VA</span>
+              </div>
             </div>
           </div>
         </div>

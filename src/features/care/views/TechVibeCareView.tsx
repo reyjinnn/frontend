@@ -123,9 +123,9 @@ export function TechVibeCareView() {
           onClick={() => { setInitialCategory('Pengiriman'); setIsCreateModalOpen(true); }}
           className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin hover:shadow-lg transition-all group text-left"
         >
-          <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          {/* <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <Package className="w-6 h-6" />
-          </div>
+          </div> */}
           <h3 className="font-bold text-lg mb-2">Masalah Pesanan & Pengiriman</h3>
           <p className="text-sm text-slate-500">Lacak paket, komplain barang tidak sesuai, atau kendala kurir.</p>
         </button>
@@ -134,9 +134,9 @@ export function TechVibeCareView() {
           onClick={() => { setInitialCategory('Garansi'); setIsCreateModalOpen(true); }}
           className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin hover:shadow-lg transition-all group text-left"
         >
-          <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          {/* <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <ShieldCheck className="w-6 h-6" />
-          </div>
+          </div> */}
           <h3 className="font-bold text-lg mb-2">Klaim Garansi & Retur</h3>
           <p className="text-sm text-slate-500">Panduan klaim garansi resmi dan proses retur barang rusak.</p>
         </button>
@@ -145,9 +145,9 @@ export function TechVibeCareView() {
           onClick={() => { setInitialCategory('TLater'); setIsCreateModalOpen(true); }}
           className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin hover:shadow-lg transition-all group text-left"
         >
-          <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          {/* <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <CreditCard className="w-6 h-6" />
-          </div>
+          </div> */}
           <h3 className="font-bold text-lg mb-2">TechVibe Later</h3>
           <p className="text-sm text-slate-500">Pertanyaan seputar limit, pembayaran tagihan, dan denda.</p>
         </button>
