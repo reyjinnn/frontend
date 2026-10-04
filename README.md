@@ -12,7 +12,7 @@ Akun berikut berasal dari `src/lib/demoRepository.ts:138-142` dan login divalida
 
 | Peran | Email | Password | KYC |
 |---|---|---|---|
-| Customer | budi@example.com | Demo123! | unverified |
+| Customer | raihan@example.com | Demo123! | unverified |
 | Customer | siti@example.com | Demo123! | pending |
 | Customer | agus@example.com | Demo123! | verified |
 | Customer | rina@example.com | Demo123! | rejected |
