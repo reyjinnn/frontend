@@ -29,8 +29,8 @@ export function InstallmentTable({ loanCode, onRepay, revision }: InstallmentTab
   const hasAdjusted = installments.some(i => i.isAdjusted);
 
   return (
-    <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800 rounded-3xl p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
         <div>
           <h3 className="font-bold text-lg">Jadwal Angsuran</h3>
           <p className="text-sm text-slate-500 font-mono">{loanCode}</p>
