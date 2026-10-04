@@ -26,7 +26,7 @@ interface LoginModalProps {
 export const LoginModal = ({ isOpen, onClose, onOpenRegister }: LoginModalProps) => {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: 'budi@example.com', password: 'Demo123!' }
+    defaultValues: { email: 'raihan@example.com', password: 'Demo123!' }
   });
   const { syncSession, intendedAction, setIntendedAction } = useAuthStore();
   const { toast } = useToast();
