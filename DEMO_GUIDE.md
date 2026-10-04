@@ -1,0 +1,15 @@
+# Panduan demo TechVibe (10–15 menit)
+
+Jalankan `npm ci`, `npm run dev` dan buka URL Vite (umumnya `http://localhost:5173`). Pembayaran, KYC, kurir, stok, dan poin adalah simulasi lokal; jangan gunakan informasi pribadi asli. Kredensial seed yang diverifikasi di `src/lib/demoRepository.ts:138-142`: customer `budi@example.com` / `Demo123!` (KYC unverified), `agus@example.com` / `Demo123!` (verified), `siti@example.com` (pending), `rina@example.com` (rejected), dan admin `admin@techvibe.id` / `Admin123!`.
+
+| Menit | Aksi presenter | Hasil yang diharapkan / pemulihan |
+|---|---|---|
+| 0–2 | Buka tab A `/` sebagai guest. Buka `/profile` lalu login Budi via modal. | Sebelum login, data privat tidak muncul. Setelah login, refresh `/profile` tidak mengeluarkan sesi. Jika database seed sudah diubah, reset data terlebih dulu. |
+| 2–4 | Kunjungi `/catalog`, cari produk, buka detail, wishlist dan keranjang. | Barang dan harga tampil. Jika tidak ada hasil, bersihkan filter dan refresh. Jangan klaim kombinasi filter/URL teruji penuh. |
+| 4–7 | Di tab A pilih alamat seed Budi, kurir, proteksi, promo bila berlaku, lanjutkan `/checkout`. | Preview nominal dan order harus diperiksa manual; jangan lanjut klaim pembayaran berhasil bila tombol memberi error. Akun Budi belum verified sehingga TLater tidak tersedia; gunakan Agus untuk demonstrasi TLater. |
+| 7–9 | Buka **tab baru melalui address bar** pada origin yang sama ke `/admin/login` (tab B). Login admin, buka `/admin/orders` dan `/admin/products`. | Sesi admin tab B tidak mengganti sesi Budi tab A. Refresh/fokus ulang bila data bisnis belum diperbarui. Jangan gunakan Duplicate Tab; beberapa browser menyalin `sessionStorage` saat duplikasi. |
+| 9–11 | Pada tab B periksa order; pada tab A periksa `/orders`. Bandingkan nomor, status, harga, lalu uji aksi pembayaran simulasi bila tersedia. | Jangan menyatakan sinkronisasi mutasi berhasil tanpa nomor order yang identik. Jika submit gagal, tampilkan error dan kembali ke order seed; jangan klik berulang dengan key baru. |
+| 11–13 | Bandingkan status tiket/points dan tema pada kedua tab; tampilkan `/care` untuk FAQ publik. | Data privat tidak boleh terlihat sebelum login; beberapa modul admin belum lengkap (`/admin/customers` masih Coming Soon). |
+| 13–15 | Tutup dengan hasil QA dan batasan. | Buka `QA_DEMO_CHECKLIST.md`; browser smoke dan temuan overflow 390px terdokumentasi terpisah dari skenario yang belum diuji. |
+
+**Pemulihan:** Logout hanya menghapus sesi pada tab aktif. Gunakan kontrol Reset Data Demo dengan konfirmasi jika tersedia; bila tidak tersedia, buka DevTools Storage pada origin demo, hapus **hanya** key `techvibe.demo.db.v1` di localStorage dan `techvibe.session` di sessionStorage setiap tab, lalu reload kedua tab. Jangan gunakan `localStorage.clear()`. Data tidak terbagi antar browser/profile/perangkat; tidak ada pemulihan transaksi setelah data lokal dihapus. Untuk penolakan login admin, pastikan password tepat dan database seed belum dimodifikasi. Reload deep link bila UI tertinggal setelah update tab lain.
