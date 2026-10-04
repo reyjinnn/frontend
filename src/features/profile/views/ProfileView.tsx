@@ -6,11 +6,35 @@ import { Button } from '../../../components/ui/Button';
 import { KycModal } from '../../auth/components/KycModal';
 import { Link } from 'react-router-dom';
 import { ShieldAlert, CreditCard, Coins, CheckCircle2 } from 'lucide-react';
+import { mutateDemoDB } from '../../../lib/demoRepository';
+import { useToast } from '../../../stores/useToastStore';
 
 export function ProfileView() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, syncSession } = useAuthStore();
   const { openLogin } = useUIStore();
+  const { toast } = useToast();
   const [isKycOpen, setIsKycOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(user?.name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+
+  const handleSaveProfile = () => {
+    if (!name.trim() || !/^\+?[0-9]{10,15}$/.test(phone.trim())) {
+      toast({ title: 'Nama dan nomor telepon valid wajib diisi', type: 'error' });
+      return;
+    }
+    try {
+      mutateDemoDB(db => {
+        const c = db.customers.find(c => c.id === user?.id && c.role === 'customer');
+        if (!c) throw new Error('Unauthorized');
+        c.name = name.trim();
+        c.phone = phone.trim();
+      });
+      syncSession();
+      setEditing(false);
+      toast({ title: 'Profil diperbarui', type: 'success' });
+    } catch (e) { toast({ title: 'Profil gagal disimpan', message: String(e), type: 'error' }); }
+  };
 
   return (
     <div className="bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-card p-6 md:p-10 border border-slate-100 dark:border-slate-800/60">
@@ -20,13 +44,39 @@ export function ProfileView() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-1 space-y-6">
             <div className="p-6 bg-slate-50 dark:bg-[#141414] rounded-2xl border border-slate-200 dark:border-slate-800">
-              <h3 className="font-semibold text-lg mb-4">Informasi Akun</h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-1 text-sm font-medium">Nama</p>
-              <p className="mb-3 font-semibold">{user?.name}</p>
-              <p className="text-slate-600 dark:text-slate-400 mb-1 text-sm font-medium">Email</p>
-              <p className="mb-3 font-semibold">{user?.email}</p>
-              <p className="text-slate-600 dark:text-slate-400 mb-1 text-sm font-medium">No HP</p>
-              <p className="mb-3 font-semibold">{user?.phone || '-'}</p>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-lg">Informasi Akun</h3>
+                {!editing ? (
+                  <button onClick={() => setEditing(true)} className="text-xs font-semibold text-pumpkin hover:underline">Edit</button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button onClick={() => setEditing(false)} className="text-xs font-semibold text-slate-500 hover:underline">Batal</button>
+                    <button onClick={handleSaveProfile} className="text-xs font-semibold text-pumpkin hover:underline">Simpan</button>
+                  </div>
+                )}
+              </div>
+              
+              {editing ? (
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">Nama</label>
+                    <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full border rounded px-2 py-1 text-sm bg-transparent" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 mb-1 block">No HP</label>
+                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="w-full border rounded px-2 py-1 text-sm bg-transparent" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-slate-600 dark:text-slate-400 mb-1 text-sm font-medium">Nama</p>
+                  <p className="mb-3 font-semibold">{user?.name}</p>
+                  <p className="text-slate-600 dark:text-slate-400 mb-1 text-sm font-medium">Email</p>
+                  <p className="mb-3 font-semibold">{user?.email}</p>
+                  <p className="text-slate-600 dark:text-slate-400 mb-1 text-sm font-medium">No HP</p>
+                  <p className="mb-3 font-semibold">{user?.phone || '-'}</p>
+                </>
+              )}
 
               <hr className="border-slate-200 dark:border-slate-700 my-4" />
               
@@ -54,6 +104,12 @@ export function ProfileView() {
               )}
             </div>
 
+            {user?.kycStatus === 'rejected' && (
+              <div className="bg-red-50 p-4 rounded-xl mt-4 border border-red-200">
+                <p className="text-red-700 text-sm font-bold">Verifikasi KYC Ditolak</p>
+                <button onClick={() => setIsKycOpen(true)} className="mt-2 text-sm text-red-600 underline">Ajukan ulang</button>
+              </div>
+            )}
             <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
               <Link to="/tlater" className="flex items-center gap-3 p-4 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-pumpkin transition-colors group">
                 <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-pumpkin/10 group-hover:text-pumpkin transition-colors">
