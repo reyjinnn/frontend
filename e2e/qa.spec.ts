@@ -11,8 +11,8 @@ test('guest privacy and customer login survive refresh', async ({ page }) => {
   await page.goto('/profile');
   await expect(page.getByRole('heading', { name: 'Selamat Datang!' })).toBeVisible();
   await expect(page.getByText('Masuk untuk melanjutkan', { exact: true })).toBeVisible();
-  await expect(page.getByText('Budi Santoso')).toHaveCount(0);
-  await page.getByPlaceholder('Email').fill('budi@example.com');
+  await expect(page.getByText('Raihan Ananda')).toHaveCount(0);
+  await page.getByPlaceholder('Email').fill('raihan@example.com');
   await page.getByPlaceholder('Password').fill('Demo123!');
   await page.locator('form button[type="submit"]').click();
   await expect(page.getByRole('heading', { name: 'Selamat Datang!' })).toBeHidden();
@@ -44,7 +44,7 @@ test('two tabs: customer and admin sessions isolated, business database shared',
   const adminErrors = errors(admin);
   await customer.goto('/');
   await customer.getByRole('button', { name: 'Masuk', exact: true }).first().click();
-  await customer.getByPlaceholder('Email').fill('budi@example.com');
+  await customer.getByPlaceholder('Email').fill('raihan@example.com');
   await customer.getByPlaceholder('Password').fill('Demo123!');
   await customer.locator('form button[type="submit"]').click();
   await admin.goto('/admin/login');
