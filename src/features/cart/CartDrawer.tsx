@@ -32,14 +32,14 @@ export function CartDrawer() {
       
       {}
       <div className="absolute inset-y-0 right-0 w-full max-w-md bg-white dark:bg-[#1A1A1A] shadow-2xl flex flex-col translate-x-0 transition-transform duration-300 ease-in-out border-l border-slate-100 dark:border-slate-800">
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Keranjang Belanja</h2>
-          <button onClick={closeCart} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+          <h2 className="text-lg sm:text-xl font-bold">Keranjang Belanja</h2>
+          <button onClick={closeCart} aria-label="Close cart" className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center text-slate-500 space-y-4">
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
@@ -63,22 +63,25 @@ export function CartDrawer() {
                     <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-lg">
                       <button 
                         onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                        className="p-1 text-slate-500 hover:text-pumpkin transition-colors disabled:opacity-50"
+                        className="w-8 h-8 min-w-[32px] sm:w-10 sm:h-10 sm:min-w-[40px] flex items-center justify-center text-slate-500 hover:text-pumpkin transition-colors disabled:opacity-50"
                         disabled={item.quantity <= 1}
+                        aria-label="Decrease quantity"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                        className="p-1 text-slate-500 hover:text-pumpkin transition-colors"
+                        className="w-8 h-8 min-w-[32px] sm:w-10 sm:h-10 sm:min-w-[40px] flex items-center justify-center text-slate-500 hover:text-pumpkin transition-colors"
+                        aria-label="Increase quantity"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
                     <button 
                       onClick={() => removeItem(item.productId)}
-                      className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                      className="text-slate-400 hover:text-red-500 transition-colors p-2 min-w-[40px] min-h-[40px] flex items-center justify-center"
+                      aria-label="Remove item"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -90,7 +93,7 @@ export function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <div className="border-t border-slate-100 dark:border-slate-800 p-6 bg-slate-50 dark:bg-[#141414]">
+          <div className="border-t border-slate-100 dark:border-slate-800 p-4 sm:p-6 bg-slate-50 dark:bg-[#141414] shrink-0">
             <div className="flex items-center justify-between mb-4">
               <span className="text-slate-600 dark:text-slate-400">Total Belanja</span>
               <span className="text-xl font-mono font-bold">Rp {totalItemAmount.toLocaleString('id-ID')}</span>
