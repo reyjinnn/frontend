@@ -6,6 +6,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Phone, Lock, User, Mail } from 'lucide-react';
 import { useToast } from '../../stores/useToastStore';
+import { AuthService } from '../../services/auth.service';
 
 const registerSchema = z.object({
   name: z.string().min(3, 'Nama minimal 3 karakter'),
@@ -29,18 +30,16 @@ export const RegisterModal = ({ isOpen, onClose, onOpenLogin }: RegisterModalPro
   });
   const { toast } = useToast();
 
-  const onSubmit = async (_data: RegisterForm) => {
+  const onSubmit = async (data: RegisterForm) => {
     try {
-
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      
-      toast({ title: 'Registrasi Berhasil', message: 'Silakan login menggunakan nomor HP Anda.', type: 'success' });
+      await AuthService.register(data);
+      toast({ title: 'Registrasi Berhasil', message: 'Silakan login menggunakan email Anda.', type: 'success' });
       onClose();
       onOpenLogin();
     } catch (error: any) {
       toast({ 
         title: 'Registrasi Gagal', 
-        message: error.response?.data?.message || 'Terjadi kesalahan pada server', 
+        message: error.message || 'Registrasi gagal', 
         type: 'error' 
       });
     }
@@ -65,7 +64,7 @@ export const RegisterModal = ({ isOpen, onClose, onOpenLogin }: RegisterModalPro
           <Input 
             {...register('email')} 
             type="email" 
-            placeholder="Email (Opsional)" 
+            placeholder="Email (Wajib)" 
             icon={<Mail className="h-5 w-5" />} 
             error={errors.email?.message} 
           />
