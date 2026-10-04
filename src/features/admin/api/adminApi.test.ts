@@ -51,7 +51,7 @@ describe('admin repository integration', () => {
   it('persists KYC decisions and correctly identifies admin replies', async () => {
     mutateDemoDB(db => {
       db.customers[0].kycStatus = 'pending';
-      db.kyc.push({userId: 101, name: 'Budi', nik: '1234567890123456', dateOfBirth: '1990-01-01', address: 'Jakarta', ktpImageUrl: '/ktp.jpg', selfieImageUrl: '/selfie.jpg', status: 'pending', submittedAt: '2026-10-01'});
+      db.kyc.push({userId: 101, name: 'Raihan', nik: '1234567890123456', dateOfBirth: '1990-01-01', address: 'Jakarta', ktpImageUrl: '/ktp.jpg', selfieImageUrl: '/selfie.jpg', status: 'pending', submittedAt: '2026-10-01'});
       db.tickets.push({id: 't1', userId: '101', ticketNumber: 'T1', subject: 'Help', category: 'Pesanan', status: 'open', priority: 'low', createdAt: '2026-10-01', updatedAt: '2026-10-01', messages: []});
     });
     await AdminApi.verifyKyc(101, false, 'Dokumen buram');
