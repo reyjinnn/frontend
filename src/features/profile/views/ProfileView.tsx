@@ -37,7 +37,7 @@ export function ProfileView() {
   };
 
   return (
-    <div className="bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-card p-6 md:p-10 border border-slate-100 dark:border-slate-800/60">
+    <div className="bg-white dark:bg-[#1A1A1A] rounded-3xl shadow-card p-4 sm:p-6 md:p-10 border border-slate-100 dark:border-slate-800/60">
       <h2 className="text-2xl font-semibold mb-6">Dashboard Profil</h2>
       
       {isAuthenticated ? (
@@ -110,7 +110,7 @@ export function ProfileView() {
                 <button onClick={() => setIsKycOpen(true)} className="mt-2 text-sm text-red-600 underline">Ajukan ulang</button>
               </div>
             )}
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
               <Link to="/tlater" className="flex items-center gap-3 p-4 bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-700 rounded-2xl hover:border-pumpkin transition-colors group">
                 <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center group-hover:bg-pumpkin/10 group-hover:text-pumpkin transition-colors">
                   <CreditCard className="w-5 h-5" />
