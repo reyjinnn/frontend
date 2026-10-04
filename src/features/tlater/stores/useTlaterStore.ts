@@ -21,8 +21,8 @@ export const useTlaterStore = create<TlaterState>((set) => ({
         TlaterApi.getLoans()
       ]);
       set({ account: accountRes, loans: loansRes.items, isLoading: false });
-    } catch (e) {
-      set({ isLoading: false });
+    } catch {
+      set({ account: null, loans: [], isLoading: false });
     }
   }
 }));
