@@ -7,10 +7,12 @@ import { Input } from '../../components/ui/Input';
 import { Phone, Lock } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useToast } from '../../stores/useToastStore';
+import { AuthService } from '../../services/auth.service';
+import { useNavigate } from 'react-router-dom';
 
 const loginSchema = z.object({
-  phone: z.string().min(10, 'Nomor HP tidak valid').regex(/^\+62/, 'Harus diawali +62'),
-  password: z.string().min(8, 'Password minimal 8 karakter'),
+  email: z.email('Email tidak valid'),
+  password: z.string().min(6, 'Password minimal 6 karakter'),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -24,27 +26,27 @@ interface LoginModalProps {
 export const LoginModal = ({ isOpen, onClose, onOpenRegister }: LoginModalProps) => {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { phone: '+62' }
+    defaultValues: { email: 'budi@example.com', password: 'Demo123!' }
   });
-  const { login } = useAuthStore();
+  const { syncSession, intendedAction, setIntendedAction } = useAuthStore();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const onSubmit = async (data: LoginForm) => {
     try {
-
-      const mockResponse = {
-        user: { id: 'usr_1', name: 'TechVibe User', email: 'user@techvibe.id', phone: data.phone },
-        accessToken: 'mock_jwt_access_token',
-        refreshToken: 'mock_jwt_refresh_token',
-      };
-      
-      login(mockResponse.user, mockResponse.accessToken, mockResponse.refreshToken);
+      await AuthService.login(data.email, data.password);
+      syncSession();
       toast({ title: 'Login Berhasil', type: 'success' });
       onClose();
+      if (intendedAction) {
+        const dest = intendedAction;
+        setIntendedAction(null);
+        navigate(dest);
+      }
     } catch (error: any) {
       toast({ 
         title: 'Login Gagal', 
-        message: error.response?.data?.message || 'Nomor HP atau password salah', 
+        message: error.message || 'Email atau password salah', 
         type: 'error' 
       });
     }
@@ -60,11 +62,11 @@ export const LoginModal = ({ isOpen, onClose, onOpenRegister }: LoginModalProps)
         
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
           <Input 
-            {...register('phone')} 
-            type="tel" 
-            placeholder="+62 8xx xxx xxx" 
+            {...register('email')} 
+            type="email" 
+            placeholder="Email" 
             icon={<Phone className="h-5 w-5" />} 
-            error={errors.phone?.message} 
+            error={errors.email?.message} 
           />
           <Input 
             {...register('password')} 
