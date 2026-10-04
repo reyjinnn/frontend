@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, ChevronDown, MessageSquare, LifeBuoy } from 'lucide-react';
 import { TicketsApi } from '../api/ticketsApi';
 import type { Ticket, CreateTicketPayload } from '../types';
 import { CreateTicketModal } from '../components/CreateTicketModal';
 import { TicketThreadModal } from '../components/TicketThreadModal';
+import { useAuthStore } from '../../../stores/useAuthStore';
+import { useUIStore } from '../../../stores/useUIStore';
+import { useDemoSnapshot } from '../../../stores/useDemoSnapshot';
 
 const FAQS = [
   {
@@ -27,8 +30,11 @@ const FAQS = [
 
 export function TechVibeCareView() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const user = useAuthStore(s => s.user);
+  const openLogin = useUIStore(s => s.openLogin);
+  const db = useDemoSnapshot();
+  const tickets = user?.role === 'customer' ? db.tickets.filter(t => t.userId === user.id) : [];
+  const isLoading = false;
   
   const [searchQuery, setSearchQuery] = useState('');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -40,41 +46,23 @@ export function TechVibeCareView() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isThreadModalOpen, setIsThreadModalOpen] = useState(false);
 
-  const fetchTickets = async () => {
-    setIsLoading(true);
-    const data = await TicketsApi.getTickets();
-    setTickets(data);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchTickets();
-  }, []);
-
-  useEffect(() => {
-    const action = searchParams.get('action');
-    const category = searchParams.get('category');
-    
-    if (action === 'create_ticket') {
-      if (category) setInitialCategory(category);
-      setIsCreateModalOpen(true);
-      
-      setSearchParams({});
-    }
-  }, [searchParams, setSearchParams]);
+  const ticketId = searchParams.get('ticket');
+  const linkedTicket = ticketId ? tickets.find(t => String(t.id) === ticketId || t.ticketNumber === ticketId) : null;
+  const initialAction = searchParams.get('action') === 'create_ticket' || searchParams.get('topic') === 'warranty';
+  const categoryFromUrl = searchParams.get('category') || (searchParams.get('topic') === 'warranty' ? 'Garansi' : undefined);
+  const showCreate = isCreateModalOpen || (!!user && initialAction);
+  const showThread = isThreadModalOpen || !!linkedTicket;
 
   const handleCreateTicket = async (payload: CreateTicketPayload) => {
     await TicketsApi.createTicket(payload);
-    await fetchTickets();
     alert('Tiket berhasil dibuat. Tim kami akan segera merespon.');
   };
 
   const handleReplyTicket = async (message: string) => {
-    if (!selectedTicket) return;
-    const updated = await TicketsApi.replyTicket(selectedTicket.id, message);
+    const current = selectedTicket ?? linkedTicket;
+    if (!current) return;
+    const updated = await TicketsApi.replyTicket(current.id, message);
     setSelectedTicket(updated);
-    
-    TicketsApi.getTickets().then(setTickets);
   };
 
   const openThread = (ticket: Ticket) => {
@@ -88,6 +76,11 @@ export function TechVibeCareView() {
       case 'in_progress': return <span className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Diproses</span>;
       case 'closed': return <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Selesai</span>;
     }
+  };
+
+  const requireUser = (fn: () => void) => {
+    if (!user) openLogin();
+    else fn();
   };
 
   return (
@@ -120,7 +113,7 @@ export function TechVibeCareView() {
       {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <button 
-          onClick={() => { setInitialCategory('Pengiriman'); setIsCreateModalOpen(true); }}
+          onClick={() => { setInitialCategory('Pengiriman'); requireUser(() => setIsCreateModalOpen(true)); }}
           className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin hover:shadow-lg transition-all group text-left"
         >
           {/* <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -131,7 +124,7 @@ export function TechVibeCareView() {
         </button>
 
         <button 
-          onClick={() => { setInitialCategory('Garansi'); setIsCreateModalOpen(true); }}
+          onClick={() => { setInitialCategory('Garansi'); requireUser(() => setIsCreateModalOpen(true)); }}
           className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin hover:shadow-lg transition-all group text-left"
         >
           {/* <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 text-green-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -142,7 +135,7 @@ export function TechVibeCareView() {
         </button>
 
         <button 
-          onClick={() => { setInitialCategory('TLater'); setIsCreateModalOpen(true); }}
+          onClick={() => { setInitialCategory('TLater'); requireUser(() => setIsCreateModalOpen(true)); }}
           className="bg-white dark:bg-[#1A1A1A] p-6 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-pumpkin dark:hover:border-pumpkin hover:shadow-lg transition-all group text-left"
         >
           {/* <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -185,7 +178,7 @@ export function TechVibeCareView() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Tiket Saya</h2>
             <button 
-              onClick={() => { setInitialCategory('Lainnya'); setIsCreateModalOpen(true); }}
+              onClick={() => { setInitialCategory('Lainnya'); requireUser(() => setIsCreateModalOpen(true)); }}
               className="text-sm font-semibold text-pumpkin hover:underline"
             >
               Buat Tiket Baru
@@ -233,16 +226,16 @@ export function TechVibeCareView() {
       </div>
 
       <CreateTicketModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
+        isOpen={showCreate} 
+        onClose={() => { setIsCreateModalOpen(false); if (initialAction) setSearchParams({}); }} 
         onSubmit={handleCreateTicket}
-        initialCategory={initialCategory}
+        initialCategory={initialCategory ?? categoryFromUrl}
       />
 
       <TicketThreadModal
-        isOpen={isThreadModalOpen}
-        onClose={() => setIsThreadModalOpen(false)}
-        ticket={selectedTicket}
+        isOpen={showThread}
+        onClose={() => { setIsThreadModalOpen(false); setSelectedTicket(null); if (ticketId) setSearchParams({}); }}
+        ticket={selectedTicket ?? linkedTicket ?? null}
         onReply={handleReplyTicket}
       />
     </div>
