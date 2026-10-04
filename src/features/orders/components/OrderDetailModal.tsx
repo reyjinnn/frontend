@@ -21,22 +21,22 @@ export function OrderDetailModal({ isOpen, onClose, order, onCancelClick, onPayC
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in-up flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in-up flex flex-col max-h-[calc(100dvh-2rem)]">
         
-        {}
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div>
-            <h2 className="text-xl font-bold">Detail Pesanan</h2>
-            <p className="text-sm text-slate-500 font-mono mt-1">{order.orderNumber}</p>
+            <h2 className="text-lg sm:text-xl font-bold">Detail Pesanan</h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-mono mt-1">{order.orderNumber}</p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+          <button onClick={onClose} aria-label="Tutup" className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {}
-        <div className="p-6 overflow-y-auto space-y-6">
+        {/* Content */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6">
           
           {}
           {order.status === 'unpaid' && (
@@ -120,13 +120,13 @@ export function OrderDetailModal({ isOpen, onClose, order, onCancelClick, onPayC
         </div>
 
         {}
-        <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-[#141414] mt-auto">
+        <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-slate-50 dark:bg-[#141414] mt-auto shrink-0">
           <div>
             <button onClick={print} className="flex items-center gap-2 text-sm text-pumpkin font-semibold hover:underline">
               <FileText className="w-4 h-4" /> Download Invoice
             </button>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             {order.status === 'unpaid' && (
               <>
                 <Button variant="outline" onClick={onCancelClick}>
