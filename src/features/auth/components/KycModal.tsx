@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { X, UploadCloud, CheckCircle2, ShieldAlert } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { useAuthStore } from '../../../stores/useAuthStore';
+import { AuthService } from '../../../services/auth.service';
+
+const readImage = (file: File) => new Promise<string>((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(String(reader.result));
+  reader.onerror = () => reject(new Error('Gagal membaca gambar'));
+  reader.readAsDataURL(file);
+});
 
 interface KycModalProps {
   isOpen: boolean;
@@ -9,7 +17,7 @@ interface KycModalProps {
 }
 
 export function KycModal({ isOpen, onClose }: KycModalProps) {
-  const { setKycStatus } = useAuthStore();
+  const { user, syncSession } = useAuthStore();
   const [nik, setNik] = useState('');
   const [dob, setDob] = useState('');
   const [address, setAddress] = useState('');
@@ -39,7 +47,7 @@ export function KycModal({ isOpen, onClose }: KycModalProps) {
       age--;
     }
     
-    if (age < 18) {
+    if (!dob || !Number.isFinite(birthDate.getTime()) || age < 18) {
       setError('Anda harus berusia minimal 18 tahun untuk mengaktifkan TLater.');
       return false;
     }
@@ -49,13 +57,13 @@ export function KycModal({ isOpen, onClose }: KycModalProps) {
       return false;
     }
 
-    if (!ktpFile || ktpFile.size > 5 * 1024 * 1024) {
-      setError('Foto KTP wajib diunggah dan maksimal 5MB.');
+    if (!ktpFile || !/^image\/(jpeg|png|webp)$/.test(ktpFile.type) || ktpFile.size > 512 * 1024) {
+      setError('Foto KTP wajib diunggah (JPG/PNG/WebP, maksimal 512KB).');
       return false;
     }
 
-    if (!selfieFile || selfieFile.size > 5 * 1024 * 1024) {
-      setError('Swafoto wajib diunggah dan maksimal 5MB.');
+    if (!selfieFile || !/^image\/(jpeg|png|webp)$/.test(selfieFile.type) || selfieFile.size > 512 * 1024) {
+      setError('Swafoto wajib diunggah (JPG/PNG/WebP, maksimal 512KB).');
       return false;
     }
 
@@ -68,16 +76,24 @@ export function KycModal({ isOpen, onClose }: KycModalProps) {
 
     setIsSubmitting(true);
     try {
-      // Mock API delay
-      await new Promise(r => setTimeout(r, 1500));
-      setKycStatus('pending'); 
+      const ktpImageUrl = await readImage(ktpFile!);
+      const selfieImageUrl = await readImage(selfieFile!);
+      await AuthService.submitKyc({
+        nik,
+        name: user?.name || 'Customer Demo',
+        dateOfBirth: dob,
+        address,
+        ktpImageUrl,
+        selfieImageUrl
+      });
+      syncSession();
       setSuccess(true);
       setTimeout(() => {
         onClose();
         setSuccess(false);
       }, 3000);
-    } catch (err) {
-      setError('Terjadi kesalahan pada server. Silakan coba lagi.');
+    } catch (err: any) {
+      setError(err.message || 'Terjadi kesalahan pada server. Silakan coba lagi.');
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +124,7 @@ export function KycModal({ isOpen, onClose }: KycModalProps) {
 
         <div className="bg-sky-50 dark:bg-sky-900/30 p-4 rounded-xl flex gap-3 mb-6 border border-sky-100 dark:border-sky-800">
           <ShieldAlert className="w-5 h-5 text-sky-600 dark:text-sky-400 flex-shrink-0" />
-          <p className="text-sm text-sky-800 dark:text-sky-300">Data Anda dilindungi enkripsi end-to-end sesuai kebijakan privasi kami dan hanya digunakan untuk verifikasi layanan TLater.</p>
+          <p className="text-sm text-sky-800 dark:text-sky-300">Mode Demo: gunakan identitas dan foto sintetis. Berkas tersimpan lokal di browser, bukan layanan verifikasi identitas nyata.</p>
         </div>
 
         {error && (
