@@ -11,7 +11,7 @@ export function Page({ title, description, actions, children, state }: { title: 
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-space text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{title}</h2>
+          <h2 className="font-sans text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{title}</h2>
           {description && <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{description}</p>}
         </div>
         <div className="flex items-center gap-3">
