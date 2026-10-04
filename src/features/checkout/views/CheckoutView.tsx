@@ -1,5 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { useDemoSnapshot } from '../../../stores/useDemoSnapshot';
+import { requireDemoUser, transactDemoDB } from '../../../lib/demoRepository';
+import { addressService, type Address } from '../../../services/addressService';
+import { useToastStore } from '../../../stores/useToastStore';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCartStore } from '../../cart/useCartStore';
 import { useUIStore } from '../../../stores/useUIStore';
@@ -15,16 +19,29 @@ import { MapPin, ShieldCheck, Ticket, Receipt, ChevronRight, Info } from 'lucide
 export function CheckoutView() {
   const { isAuthenticated, user } = useAuthStore();
   const { openLogin } = useUIStore();
-  const { items, totalItemAmount, fetchCart } = useCartStore();
+  const { items, fetchCart } = useCartStore();
 
-  if (!isAuthenticated) {
-    openLogin();
-    return <Navigate to="/" replace />;
-  }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      useAuthStore.getState().setIntendedAction('/checkout');
+      openLogin();
+    }
+  }, [isAuthenticated, openLogin]);
 
-  const [shippingCity] = useState("Jakarta Selatan");
-  const [shippingFee, setShippingFee] = useState(25000); 
-  const [selectedShipping, setSelectedShipping] = useState('instant');
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressId, setAddressId] = useState('');
+  const address = addresses.find(a => a.id === addressId);
+  const shippingCity = address?.city ?? '';
+  const toast = useToastStore(s => s.addToast);
+  const attempt = useRef<string | null>(null);
+  const [selectedShipping, setSelectedShipping] = useState('');
+  const db = useDemoSnapshot();
+  const shippingOptions = db.shipping.length
+    ? db.shipping.filter(c => c.isActive).map(c => ({ id: c.id, name: c.name, price: c.fee, eta: 'Estimasi 2–3 hari (simulasi)' }))
+    : [{ id: 'regular', name: 'Regular', price: db.settings.shippingFee, eta: 'Estimasi 2–3 hari (simulasi)' }];
+  const currentCourier = shippingOptions.find(o => o.id === selectedShipping) ?? shippingOptions[0];
+  const shippingFee = currentCourier?.price ?? 0;
+  const shippingAvailable = !!currentCourier;
   const [hasInsurance, setHasInsurance] = useState(false);
 
   const [pointsBalance, setPointsBalance] = useState(0);
@@ -41,105 +58,98 @@ export function CheckoutView() {
   const [isPromoOpen, setIsPromoOpen] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<any | null>(null);
 
-  const [simResult, setSimResult] = useState<any>(null);
+  const [simResult, setSimResult] = useState<Awaited<ReturnType<typeof CheckoutApi.simulateCheckout>> | null>(null);
+  const [quoteError, setQuoteError] = useState('');
+  const quoteRequest = useRef(0);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shippingNotes, setShippingNotes] = useState<Record<string, string>>({});
   const [successData, setSuccessData] = useState<any>(null);
 
   useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'customer') return;
     fetchCart();
-    CheckoutApi.getPointsWallet().then(res => setPointsBalance(res.availableBalance));
-    CheckoutApi.getTlaterAccount().then(res => setTlaterLimit(res.availableLimit));
-  }, []);
+    addressService.getAddresses().then(list => { setAddresses(list); setAddressId(list.find(a => a.isPrimary)?.id ?? list[0]?.id ?? ''); }).catch(() => toast({ title: 'Gagal muat alamat', type: 'error' }));
+    CheckoutApi.getPointsWallet().then(res => setPointsBalance(res.availableBalance)).catch(() => {});
+    CheckoutApi.getTlaterAccount().then(res => setTlaterLimit(res.availableLimit)).catch(() => {});
+  }, [isAuthenticated, user?.role, user?.id, fetchCart, toast]);
 
   useEffect(() => {
+    const request = ++quoteRequest.current;
+    setSimResult(null);
+    if (!isAuthenticated || items.length === 0 || !shippingAvailable) return;
     const insuranceFee = hasInsurance ? 25000 : 0;
-    
-    let req: SplitCheckoutRequest = {
+    CheckoutApi.simulateCheckout({
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
       shippingCity,
+      shippingFee,
+      courier: currentCourier?.name,
+      protectionFee: insuranceFee,
+      promoCode: appliedPromo?.code ?? appliedPromo?.id,
       usePoints: usePoints ? pointsAmount : 0,
       useTlater,
       tlaterTenor
-    };
-
-    CheckoutApi.simulateCheckout(req).then(res => {
-      
-      let grandTotal = res.grandTotal + insuranceFee;
-      let promoDiscount = 0;
-      
-      if (appliedPromo) {
-        if (appliedPromo.discountFixed) {
-          promoDiscount = appliedPromo.discountFixed;
-        } else if (appliedPromo.discountPercentage) {
-          promoDiscount = Math.min(grandTotal * (appliedPromo.discountPercentage / 100), 100000);
-        }
+    }).then(q => {
+      if (quoteRequest.current === request) {
+        setSimResult(q);
+        setQuoteError('');
       }
-      
-      grandTotal = Math.max(0, grandTotal - promoDiscount);
-
-      let finalPointsUsed = usePoints ? Math.min(pointsAmount, grandTotal) : 0;
-      let remaining = grandTotal - finalPointsUsed;
-      
-      let finalTlaterPrincipal = useTlater ? Math.min(remaining, tlaterLimit) : 0;
-      let finalGatewayCash = remaining - finalTlaterPrincipal;
-
-      let tlaterInterest = 0;
-      let tlaterAdmin = 0;
-      let monthly = 0;
-
-      if (useTlater && finalTlaterPrincipal > 0) {
-        if (tlaterTenor === 1) {
-          tlaterAdmin = finalTlaterPrincipal * 0.01;
-          monthly = finalTlaterPrincipal + tlaterAdmin;
-        } else {
-          tlaterInterest = finalTlaterPrincipal * 0.025 * tlaterTenor;
-          monthly = (finalTlaterPrincipal + tlaterInterest) / tlaterTenor;
-        }
+    }).catch(err => {
+      if (quoteRequest.current === request) {
+        setSimResult(null);
+        setQuoteError(err.message);
       }
-
-      setSimResult({
-        ...res,
-        insuranceFee,
-        promoDiscount,
-        grandTotal,
-        pointsDeduction: finalPointsUsed,
-        tlaterPrincipal: finalTlaterPrincipal,
-        gatewayCashRequired: finalGatewayCash,
-        tlaterInterest,
-        tlaterAdminFee: tlaterAdmin,
-        tlaterMonthlyInstallment: monthly
-      });
     });
-  }, [items, shippingCity, usePoints, pointsAmount, useTlater, tlaterTenor, hasInsurance, appliedPromo, tlaterLimit]);
+  }, [items, shippingCity, shippingFee, currentCourier?.name, hasInsurance, appliedPromo?.code, appliedPromo?.id, usePoints, pointsAmount, useTlater, tlaterTenor, isAuthenticated, shippingAvailable]);
 
   const handleCheckout = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0 || !address || !simResult || !shippingAvailable || isSubmitting) return;
     setIsSubmitting(true);
-    const idempotencyKey = crypto.randomUUID();
+    if (!attempt.current) attempt.current = crypto.randomUUID();
     
     let req: SplitCheckoutRequest = {
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
       shippingCity,
       usePoints: usePoints ? pointsAmount : 0,
       useTlater,
-      tlaterTenor
+      tlaterTenor,
+      promoCode: appliedPromo?.code ?? appliedPromo?.id,
+      shippingFee,
+      protectionFee: hasInsurance ? 25000 : 0,
+      shippingAddress: `${address.recipientName}\n${address.phone}\n${address.fullAddress}\n${address.city}, ${address.postalCode}`,
+      paymentMethod: cashGateway,
+      courier: currentCourier?.name || 'Regular'
     };
 
     try {
-      const res = await CheckoutApi.checkout(req, idempotencyKey);
+      const res = await CheckoutApi.checkout(req, attempt.current);
+      const userId = requireDemoUser('customer').id;
+      const notes = Object.entries(shippingNotes).filter(([, text]) => text.trim());
+      if (notes.length) {
+        await transactDemoDB(db => {
+          const order = db.orders.find(o => o.orderNumber === res.order.orderNumber && o.userId === userId);
+          if (!order) throw new Error('Order not found');
+          for (const item of order.items) {
+            const note = shippingNotes[item.productId];
+            if (note?.trim()) Object.assign(item, { note: note.trim() });
+          }
+        });
+      }
       setSuccessData({
         orderNumber: res.order.orderNumber,
         virtualAccount: res.paymentInstructions.virtualAccountNumber,
-        grandTotal: res.order.grandTotal,
+        grandTotal: res.splitBreakdown.gatewayCashAmount,
         expiresAt: res.paymentInstructions.expiresAt
       });
-    } catch (e) {
-      console.error(e);
+      fetchCart();
+    } catch (e: any) {
+      toast({ title: 'Gagal membuat pesanan', message: e.message, type: 'error' });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!isAuthenticated) return null;
 
   if (successData) {
     return <CheckoutSuccessDialog {...successData} />;
@@ -160,11 +170,15 @@ export function CheckoutView() {
                 <MapPin className="w-5 h-5 text-pumpkin" />
                 Alamat Pengiriman
               </h3>
-              <button className="text-sm font-semibold text-pumpkin hover:underline">Ubah Alamat</button>
+              <Link to="/profile" className="text-sm font-semibold text-pumpkin hover:underline">Kelola Alamat</Link>
             </div>
             <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-4">
-              <p className="font-bold text-sm mb-1">{user?.name} | <span className="font-normal text-slate-500">081234567890</span></p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Jl. Jendral Sudirman Kav. 52-53, Gedung TechVibe Tower Lt. 12<br/>Senayan, Kebayoran Baru, {shippingCity}, 12190</p>
+              <select aria-label="Alamat pengiriman" value={addressId} onChange={e => setAddressId(e.target.value)} className="w-full bg-transparent border rounded p-2">
+                <option value="">Pilih alamat</option>
+                {addresses.map(a => <option key={a.id} value={a.id}>{a.label} — {a.recipientName}</option>)}
+              </select>
+              <p>{address?.recipientName} {address?.phone}</p>
+              <p>{address?.fullAddress}, {address?.city} {address?.postalCode}</p>
             </div>
           </section>
 
@@ -180,7 +194,13 @@ export function CheckoutView() {
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-sm line-clamp-2 mb-1">{item.name}</h4>
                   <p className="text-sm text-slate-500 mb-2">{item.quantity} x <span className="font-mono font-bold text-slate-900 dark:text-white">Rp {item.price.toLocaleString('id-ID')}</span></p>
-                  <input type="text" placeholder="Catatan untuk penjual (opsional)" className="w-full text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-transparent" />
+                  <input 
+                    type="text" 
+                    placeholder="Catatan untuk penjual (opsional)" 
+                    value={shippingNotes[item.productId] ?? ''}
+                    onChange={e => setShippingNotes(prev => ({ ...prev, [item.productId]: e.target.value }))}
+                    className="w-full text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-transparent" 
+                  />
                 </div>
               </div>
             ))}
@@ -188,15 +208,11 @@ export function CheckoutView() {
             <div className="mt-6">
               <label className="block text-sm font-semibold mb-3">Pilih Opsi Pengiriman</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { id: 'instant', name: 'Instant', price: 25000, eta: 'Hari ini' },
-                  { id: 'yes', name: 'JNE YES', price: 28000, eta: 'Besok' },
-                  { id: 'reg', name: 'SiCepat REG', price: 18000, eta: '2-3 Hari' },
-                ].map(opt => (
-                  <label key={opt.id} className={`flex flex-col p-3 border rounded-xl cursor-pointer transition-colors ${selectedShipping === opt.id ? 'border-pumpkin bg-pumpkin/5' : 'border-slate-200 dark:border-slate-700 hover:border-pumpkin/50'}`}>
+                {shippingOptions.map(opt => (
+                  <label key={opt.id} className={`flex flex-col p-3 border rounded-xl cursor-pointer transition-colors ${currentCourier?.id === opt.id ? 'border-pumpkin bg-pumpkin/5' : 'border-slate-200 dark:border-slate-700 hover:border-pumpkin/50'}`}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-bold text-sm">{opt.name}</span>
-                      <input type="radio" name="shipping" checked={selectedShipping === opt.id} onChange={() => {setSelectedShipping(opt.id); setShippingFee(opt.price);}} className="accent-pumpkin" />
+                      <input type="radio" name="shipping" checked={currentCourier?.id === opt.id} onChange={() => setSelectedShipping(opt.id)} className="accent-pumpkin" />
                     </div>
                     <span className="text-xs text-slate-500 mb-1">Estimasi: {opt.eta}</span>
                     <span className="text-sm font-mono font-bold">Rp {opt.price.toLocaleString('id-ID')}</span>
@@ -237,7 +253,9 @@ export function CheckoutView() {
             )}
 
             <SplitPaymentSection 
-              grandTotal={simResult?.grandTotal || (totalItemAmount + shippingFee + (hasInsurance ? 25000 : 0))}
+              grandTotal={simResult?.grandTotal || 0}
+              quote={simResult}
+              settings={db.settings}
               pointsBalance={pointsBalance}
               usePoints={usePoints}
               pointsAmount={pointsAmount}
@@ -283,14 +301,14 @@ export function CheckoutView() {
           <div className="sticky top-24 space-y-6">
             
             {}
-            <div 
+              <div 
               className="bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-pumpkin transition-colors"
               onClick={() => setIsPromoOpen(true)}
             >
               <div className="flex items-center gap-3">
                 <Ticket className="w-6 h-6 text-pumpkin" />
                 <div>
-                  <p className="font-bold text-sm">{appliedPromo ? appliedPromo.title : 'Makin hemat pakai promo'}</p>
+                  <p className="font-bold text-sm">{appliedPromo ? appliedPromo.code : 'Makin hemat pakai promo'}</p>
                   {appliedPromo && <p className="text-xs text-green-500 font-semibold">Promo berhasil digunakan</p>}
                 </div>
               </div>
@@ -307,16 +325,16 @@ export function CheckoutView() {
               <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
                 <div className="flex justify-between">
                   <span>Total Harga ({items.length} Barang)</span>
-                  <span className="font-mono">Rp {totalItemAmount.toLocaleString('id-ID')}</span>
+                   <span className="font-mono">Rp {(simResult?.totalItemAmount ?? 0).toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Total Ongkos Kirim</span>
-                  <span className="font-mono">Rp {shippingFee.toLocaleString('id-ID')}</span>
+                   <span className="font-mono">Rp {(simResult?.shippingFee ?? 0).toLocaleString('id-ID')}</span>
                 </div>
-                {hasInsurance && (
+                 {hasInsurance && (
                   <div className="flex justify-between">
                     <span>Asuransi Pengiriman</span>
-                    <span className="font-mono">Rp 25.000</span>
+                    <span className="font-mono">Rp {(simResult?.protectionFee ?? 25000).toLocaleString('id-ID')}</span>
                   </div>
                 )}
                 {simResult?.promoDiscount > 0 && (
@@ -351,11 +369,14 @@ export function CheckoutView() {
                 <span className="text-xl font-bold font-mono text-pumpkin">Rp {(simResult?.gatewayCashRequired || 0).toLocaleString('id-ID')}</span>
               </div>
 
+              {quoteError && <p role="alert" className="text-red-500 mb-3">{quoteError}</p>}
+              {!address && <p role="alert" className="text-red-500 mb-3">Pilih atau tambah alamat pengiriman.</p>}
+              {!shippingAvailable && <p role="alert" className="text-red-500 mb-3">Pengiriman sedang tidak tersedia.</p>}
               <Button 
                 variant="primary" 
                 className="w-full h-14 text-base font-bold shadow-lg shadow-pumpkin/25"
                 onClick={handleCheckout}
-                disabled={items.length === 0 || isSubmitting}
+                disabled={items.length === 0 || isSubmitting || !address || !!quoteError || !simResult || !shippingAvailable}
               >
                 {isSubmitting ? 'Memproses...' : 'Konfirmasi & Buat Pesanan'}
               </Button>
@@ -370,8 +391,11 @@ export function CheckoutView() {
       <PromoModal 
         isOpen={isPromoOpen} 
         onClose={() => setIsPromoOpen(false)} 
-        cartTotal={totalItemAmount} 
-        onSelectPromo={setAppliedPromo} 
+        cartTotal={simResult?.totalItemAmount ?? 0} 
+        onSelectPromo={async promo => {
+          if (promo) await CheckoutApi.simulateCheckout({ items: items.map(i => ({ productId: i.productId, quantity: i.quantity })), shippingCity, shippingFee, courier: currentCourier?.name, protectionFee: hasInsurance ? 25000 : 0, promoCode: promo.id, usePoints: usePoints ? pointsAmount : 0, useTlater, tlaterTenor });
+          setAppliedPromo(promo);
+        }} 
       />
       <KycModal 
         isOpen={isKycOpen} 
