@@ -1,16 +1,24 @@
 import { X, FileText, AlertTriangle } from 'lucide-react';
 import type { Order } from '../types';
 import { Button } from '../../../components/ui/Button';
+import { printInvoice } from './printInvoice';
+import { useToast } from '../../../stores/useToastStore';
 
 interface OrderDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   order: Order | null;
   onCancelClick: () => void;
+  onPayClick?: () => void;
 }
 
-export function OrderDetailModal({ isOpen, onClose, order, onCancelClick }: OrderDetailModalProps) {
+export function OrderDetailModal({ isOpen, onClose, order, onCancelClick, onPayClick }: OrderDetailModalProps) {
+  const { toast } = useToast();
   if (!isOpen || !order) return null;
+  const print = () => {
+    try { printInvoice(order); }
+    catch (e: any) { toast({ title: 'Gagal mencetak invoice', message: e.message, type: 'error' }); }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -114,7 +122,7 @@ export function OrderDetailModal({ isOpen, onClose, order, onCancelClick }: Orde
         {}
         <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-[#141414] mt-auto">
           <div>
-            <button className="flex items-center gap-2 text-sm text-pumpkin font-semibold hover:underline">
+            <button onClick={print} className="flex items-center gap-2 text-sm text-pumpkin font-semibold hover:underline">
               <FileText className="w-4 h-4" /> Download Invoice
             </button>
           </div>
@@ -124,8 +132,8 @@ export function OrderDetailModal({ isOpen, onClose, order, onCancelClick }: Orde
                 <Button variant="outline" onClick={onCancelClick}>
                   Batalkan Pesanan
                 </Button>
-                <Button>
-                  Bayar Sekarang
+<Button onClick={onPayClick}>
+                   Simulasi Bayar
                 </Button>
               </>
             )}
