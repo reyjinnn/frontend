@@ -31,7 +31,7 @@ it('keeps customer data private for a guest and offers login', async () => {
 
 it('accepts real login credentials and rejects invalid ones in UI', async () => {
   render(<MemoryRouter><LoginModal isOpen onClose={() => {}} onOpenRegister={() => {}} /></MemoryRouter>);
-  fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: 'budi@example.com' } });
+  fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: 'raihan@example.com' } });
   fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'badpass' } });
   fireEvent.click(screen.getByText('Masuk'));
   await waitFor(() => expect(useAuthStore.getState().user).toBeNull());
@@ -42,7 +42,7 @@ it('accepts real login credentials and rejects invalid ones in UI', async () => 
 });
 
 it('renders checkout with persisted address without a hooks error', async () => {
-  await AuthService.login('budi@example.com', 'Demo123!');
+  await AuthService.login('raihan@example.com', 'Demo123!');
   useAuthStore.getState().syncSession();
   render(<MemoryRouter><CheckoutView /></MemoryRouter>);
   await waitFor(() => expect(screen.getByText('Checkout')).toBeDefined());
