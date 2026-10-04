@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { useState } from 'react';
+import { readDemoDB } from '../../../lib/demoRepository';
 
 interface Promo {
   id: string;
@@ -15,29 +16,35 @@ interface PromoModalProps {
   isOpen: boolean;
   onClose: () => void;
   cartTotal: number;
-  onSelectPromo: (promo: Promo | null) => void;
+  onSelectPromo: (promo: Promo | null) => Promise<void>;
 }
 
-const mockPromos: Promo[] = [
-  { id: 'NEWVIBE50', title: 'Voucher New Member', description: 'Potongan Rp 50.000', minPurchase: 500000, discountFixed: 50000 },
-  { id: 'FLASHSALE', title: 'Flash Sale 25%', description: 'Diskon 25% max Rp 100.000', minPurchase: 100000, discountPercentage: 25 },
-  { id: 'POIN2X', title: 'Poin 2x Cashback', description: 'Cashback berupa poin 2x', minPurchase: 0 },
-];
+const getPromos = (): Promo[] => readDemoDB().promos.filter(p => p.isActive).map(p => ({
+  id: p.code, title: p.code, description: p.discountType === 'fixed' ? `Potongan Rp ${p.discountValue.toLocaleString('id-ID')}` : `Diskon ${p.discountValue}%`, minPurchase: p.minPurchase,
+}));
 
 export function PromoModal({ isOpen, onClose, cartTotal, onSelectPromo }: PromoModalProps) {
   const [inputCode, setInputCode] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  const [applyError, setApplyError] = useState('');
 
-  const handleApply = () => {
-    if (selectedId) {
-      const promo = mockPromos.find(p => p.id === selectedId);
-      onSelectPromo(promo || null);
-    } else {
-      onSelectPromo(null);
+  if (!isOpen) return null;
+  const mockPromos = getPromos();
+
+  const handleApply = async () => {
+    setApplyError('');
+    try {
+      if (selectedId) {
+        const promo = mockPromos.find(p => p.id === selectedId);
+        await onSelectPromo(promo || null);
+      } else {
+        await onSelectPromo(null);
+      }
+      onClose();
+    } catch (e: any) {
+      setApplyError(e.message || 'Promo tidak valid');
     }
-    onClose();
   };
 
   return (
@@ -59,12 +66,21 @@ export function PromoModal({ isOpen, onClose, cartTotal, onSelectPromo }: PromoM
             onChange={e => setInputCode(e.target.value)}
             className="flex-1 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 bg-slate-50 dark:bg-[#141414]"
           />
-          <Button variant="outline" className="border-2 border-pumpkin text-pumpkin hover:bg-pumpkin/10">
+          <Button variant="outline" onClick={async () => {
+            setApplyError('');
+            const code = inputCode.trim();
+            const found = mockPromos.find(p => p.id.toLowerCase() === code.toLowerCase());
+            try {
+              await onSelectPromo(found ?? { id: code, title: code, description: '', minPurchase: 0 });
+              onClose();
+            } catch (e: any) { setApplyError(e.message || 'Promo tidak valid'); }
+          }} className="border-2 border-pumpkin text-pumpkin hover:bg-pumpkin/10">
             Terapkan
           </Button>
         </div>
 
         <div className="space-y-4 mb-6 max-h-[40vh] overflow-y-auto pr-2">
+          {applyError && <p className="text-red-500 text-sm">{applyError}</p>}
           {mockPromos.map(promo => {
             const isEligible = cartTotal >= promo.minPurchase;
             return (
