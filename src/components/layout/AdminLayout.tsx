@@ -8,7 +8,7 @@ import { useAdminData, panel, field, formValues } from '../../features/admin/vie
 import { Feedback, InputField } from '../../features/admin/views/adminShared';
 import { AdminTlaterRiskView } from '../../features/admin/views/AdminTlaterRiskView';
 import { Button } from '../ui/Button';
-import { Menu, Bell, Search, LogOut, Sun, Moon, Settings, RotateCcw, X, LayoutDashboard, ShoppingBag, Package, Tag, Truck, ShieldCheck, Users, Headphones, Gift, ChevronRight, Command } from 'lucide-react';
+import { Menu, Bell, Search, LogOut, Sun, Moon, Settings, X, LayoutDashboard, ShoppingBag, Package, Tag, Truck, ShieldCheck, Users, Headphones, Gift, ChevronRight, Command } from 'lucide-react';
 
 const navGroups = [
   { label: 'IKHTISAR', items: [{ label: 'Dasbor', path: '/admin', icon: LayoutDashboard }] },
@@ -22,7 +22,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
-  const [overlay, setOverlay] = useState<'search' | 'settings' | 'reset' | 'notifications' | null>(null);
+  const [overlay, setOverlay] = useState<'search' | 'settings' | 'notifications' | null>(null);
   const [search, setSearch] = useState('');
   const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -82,7 +82,6 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     </nav>
     <div className="space-y-2 border-t border-slate-200 p-4 dark:border-slate-800">
       <Button variant="outline" className="w-full justify-start border-transparent bg-transparent shadow-none hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => open('settings')}><Settings size={18} className="mr-3 text-slate-400" />Pengaturan</Button>
-      {DEMO_MODE && <Button variant="outline" className="w-full justify-start border-transparent bg-transparent shadow-none hover:bg-slate-50 dark:hover:bg-slate-800" onClick={() => open('reset')}><RotateCcw size={18} className="mr-3 text-slate-400" />Reset Demo</Button>}
       <Button variant="outline" className="w-full justify-start border-transparent bg-transparent text-red-600 shadow-none hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300" onClick={() => { logout(); navigate('/admin/login', { replace: true }); }}><LogOut size={18} className="mr-3" />Keluar</Button>
     </div>
   </>;
@@ -94,7 +93,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     ...db.tickets.filter(t => `${t.ticketNumber} ${t.subject}`.toLowerCase().includes(query)).map(t => ({id:`ticket-${t.id}`,label:`${t.ticketNumber} · ${t.subject}`,path:`/admin/tickets?search=${encodeURIComponent(t.ticketNumber)}`}))
   ].slice(0,20) : [];
   const title = navGroups.flatMap(group => group.items).find(item => item.path === location.pathname)?.label ?? 'Admin';
-  const dialogTitle = overlay === 'reset' ? 'Konfirmasi Reset Demo' : overlay === 'settings' ? 'Pengaturan Toko & Kontak' : overlay === 'search' ? 'Pencarian Global' : 'Notifikasi Admin';
+  const dialogTitle = overlay === 'settings' ? 'Pengaturan Toko & Kontak' : overlay === 'search' ? 'Pencarian Global' : 'Notifikasi Admin';
   return <div className="flex h-dvh bg-[#f7f8fa] text-slate-900 dark:bg-[#101419] dark:text-slate-100">
     <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-[#171b22] md:flex">{navigation}</aside>
     <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
@@ -123,7 +122,6 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         <fieldset className="space-y-4 rounded-xl border border-slate-200 p-4 dark:border-slate-700"><legend className="px-2 text-sm font-semibold">TLater & biaya layanan</legend><InputField label="Limit global TLater (Rp)" name="limit" type="number" min={0} value={db.settings.creditLimit} /><div className="grid gap-4 sm:grid-cols-3"><InputField label="Bunga 1 Bln (%)" name="interest1" type="number" step="0.1" min={0} value={db.settings.interest1} /><InputField label="Bunga 3 Bln (%)" name="interest3" type="number" step="0.1" min={0} value={db.settings.interest3} /><InputField label="Bunga 6 Bln (%)" name="interest6" type="number" step="0.1" min={0} value={db.settings.interest6} /></div><div className="grid gap-4 sm:grid-cols-2"><InputField label="Biaya Admin (%)" name="adminFeePercent" type="number" step="0.1" min={0} value={db.settings.adminFeePercent} /><InputField label="Biaya Admin (Fixed)" name="adminFeeFixed" type="number" min={0} value={db.settings.adminFeeFixed} /></div></fieldset>
         <div className="flex justify-end gap-3 border-t border-slate-100 pt-4 dark:border-slate-800"><Button type="button" variant="outline" onClick={() => setOverlay(null)}>Batal</Button><Button disabled={state.busy}>Simpan Pengaturan</Button></div>
       </form>}
-      {overlay === 'reset' && <><p>Reset menghapus seluruh akun, pesanan, saldo poin, pinjaman, KYC, tiket, promo, kurir, dan perubahan katalog demo di browser ini, termasuk data tab lain. Data tidak dapat dipulihkan. Setelah keluar dan memuat ulang, seed repository akan dibuat kembali.</p><div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setOverlay(null)}>Batal</Button><Button disabled={state.busy} onClick={() => void state.run(() => AdminApi.resetDemo(), 'Demo direset').then(ok => { if (ok) { logout(); window.location.assign('/admin/login'); } })}>Ya, Hapus Data Demo</Button></div></>}
     </section></div>}
   </div>;
 }
