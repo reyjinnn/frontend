@@ -36,11 +36,11 @@ export function FlashDeals() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="bg-white dark:bg-[#111] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-card">
+      <div className="bg-white dark:bg-[#111] rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-6 shadow-card">
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-black text-xs tracking-widest uppercase shadow-md flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+            <div className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white font-black text-xs tracking-widest uppercase shadow-md flex items-center gap-1.5 shrink-0">
               <svg className="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
               FLASH DEALS
             </div>
