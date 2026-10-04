@@ -72,13 +72,14 @@ test('catalog deep route loads at desktop/tablet/mobile in both themes', async (
     await page.setViewportSize({ width, height: 900 });
     for (const theme of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme: theme });
+      await page.addInitScript((t) => {
+        localStorage.setItem('theme', t);
+      }, theme);
       await page.goto('/catalog?search=laptop');
+      await expect(page.locator('html')).toHaveClass(theme === 'dark' ? /dark/ : /^((?!dark).)*$/);
       await expect(page.locator('body')).toBeVisible();
       const hasNoOverflow = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
-      if (!hasNoOverflow) {
-        console.warn(`Observed failure: ${width}px ${theme} horizontal overflow on /catalog`);
-      }
-      expect(hasNoOverflow, `${width}px ${theme} horizontal overflow`).toBe(width > 400);
+      expect(hasNoOverflow, `${width}px ${theme} horizontal overflow`).toBe(true);
     }
   }
   expect(failures).toEqual([]);
