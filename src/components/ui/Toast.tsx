@@ -6,12 +6,12 @@ export const ToastContainer = () => {
   const { toasts, removeToast } = useToastStore();
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+    <div className="fixed top-4 right-3 left-3 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2 pointer-events-none items-end">
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={cn(
-            'pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl p-4 shadow-card-hover animate-in slide-in-from-right-full fade-in duration-300',
+            'pointer-events-auto flex w-full sm:max-w-sm items-start gap-3 rounded-2xl p-4 shadow-card-hover animate-in slide-in-from-right-full fade-in duration-300',
             'bg-white dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800'
           )}
         >
@@ -32,7 +32,7 @@ export const ToastContainer = () => {
           
           <button
             onClick={() => removeToast(toast.id)}
-            className="shrink-0 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 focus:outline-none transition-colors"
+            className="shrink-0 rounded-full p-2 min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 focus:outline-none transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
