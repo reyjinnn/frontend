@@ -4,27 +4,23 @@ import type { Category } from '../../../services/catalog.service';
 
 interface FilterProps {
   onFilterChange: (filters: { categoryId?: number; maxPrice?: number; tlaterOnly?: boolean }) => void;
+  initialFilters?: { categoryId?: number; maxPrice?: number; tlaterOnly?: boolean };
 }
 
-export function SidebarFilter({ onFilterChange }: FilterProps) {
+export function SidebarFilter({ onFilterChange, initialFilters }: FilterProps) {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCat, setSelectedCat] = useState<number | undefined>();
-  const [maxPrice, setMaxPrice] = useState<number>(25000000);
-  const [tlaterOnly, setTlaterOnly] = useState(false);
+  const selectedCat = initialFilters?.categoryId;
+  const maxPrice = initialFilters?.maxPrice ?? 60000000;
+  const tlaterOnly = initialFilters?.tlaterOnly ?? false;
+  const setSelectedCat = (categoryId: number) => onFilterChange({ ...initialFilters, categoryId });
+  const setMaxPrice = (value: number) => onFilterChange({ ...initialFilters, maxPrice: value });
+  const setTlaterOnly = (value: boolean) => onFilterChange({ ...initialFilters, tlaterOnly: value });
 
   useEffect(() => {
     CatalogService.getCategories().then(setCategories);
   }, []);
 
-  useEffect(() => {
-    onFilterChange({ categoryId: selectedCat, maxPrice, tlaterOnly });
-  }, [selectedCat, maxPrice, tlaterOnly]);
-
-  const handleReset = () => {
-    setSelectedCat(undefined);
-    setMaxPrice(25000000);
-    setTlaterOnly(false);
-  };
+  const handleReset = () => onFilterChange({});
 
   return (
     <div className="bg-white dark:bg-[#1A1A1A] border border-slate-100 dark:border-slate-800/60 rounded-2xl p-6 h-fit sticky top-24">
@@ -62,15 +58,15 @@ export function SidebarFilter({ onFilterChange }: FilterProps) {
         <input 
           type="range" 
           min="1000000" 
-          max="25000000" 
-          step="500000"
+          max="60000000" 
+          step="1000000"
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
           className="w-full accent-pumpkin h-1 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
         />
         <div className="flex justify-between text-[10px] text-slate-400 font-mono mt-2">
           <span>Rp 1 Jt</span>
-          <span>Rp 25 Jt</span>
+          <span>Rp 60 Jt</span>
         </div>
       </div>
 

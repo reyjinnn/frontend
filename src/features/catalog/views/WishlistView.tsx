@@ -1,31 +1,15 @@
-import { useEffect, useState } from 'react';
-import { CatalogService } from '../../../services/catalog.service';
-import type { Product } from '../../../services/catalog.service';
-import { useWishlistStore } from '../../../stores/useWishlistStore';
+import { useDemoSnapshot } from '../../../stores/useDemoSnapshot';
+import { useAuthStore } from '../../../stores/useAuthStore';
 import { ProductCard } from '../components/ProductCard';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 
 export function WishlistView() {
-  const { items } = useWishlistStore();
-  const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-
-    setIsLoading(true);
-    CatalogService.getProducts()
-      .then(res => {
-        const filtered = res.items.filter((p: Product) => items.has(p.id));
-        setWishlistProducts(filtered);
-      })
-      .finally(() => setIsLoading(false));
-  }, [items]);
-
-  if (isLoading) {
-    return <div className="max-w-7xl mx-auto px-4 py-20 text-center">Loading wishlist...</div>;
-  }
+  const db = useDemoSnapshot();
+  const user = useAuthStore(s => s.user);
+  const ids = user ? db.wishlists[user.id] ?? [] : [];
+  const wishlistProducts = db.products.filter(p => ids.includes(p.id));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 min-h-[60vh]">

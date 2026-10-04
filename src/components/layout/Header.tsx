@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useThemeStore } from '../../stores/useThemeStore';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { useCartStore } from '../../features/cart/useCartStore';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NotificationDropdown } from './NotificationDropdown';
 import { User, Package, LifeBuoy, LogOut } from 'lucide-react';
 
@@ -11,10 +11,19 @@ export function Header() {
   const { isDarkMode, toggleTheme } = useThemeStore();
   const { isAuthenticated, user, logout } = useAuthStore();
   const { openLogin } = useUIStore();
-  const { items, openCart } = useCartStore();
+  const { items, openCart, fetchCart } = useCartStore();
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [searchWord, setSearchWord] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    useCartStore.setState({ items: [], totalItemAmount: 0, isLoading: false, isCartOpen: false });
+    if (user?.role === 'customer') {
+      fetchCart().catch(() => useCartStore.setState({ isLoading: false }));
+    }
+  }, [user?.id, user?.role, fetchCart]);
   
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -41,10 +50,13 @@ export function Header() {
             </div>
             <input 
               type="text" 
+              value={searchWord}
+              onChange={e => setSearchWord(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && navigate(`/catalog?q=${encodeURIComponent(searchWord)}`)}
               placeholder="Cari laptop ASUS ROG, MacBook M2, Ryzen 9, iPhone 14 Pro..." 
               className="w-full px-3 py-2.5 bg-transparent text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none font-medium"
             />
-            <button className="px-5 py-2.5 bg-slate-900 dark:bg-slate-700 hover:bg-pumpkin dark:hover:bg-pumpkin text-white text-xs font-bold rounded-r-xl transition flex-shrink-0">
+            <button onClick={() => navigate(`/catalog?q=${encodeURIComponent(searchWord)}`)} className="px-5 py-2.5 bg-slate-900 dark:bg-slate-700 hover:bg-pumpkin dark:hover:bg-pumpkin text-white text-xs font-bold rounded-r-xl transition flex-shrink-0">
               Cari
             </button>
           </div>

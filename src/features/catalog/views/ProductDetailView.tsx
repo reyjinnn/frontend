@@ -1,36 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { CatalogService } from '../../../services/catalog.service';
-import type { Product, Review } from '../../../services/catalog.service';
+import { useDemoSnapshot } from '../../../stores/useDemoSnapshot';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import { ProductGallery } from '../components/ProductGallery';
 import { Button } from '../../../components/ui/Button';
 import { ShieldCheck, Store, Check, Star } from 'lucide-react';
 import { useCartStore } from '../../cart/useCartStore';
+import { useAuthStore } from '../../../stores/useAuthStore';
+import { useUIStore } from '../../../stores/useUIStore';
+import { CheckoutApi } from '../../checkout/api/checkoutApi';
+import { useToast } from '../../../stores/useToastStore';
 
 export function ProductDetailView() {
   const { slug } = useParams<{ slug: string }>();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!slug) return;
-    setIsLoading(true);
-    
-    CatalogService.getProductBySlug(slug)
-      .then(res => {
-        setProduct(res);
-        return CatalogService.getProductReviews(res.id);
-      })
-      .then(rev => setReviews(rev))
-      .catch(err => console.error(err))
-      .finally(() => setIsLoading(false));
-      
-  }, [slug]);
-
-  if (isLoading) {
-    return <div className="max-w-7xl mx-auto px-4 py-20 text-center">Loading product...</div>;
-  }
+  const navigate = useNavigate();
+  const user = useAuthStore(s => s.user);
+  const openLogin = useUIStore(s => s.openLogin);
+  const { toast } = useToast();
+  const buy = async (direct: boolean) => {
+    if (!product) return;
+    if (!user) {
+      useAuthStore.getState().setIntendedAction(`/product/${slug}`);
+      openLogin();
+      return;
+    }
+    try {
+      await CheckoutApi.addToCart(product);
+      await useCartStore.getState().fetchCart();
+      if (direct) navigate('/checkout');
+    } catch (e: any) { toast({ title: 'Gagal menambah produk', message: e.message, type: 'error' }); }
+  };
+  const db = useDemoSnapshot();
+  const product = db.products.find(p => p.slug === slug) ?? null;
+  const reviews = product ? db.reviews.filter(r => r.productId === product.id) : [];
   
   if (!product) {
     return <div className="max-w-7xl mx-auto px-4 py-20 text-center text-red-500">Product not found.</div>;
@@ -93,7 +94,8 @@ export function ProductDetailView() {
                 variant="outline" 
                 size="lg" 
                 className="flex-1 font-semibold border-2 h-14"
-                onClick={() => useCartStore.getState().addToCart(product)}
+                onClick={() => buy(false)}
+                disabled={product.status !== 'active' || product.stock < 1}
               >
                 + Keranjang
               </Button>
@@ -101,10 +103,8 @@ export function ProductDetailView() {
                 variant="primary" 
                 size="lg" 
                 className="flex-1 font-semibold h-14"
-                onClick={() => {
-                   useCartStore.getState().addToCart(product);
-                   
-                }}
+                onClick={() => buy(true)}
+                disabled={product.status !== 'active' || product.stock < 1}
               >
                 Beli Langsung
               </Button>
@@ -130,10 +130,11 @@ export function ProductDetailView() {
             <h3 className="text-lg font-bold mb-4">Spesifikasi Utama</h3>
             <ul className="space-y-3">
               {[
-                "Garansi Resmi 1 Tahun iBox",
-                "Chip A18 Pro, performa monster",
-                "Kamera Fusion 48MP dengan kontrol presisi",
-                "Titanium tahan banting dan sangat ringan"
+                `SKU: ${product.sku}`,
+                `Berat Pengiriman: ${product.weightGrams} gram`,
+                `Stok Tersedia: ${product.stock} unit`,
+                `Status: ${product.status === 'active' ? 'Tersedia' : 'Non-aktif'}`,
+                ...product.description.split(/\.\s+/).filter(Boolean),
               ].map((spec, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-slate-700 dark:text-slate-300">
                   <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
@@ -143,12 +144,10 @@ export function ProductDetailView() {
             </ul>
           </div>
 
-          {}
           <div className="mb-12">
             <h3 className="text-lg font-bold mb-4">Deskripsi Produk</h3>
             <div className="text-slate-600 dark:text-slate-400 leading-relaxed space-y-4">
-              <p>{product.description}</p>
-              <p>Desain kokoh dari paduan titanium grade-aerospace, dengan layar Super Retina XDR yang lebih besar dan bezel paling tipis di iPhone mana pun.</p>
+              <p className="whitespace-pre-line">{product.description}</p>
             </div>
           </div>
 

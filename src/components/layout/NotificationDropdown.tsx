@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useDemoSnapshot } from '../../stores/useDemoSnapshot';
+import { useAuthStore } from '../../stores/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Package, Ticket, Tag, CreditCard, Check, CheckCircle2 } from 'lucide-react';
 import { NotificationsApi } from '../../features/notifications/api/notificationsApi';
@@ -12,24 +14,12 @@ interface NotificationDropdownProps {
 
 export function NotificationDropdown({ isOpen, onClose, onUnreadCountChange }: NotificationDropdownProps) {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const db = useDemoSnapshot();
+  const user = useAuthStore(s => s.user);
+  const notifications = user?.role === 'customer' ? db.notifications.filter(n => n.userId === user.id) : [];
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const fetchNotifications = async () => {
-    setIsLoading(true);
-    const data = await NotificationsApi.getNotifications();
-    setNotifications(data);
-    onUnreadCountChange(data.filter(n => !n.isRead).length);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-    
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+  useEffect(() => { onUnreadCountChange(unreadCount); }, [unreadCount, onUnreadCountChange]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -51,27 +41,27 @@ export function NotificationDropdown({ isOpen, onClose, onUnreadCountChange }: N
   const handleMarkAsRead = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     await NotificationsApi.markAsRead(id);
-    fetchNotifications();
+
   };
 
   const handleMarkAllAsRead = async () => {
     await NotificationsApi.markAllAsRead();
-    fetchNotifications();
+
   };
 
   const handleNotificationClick = async (notification: AppNotification) => {
     if (!notification.isRead) {
       await NotificationsApi.markAsRead(notification.id);
-      fetchNotifications();
+  
     }
 
     onClose();
     switch (notification.type) {
       case 'order':
-        navigate('/orders');
+        navigate(notification.referenceId ? `/orders?order=${encodeURIComponent(notification.referenceId)}` : '/orders');
         break;
       case 'ticket':
-        navigate('/care');
+        navigate(notification.referenceId ? `/care?ticket=${encodeURIComponent(notification.referenceId)}` : '/care');
         break;
       case 'tlater':
         navigate('/tlater');
@@ -117,9 +107,7 @@ export function NotificationDropdown({ isOpen, onClose, onUnreadCountChange }: N
         </div>
 
         <div className="flex-1 overflow-y-auto hide-scrollbar">
-          {isLoading && notifications.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 text-sm">Memuat notifikasi...</div>
-          ) : notifications.length === 0 ? (
+          {notifications.length === 0 ? (
             <div className="p-12 text-center flex flex-col items-center">
               <Bell className="w-12 h-12 text-slate-200 dark:text-slate-700 mb-3" />
               <p className="text-slate-500 text-sm">Belum ada notifikasi baru.</p>

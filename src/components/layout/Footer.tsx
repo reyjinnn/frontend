@@ -30,7 +30,7 @@ export function Footer() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div>
-            <h3 className="text-xl font-bold font-logo text-pumpkin mb-4">Tecvibe.</h3>
+            <h3 className="text-xl font-bold font-logo text-pumpkin mb-4">TechVibe.</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
               Platform e-commerce terpercaya untuk kebutuhan gadget dan komponen PC Anda.
             </p>
@@ -38,24 +38,24 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Eksplor</h4>
             <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-              <li><a href="#" className="hover:text-pumpkin">Smartphone</a></li>
-              <li><a href="#" className="hover:text-pumpkin">Laptop</a></li>
-              <li><a href="#" className="hover:text-pumpkin">PC Gaming</a></li>
-              <li><a href="#" className="hover:text-pumpkin">Aksesoris</a></li>
+              <li><Link to="/catalog?category=1" className="hover:text-pumpkin">Smartphone</Link></li>
+              <li><Link to="/catalog?category=2" className="hover:text-pumpkin">Laptop</Link></li>
+              <li><Link to="/catalog?category=3" className="hover:text-pumpkin">PC Gaming</Link></li>
+              <li><Link to="/catalog?category=4" className="hover:text-pumpkin">Aksesoris</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Bantuan</h4>
             <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-              <li><a href="#" className="hover:text-pumpkin">Cara Belanja</a></li>
-              <li><a href="#" className="hover:text-pumpkin">Pengiriman</a></li>
+              <li><Link to="/care" className="hover:text-pumpkin">Cara Belanja</Link></li>
+              <li><Link to="/care" className="hover:text-pumpkin">Pengiriman</Link></li>
               <li><Link to="/orders" className="hover:text-pumpkin">Lacak Pesanan</Link></li>
               <li><Link to="/care" className="hover:text-pumpkin">Pusat Bantuan</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Pembayaran Aman</h4>
-            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px] max-w-sm">Pembayaran diproses melalui mitra terverifikasi. Informasi harga, biaya pengiriman, dan cicilan ditampilkan sebelum pesanan dikonfirmasi.</p>
+            <h4 className="font-semibold mb-4">Mode Demo</h4>
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px] max-w-sm">Pembayaran, identitas, dan pengiriman adalah simulasi lokal di browser. Tidak ada transaksi nyata. Angka dan biaya tampil sebelum pesanan dikonfirmasi.</p>
             <div className="flex flex-wrap gap-2 mt-4">
               <div className="h-7 w-12 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1A1A1A] flex items-center justify-center">
                 <span className="text-[12px] font-black italic text-blue-800 dark:text-blue-500 tracking-tighter">VISA</span>

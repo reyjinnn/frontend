@@ -1,18 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { CatalogService } from '../../../services/catalog.service';
 import type { Product } from '../../../services/catalog.service';
 import { SidebarFilter } from '../components/SidebarFilter';
 import { ProductCard } from '../components/ProductCard';
+import { useSearchParams } from 'react-router-dom';
 
 export function CatalogView() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [sortBy, setSortBy] = useState('recommendation');
-  const [filters, setFilters] = useState<{ categoryId?: number; maxPrice?: number; tlaterOnly?: boolean }>({});
+  const [params, setParams] = useSearchParams();
+  const sortBy = params.get('sort') || 'recommendation';
+  const filters = useMemo(() => ({ categoryId: Number(params.get('category')) || undefined, maxPrice: Number(params.get('maxPrice')) || undefined, tlaterOnly: params.get('tlater') === 'true' }), [params]);
+  const setSortBy = (sort: string) => { const next = new URLSearchParams(params); next.set('sort', sort); setParams(next); };
+  const setFilters = (value: { categoryId?: number; maxPrice?: number; tlaterOnly?: boolean }) => {
+    const next = new URLSearchParams(params);
+    for (const [key, v] of Object.entries({ category: value.categoryId, maxPrice: value.maxPrice, tlater: value.tlaterOnly })) {
+      if (v) next.set(key, String(v)); else next.delete(key);
+    }
+    setParams(next);
+  };
+  const query = params.get('q') || '';
 
   useEffect(() => {
     
     CatalogService.getProducts({ maxPrice: filters.maxPrice, categoryId: filters.categoryId }).then(res => {
-      let filtered = res.items;
+      let filtered = res.items.filter((p: Product) => p.name.toLowerCase().includes(query.toLowerCase()));
       if (filters.tlaterOnly) {
         filtered = filtered.filter((p: Product) => p.tlaterMonthly);
       }
@@ -25,14 +36,14 @@ export function CatalogView() {
 
       setProducts(filtered);
     });
-  }, [filters, sortBy]);
+  }, [filters.categoryId, filters.maxPrice, filters.tlaterOnly, query, sortBy]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <div className="flex flex-col md:flex-row gap-8">
         
         <div className="w-full md:w-64 flex-shrink-0">
-          <SidebarFilter onFilterChange={setFilters} />
+          <SidebarFilter onFilterChange={setFilters} initialFilters={filters} />
         </div>
         
         <div className="flex-1 min-w-0">
