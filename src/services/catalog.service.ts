@@ -562,7 +562,7 @@ export const CatalogService = {
     if (DEMO_MODE) {
       const db = readDemoDB();
       const list = db.products.length ? db.products : mockProducts;
-      let filtered = [...list];
+      let filtered = list.filter(p => p.status === 'active');
       if (params?.categoryId) {
         filtered = filtered.filter(p => p.categoryId === Number(params.categoryId));
       }
@@ -585,7 +585,7 @@ export const CatalogService = {
     if (DEMO_MODE) {
       const db = readDemoDB();
       const list = db.products.length ? db.products : mockProducts;
-      const product = list.find(p => p.slug === slug);
+      const product = list.find(p => p.slug === slug && p.status === 'active');
       if (!product) throw new Error("Not Found");
       return product;
     }
@@ -597,7 +597,7 @@ export const CatalogService = {
       const revs = db.reviews.filter(r => r.productId === id);
       if (revs.length) return revs;
       return [
-        { id: 1, userId: 101, userName: "Budi Santoso", rating: 5, comment: "Barang 100% original bergaransi resmi, pengiriman super aman dan packing rapi!", createdAt: "2026-09-15" },
+        { id: 1, userId: 101, userName: "Raihan Ananda", rating: 5, comment: "Barang 100% original bergaransi resmi, pengiriman super aman dan packing rapi!", createdAt: "2026-09-15" },
         { id: 2, userId: 102, userName: "Agus Pratama", rating: 5, comment: "Mantap, dapet cicilan TLater 0% bunga ringan. Layanan TechVibe terbaik!", createdAt: "2026-09-16" },
         { id: 3, userId: 103, userName: "Siti Rahma", rating: 4, comment: "Kualitas bintang 5, performa luar biasa dan pengiriman kilat sampai di hari yang sama.", createdAt: "2026-09-20" }
       ];
