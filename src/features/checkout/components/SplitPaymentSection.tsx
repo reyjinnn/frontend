@@ -1,8 +1,11 @@
 import { Coins, CreditCard, Info } from 'lucide-react';
+import type { CheckoutApi } from '../api/checkoutApi';
+import type { DemoSettings } from '../../../lib/demoRepository';
 
 interface SplitPaymentProps {
   grandTotal: number;
-  
+  quote: Awaited<ReturnType<typeof CheckoutApi.simulateCheckout>> | null;
+  settings: DemoSettings;
   pointsBalance: number;
   usePoints: boolean;
   pointsAmount: number;
@@ -18,6 +21,8 @@ interface SplitPaymentProps {
 
 export function SplitPaymentSection({
   grandTotal,
+  quote,
+  settings,
   pointsBalance,
   usePoints,
   pointsAmount,
@@ -29,23 +34,36 @@ export function SplitPaymentSection({
   setUseTlater,
   setTlaterTenor
 }: SplitPaymentProps) {
-  
+  const pointValue = settings.pointValue || 1;
+  const maxPointsAvailableInRp = pointsBalance * pointValue;
+  const quoteGrandTotal = quote?.grandTotal ?? grandTotal;
+
   const handlePointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPointsAmount(Number(e.target.value));
+    const rawVal = Number(e.target.value);
+    const rounded = Math.floor(rawVal / pointValue) * pointValue;
+    setPointsAmount(rounded);
   };
 
   const handlePointsToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsePoints(e.target.checked);
-    if (!e.target.checked) setPointsAmount(0);
-    else setPointsAmount(Math.min(pointsBalance, grandTotal));
+    if (!e.target.checked) {
+      setPointsAmount(0);
+    } else {
+      const maxAllowed = Math.min(maxPointsAvailableInRp, quoteGrandTotal);
+      const rounded = Math.floor(maxAllowed / pointValue) * pointValue;
+      setPointsAmount(rounded);
+    }
   };
 
-  const pointsDeduction = usePoints ? pointsAmount : 0;
-  const remainingAfterPoints = grandTotal - pointsDeduction;
+  const pointsDeduction = quote ? quote.pointsDeduction : (usePoints ? pointsAmount : 0);
+  const tlaterPrincipal = quote ? quote.tlaterPrincipal : 0;
+  const gatewayCashRequired = quote ? quote.gatewayCashRequired : (quoteGrandTotal - pointsDeduction);
+  const isTlaterCapped = useTlater && (quote ? quote.gatewayCashRequired > 0 : false);
 
-  const isTlaterCapped = useTlater && (remainingAfterPoints > tlaterLimit);
-  const tlaterPrincipal = useTlater ? Math.min(remainingAfterPoints, tlaterLimit) : 0;
-  const gatewayCashRequired = useTlater ? Math.max(0, remainingAfterPoints - tlaterLimit) : remainingAfterPoints;
+  const interest1 = settings.interest1 ?? 0;
+  const interest3 = settings.interest3 ?? 2.5;
+  const interest6 = settings.interest6 ?? 2.5;
+  const adminFeePercent = settings.adminFeePercent ?? 1;
 
   return (
     <div className="space-y-6">
@@ -77,8 +95,8 @@ export function SplitPaymentSection({
             <input 
               type="range" 
               min="0" 
-              max={Math.min(pointsBalance, grandTotal)} 
-              step="1"
+              max={Math.min(maxPointsAvailableInRp, quoteGrandTotal)} 
+              step={pointValue}
               value={pointsAmount}
               onChange={handlePointsChange}
               className="w-full accent-pumpkin h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer"
@@ -120,9 +138,9 @@ export function SplitPaymentSection({
             <h4 className="text-sm font-semibold mb-3">Pilih Tenor Cicilan (dari Rp {tlaterPrincipal.toLocaleString('id-ID')})</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { months: 1, label: '1 Bulan', sub: 'Bunga 0%, Adm 1%' },
-                { months: 3, label: '3 Bulan', sub: 'Bunga 2.5%/bln' },
-                { months: 6, label: '6 Bulan', sub: 'Bunga 2.5%/bln' },
+                { months: 1, label: '1 Bulan', sub: `Bunga ${interest1}%, Adm ${adminFeePercent}% + Rp ${(settings.adminFeeFixed ?? 0).toLocaleString('id-ID')}` },
+                { months: 3, label: '3 Bulan', sub: `Bunga ${interest3}%/bln` },
+                { months: 6, label: '6 Bulan', sub: `Bunga ${interest6}%/bln` },
               ].map(t => (
                 <button
                   key={t.months}
