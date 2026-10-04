@@ -4,9 +4,22 @@ import { InstallmentTable } from '../components/InstallmentTable';
 import { RepayModal } from '../components/RepayModal';
 import { Button } from '../../../components/ui/Button';
 import { CreditCard, Wallet, CalendarCheck, ShieldCheck } from 'lucide-react';
+import { TlaterApi, type TlaterInstallment } from '../api/tlaterApi';
+import { useAuthStore } from '../../../stores/useAuthStore';
 
 export function TlaterHubView() {
   const { account, loans, isLoading, fetchData } = useTlaterStore();
+  const user = useAuthStore(s => s.user);
+  const [bill, setBill] = useState<TlaterInstallment | null>(null);
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    let active = true;
+    Promise.all(loans.map(l => TlaterApi.getLoanDetails(l.loanCode))).then(details => {
+      const next = details.flatMap(d => d.installments).filter(i => i.status !== 'paid').sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0];
+      if (active) setBill(next ?? null);
+    });
+    return () => { active = false; };
+  }, [loans, revision]);
   
   const [repayId, setRepayId] = useState<number | null>(null);
   const [repayAmount, setRepayAmount] = useState<number>(0);
@@ -27,14 +40,14 @@ export function TlaterHubView() {
   };
 
   const handleRepaySuccess = () => {
-    
+    setRevision(v => v + 1);
     fetchData();
   };
 
   const percentUsed = (account.usedLimit / account.creditLimit) * 100;
 
   const activeLoans = loans.filter(l => l.status === 'active');
-  const nearestBill = activeLoans.length > 0 ? 1259166.67 : 0; 
+  const nearestBill = bill?.totalDue ?? 0; 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -87,7 +100,7 @@ export function TlaterHubView() {
             </p>
             {nearestBill > 0 ? (
               <span className="inline-block px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs font-bold rounded-full">
-                Jatuh tempo 20 Okt 2026
+                 Jatuh tempo {bill && new Date(bill.dueDate).toLocaleDateString('id-ID')}
               </span>
             ) : (
               <span className="inline-block px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded-full">
@@ -122,7 +135,9 @@ export function TlaterHubView() {
           <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center text-green-500"><ShieldCheck className="w-6 h-6"/></div>
           <div>
             <p className="text-xs text-slate-500 font-semibold mb-1">Status Akun</p>
-            <p className="text-lg font-bold text-green-600 dark:text-green-400">Aman & Aktif</p>
+            <p className="text-lg font-bold text-green-600 dark:text-green-400">
+              {user?.kycStatus === 'verified' ? 'Aman & Aktif' : user?.kycStatus === 'pending' ? 'Verifikasi Diproses' : 'Belum Terverifikasi'}
+            </p>
           </div>
         </div>
       </div>
@@ -134,7 +149,8 @@ export function TlaterHubView() {
           <InstallmentTable 
             key={loan.id} 
             loanCode={loan.loanCode} 
-            onRepay={handleRepayClick} 
+            onRepay={handleRepayClick}
+            revision={revision}
           />
         ))}
         {activeLoans.length === 0 && (
