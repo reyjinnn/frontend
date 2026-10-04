@@ -160,9 +160,9 @@ export const AddressList = () => {
                 : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#141414]'
             }`}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
               <div className="flex gap-3">
-                <div className="mt-1">
+                <div className="mt-1 shrink-0">
                   <MapPin className={`h-5 w-5 ${address.isPrimary ? 'text-pumpkin' : 'text-slate-400'}`} />
                 </div>
                 <div>
@@ -191,7 +191,7 @@ export const AddressList = () => {
                   </Button>
                 )}
                 {address.isPrimary && (
-                  <div className="text-pumpkin flex items-center text-sm font-medium mr-2">
+                  <div className="text-pumpkin flex items-center text-sm font-medium mr-2 shrink-0">
                     <Check className="h-4 w-4 mr-1" /> Terpilih
                   </div>
                 )}
@@ -199,7 +199,7 @@ export const AddressList = () => {
                   aria-label="Hapus alamat"
                   onClick={() => handleDelete(address.id)}
                   disabled={actionLoading === address.id}
-                  className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+                  className="p-2 min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors shrink-0"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
