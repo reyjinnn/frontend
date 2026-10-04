@@ -9,6 +9,7 @@ import { TrackingTimelineModal } from '../components/TrackingTimelineModal';
 import { AfterSalesService } from '../../../lib/demoRepository';
 import { useToast } from '../../../stores/useToastStore';
 import { Button } from '../../../components/ui/Button';
+import { Modal } from '../../../components/ui/Modal';
 import { useAuthStore } from '../../../stores/useAuthStore';
 
 const TABS: { id: OrderStatus | 'all', label: string }[] = [
@@ -37,6 +38,8 @@ export function OrderCenterView() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [paymentOrder, setPaymentOrder] = useState<Order | null>(null);
   const [paymentBusy, setPaymentBusy] = useState(false);
+  const [actionDialog, setActionDialog] = useState<{ type: 'cancel' | 'complete' | 'return' | 'review'; order: Order } | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
   
   const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
@@ -60,14 +63,8 @@ export function OrderCenterView() {
     setIsTrackingModalOpen(true);
   };
 
-  const handleCancelOrder = async () => {
-    if (!shownOrder) return;
-    const confirm = window.confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Stok dan limit (jika ada) akan dikembalikan.');
-    if (confirm) {
-      await OrdersApi.cancelOrder(shownOrder.orderNumber);
-      setIsDetailModalOpen(false);
-      setSelectedOrder(null);
-    }
+  const handleCancelOrder = () => {
+    if (shownOrder) setActionDialog({ type: 'cancel', order: shownOrder });
   };
 
   const handleSimulatePayment = async (success: boolean) => {
@@ -93,12 +90,31 @@ export function OrderCenterView() {
       toast({ title: 'Gagal', message: e.message, type: 'error' });
     } finally { setPaymentBusy(false); }
   };
-  const handleCompleteOrder = async (orderNumber: string) => {
-    const confirm = window.confirm('Pastikan paket telah diterima dengan baik sebelum menyelesaikan pesanan. Lanjutkan?');
-    if (confirm) {
-      await OrdersApi.completeOrder(orderNumber);
-      alert('Pesanan selesai! Anda mendapatkan Vibe Poin 1% dari transaksi ini.');
-    }
+  const handleAction = async (form?: HTMLFormElement) => {
+    if (!actionDialog || actionBusy) return;
+    const { type, order } = actionDialog;
+    setActionBusy(true);
+    try {
+      if (type === 'cancel') {
+        await OrdersApi.cancelOrder(order.orderNumber);
+        setIsDetailModalOpen(false);
+        setSelectedOrder(null);
+        if (target) setParams({});
+      } else if (type === 'complete') {
+        await OrdersApi.completeOrder(order.orderNumber);
+        toast({ title: 'Pesanan selesai!', message: 'Anda mendapatkan Vibe Poin 1% dari transaksi ini.', type: 'success' });
+      } else if (type === 'return' && form) {
+        await AfterSalesService.requestRefund(order.orderNumber, String(new FormData(form).get('reason')));
+        toast({ title: 'Permintaan retur terkirim', type: 'success' });
+      } else if (type === 'review' && form) {
+        const data = new FormData(form);
+        await AfterSalesService.reviewProduct(Number(order.items[0].productId), Number(data.get('rating')), String(data.get('comment')));
+        toast({ title: 'Ulasan tersimpan', type: 'success' });
+      }
+      setActionDialog(null);
+    } catch (e: unknown) {
+      toast({ title: type === 'review' ? 'Ulasan gagal' : 'Gagal', message: e instanceof Error ? e.message : 'Operasi gagal', type: 'error' });
+    } finally { setActionBusy(false); }
   };
 
   const filteredOrders = orders.filter(order => {
@@ -125,7 +141,7 @@ export function OrderCenterView() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-2">Pesanan Saya</h1>
         <p className="text-slate-500">Kelola dan lacak semua transaksi Anda di TechVibe.</p>
@@ -253,7 +269,7 @@ export function OrderCenterView() {
                       <Button size="sm" variant="outline" onClick={() => handleOpenTracking(order.id)} disabled={isTrackingLoading}>
                         {isTrackingLoading ? 'Memuat...' : 'Lacak Pengiriman'}
                       </Button>
-                      <Button size="sm" onClick={() => handleCompleteOrder(order.orderNumber)}>Selesaikan Pesanan</Button>
+                      <Button size="sm" onClick={() => setActionDialog({ type: 'complete', order })}>Selesaikan Pesanan</Button>
                     </>
                   )}
                   {order.status === 'shipping' && (
@@ -261,28 +277,16 @@ export function OrderCenterView() {
                       Lacak Pengiriman
                     </Button>
                   )}
-{order.status === 'completed' && !(order as Order & { refunded?: boolean }).refunded && (
-                      <Button size="sm" variant="outline" onClick={async () => {
-                        const reason = window.prompt('Alasan retur');
-                        if (reason) {
-                          try { await AfterSalesService.requestRefund(order.orderNumber, reason); toast({ title: 'Permintaan retur terkirim', type: 'success' }); }
-                          catch(e: any) { toast({ title: 'Gagal', message: e.message, type: 'error' }); }
-                        }
-                      }}>Retur</Button>
-                    )}
-                    {order.status === 'completed' && (order as Order & { refunded?: boolean }).refunded && (
-                      <span className="text-sm font-bold text-orange-500">Refund Diproses</span>
-                    )}
-                    {order.status === 'completed' && (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => navigate('/care?topic=warranty')}>Ajukan Garansi</Button>
-                        <Button size="sm" onClick={async () => {
-                         const rating = Number(window.prompt('Rating 1–5'));
-                         const comment = window.prompt('Ulasan produk');
-                         if (!comment) return;
-                         try { await AfterSalesService.reviewProduct(Number(order.items[0].productId), rating, comment); toast({ title: 'Ulasan tersimpan', type: 'success' }); }
-                         catch (e: any) { toast({ title: 'Ulasan gagal', message: e.message, type: 'error' }); }
-                       }}>Beri Ulasan</Button>
+                  {order.status === 'completed' && !(order as Order & { refunded?: boolean }).refunded && (
+                    <Button size="sm" variant="outline" onClick={() => setActionDialog({ type: 'return', order })}>Retur</Button>
+                  )}
+                  {order.status === 'completed' && (order as Order & { refunded?: boolean }).refunded && (
+                    <span className="text-sm font-bold text-orange-500">Refund Diproses</span>
+                  )}
+                  {order.status === 'completed' && (
+                    <>
+                      <Button size="sm" variant="outline" onClick={() => navigate('/care?topic=warranty')}>Ajukan Garansi</Button>
+                      <Button size="sm" onClick={() => setActionDialog({ type: 'review', order })}>Beri Ulasan</Button>
                     </>
                   )}
 
@@ -309,10 +313,47 @@ export function OrderCenterView() {
         onClose={() => setIsTrackingModalOpen(false)}
         trackingInfo={trackingInfo}
         onReportIssue={() => {
-          
           navigate('/care?action=create_ticket&category=Pengiriman');
         }}
       />
+      <Modal isOpen={!!actionDialog} onClose={() => { if (!actionBusy) setActionDialog(null); }} title={actionDialog?.type === 'cancel' ? 'Batalkan Pesanan' : actionDialog?.type === 'complete' ? 'Selesaikan Pesanan' : actionDialog?.type === 'return' ? 'Ajukan Retur' : 'Beri Ulasan'}>
+        {actionDialog?.type === 'cancel' && <div className="space-y-4">
+          <p>Apakah Anda yakin ingin membatalkan pesanan ini? Stok dan limit (jika ada) akan dikembalikan.</p>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setActionDialog(null)} disabled={actionBusy}>Batal</Button>
+            <Button onClick={() => handleAction()} disabled={actionBusy} className="bg-red-600 hover:bg-red-700 text-white">Batalkan</Button>
+          </div>
+        </div>}
+        {actionDialog?.type === 'complete' && <div className="space-y-4">
+          <p>Pastikan paket telah diterima dengan baik sebelum menyelesaikan pesanan. Lanjutkan?</p>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button variant="outline" onClick={() => setActionDialog(null)} disabled={actionBusy}>Batal</Button>
+            <Button onClick={() => handleAction()} disabled={actionBusy}>Selesaikan</Button>
+          </div>
+        </div>}
+        {actionDialog?.type === 'return' && <form onSubmit={e => { e.preventDefault(); handleAction(e.currentTarget); }} className="space-y-4">
+          <p>Silakan tulis alasan retur untuk pesanan ini.</p>
+          <input name="reason" required placeholder="Alasan retur..." className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-[#101419] dark:text-slate-100" />
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={() => setActionDialog(null)} disabled={actionBusy}>Batal</Button>
+            <Button type="submit" disabled={actionBusy}>Kirim</Button>
+          </div>
+        </form>}
+        {actionDialog?.type === 'review' && <form onSubmit={e => { e.preventDefault(); handleAction(e.currentTarget); }} className="space-y-4">
+          <div>
+            <label className="block text-sm mb-1 font-medium">Rating (1-5)</label>
+            <input type="number" name="rating" min="1" max="5" defaultValue="5" required className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-[#101419] dark:text-slate-100" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1 font-medium">Ulasan produk</label>
+            <textarea name="comment" required placeholder="Bagaimana pendapat Anda tentang produk ini?" className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-[#101419] dark:text-slate-100 min-h-[100px]" />
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={() => setActionDialog(null)} disabled={actionBusy}>Batal</Button>
+            <Button type="submit" disabled={actionBusy}>Kirim Ulasan</Button>
+          </div>
+        </form>}
+      </Modal>
     </div>
   );
 }
