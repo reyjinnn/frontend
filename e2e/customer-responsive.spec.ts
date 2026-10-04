@@ -113,7 +113,7 @@ test.describe('Customer Interactions, Modals, Short Height, and Non-Empty Cart',
       // Switch back to Login and authenticate
       await page.getByRole('button', { name: 'Masuk di sini' }).click();
       await expect(loginHeading).toBeVisible();
-      await page.getByPlaceholder('Email').fill('budi@example.com');
+      await page.getByPlaceholder('Email').fill('raihan@example.com');
       await page.getByPlaceholder('Password').fill('Demo123!');
       await page.locator('form button[type="submit"]').click();
       await expect(loginHeading).toBeHidden();
