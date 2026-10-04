@@ -37,39 +37,39 @@ const Modal = ({ isOpen, onClose, title, children, className, fullscreen = false
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-slate-900/50 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
       
-      {}
+      {/* Dialog */}
       <div
         ref={modalRef}
         className={cn(
           'relative z-50 w-full animate-in fade-in zoom-in-95 duration-200',
-          fullscreen ? 'h-full md:h-auto md:max-h-[90vh] md:max-w-3xl md:rounded-3xl' : 'max-h-[90vh] max-w-lg rounded-3xl',
+          fullscreen ? 'h-full md:h-auto md:max-h-[90vh] md:max-w-3xl md:rounded-3xl' : 'max-h-[calc(100dvh-2rem)] max-w-lg rounded-3xl',
           'bg-white shadow-card-hover dark:bg-[#1A1A1A] border border-slate-200 dark:border-slate-800',
           'flex flex-col overflow-hidden',
           className
         )}
       >
         {(title || !fullscreen) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800/60">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
             {title ? (
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
             ) : <div />}
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pumpkin"
+              className="rounded-full p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pumpkin"
             >
               <X className="h-5 w-5" />
             </button>
           </div>
         )}
         
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 overscroll-contain">
           {children}
         </div>
       </div>
