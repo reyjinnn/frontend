@@ -1,6 +1,8 @@
 import { CheckCircle2, Copy } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
+import { OrdersApi } from '../../orders/api/ordersApi';
+import { useState } from 'react';
 
 interface CheckoutSuccessProps {
   orderNumber: string;
@@ -11,6 +13,15 @@ interface CheckoutSuccessProps {
 
 export function CheckoutSuccessDialog({ orderNumber, virtualAccount, grandTotal, expiresAt }: CheckoutSuccessProps) {
   const navigate = useNavigate();
+  const [paymentError, setPaymentError] = useState('');
+  const [paid, setPaid] = useState(false);
+  const pay = async (success: boolean) => {
+    try {
+      const order = await OrdersApi.simulatePayment(orderNumber, success);
+      setPaid(order.status === 'shipping');
+      setPaymentError(success ? '' : 'Simulasi pembayaran gagal. Coba lagi.');
+    } catch (e: any) { setPaymentError(e.message); }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
@@ -27,7 +38,7 @@ export function CheckoutSuccessDialog({ orderNumber, virtualAccount, grandTotal,
           <p className="text-xs text-slate-500 mb-1">Nomor Virtual Account</p>
           <div className="flex justify-between items-center mb-4">
             <p className="font-mono text-xl font-bold text-pumpkin">{virtualAccount}</p>
-            <button className="text-slate-400 hover:text-pumpkin">
+            <button onClick={() => navigator.clipboard.writeText(virtualAccount)} className="text-slate-400 hover:text-pumpkin">
               <Copy className="w-5 h-5" />
             </button>
           </div>
@@ -35,9 +46,15 @@ export function CheckoutSuccessDialog({ orderNumber, virtualAccount, grandTotal,
           <p className="text-xs text-slate-500 mb-1">Total Pembayaran</p>
           <p className="font-mono text-xl font-bold">Rp {grandTotal.toLocaleString('id-ID')}</p>
         </div>
-
+        {paymentError && <p className="text-red-500 text-sm mb-4">{paymentError}</p>}
+        {paid ? <p className="text-green-500 font-bold mb-4">Pembayaran sukses! Pesanan siap dikirim.</p> : (
+          <div className="flex gap-2 mb-4">
+            <Button className="flex-1 text-xs" onClick={() => pay(true)}>Simulasi Sukses</Button>
+            <Button variant="outline" className="flex-1 text-xs" onClick={() => pay(false)}>Simulasi Gagal</Button>
+          </div>
+        )}
         <div className="flex flex-col gap-3">
-          <Button variant="primary" className="h-12" onClick={() => navigate('/profile')}>
+          <Button variant="primary" className="h-12" onClick={() => navigate(`/orders?order=${encodeURIComponent(orderNumber)}`)}>
             Cek Status Pesanan
           </Button>
           <Button variant="outline" className="h-12 border-2" onClick={() => navigate('/')}>
