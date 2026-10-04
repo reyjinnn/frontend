@@ -30,7 +30,7 @@ export function ProductDetailView() {
     } catch (e: any) { toast({ title: 'Gagal menambah produk', message: e.message, type: 'error' }); }
   };
   const db = useDemoSnapshot();
-  const product = db.products.find(p => p.slug === slug) ?? null;
+  const product = db.products.find(p => p.slug === slug && p.status === 'active') ?? null;
   const reviews = product ? db.reviews.filter(r => r.productId === product.id) : [];
   
   if (!product) {
