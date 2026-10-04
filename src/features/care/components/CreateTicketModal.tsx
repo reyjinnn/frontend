@@ -35,17 +35,17 @@ export function CreateTicketModal({ isOpen, onClose, onSubmit, initialCategory }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in-up flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in-up flex flex-col max-h-[calc(100dvh-2rem)]">
         
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-xl font-bold">Buat Tiket Bantuan</h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
+          <h2 className="text-lg sm:text-xl font-bold">Buat Tiket Bantuan</h2>
+          <button onClick={onClose} aria-label="Tutup" className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Subjek</label>
             <input 
@@ -58,7 +58,7 @@ export function CreateTicketModal({ isOpen, onClose, onSubmit, initialCategory }
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Kategori</label>
               <select 
