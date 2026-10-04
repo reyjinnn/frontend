@@ -135,7 +135,7 @@ export const demoRepository = {
       if (!seeded.includes('customers')) {
         seeded.push('customers');
         db.customers.push(
-          { id: '101', name: 'Budi Santoso', email: 'budi@example.com', password: 'Demo123!', role: 'customer', kycStatus: 'unverified' },
+          { id: '101', name: 'Raihan Ananda', email: 'raihan@example.com', password: 'Demo123!', role: 'customer', kycStatus: 'unverified' },
           { id: '102', name: 'Siti Aminah', email: 'siti@example.com', password: 'Demo123!', role: 'customer', kycStatus: 'pending' },
           { id: '103', name: 'Agus Pratama', email: 'agus@example.com', password: 'Demo123!', role: 'customer', kycStatus: 'verified' },
           { id: '104', name: 'Rina Wijaya', email: 'rina@example.com', password: 'Demo123!', role: 'customer', kycStatus: 'rejected' },
@@ -151,7 +151,7 @@ export const demoRepository = {
           { userId: 104, nik: '3201234567890003', name: 'Rina Wijaya', dateOfBirth: '1998-11-15', address: 'Jl. Mawar No. 4, Surabaya', ktpImageUrl: '/ktp.jpg', selfieImageUrl: '/selfie.jpg', status: 'rejected', submittedAt: new Date().toISOString(), reviewedAt: new Date().toISOString(), reason: 'Foto selfie tidak jelas' }
         );
         db.addresses['101'] = [
-          { id: 'addr_1', label: 'Rumah', recipientName: 'Budi Santoso', phone: '+6281234567890', fullAddress: 'Jl. Merdeka No. 45', city: 'Jakarta Selatan', postalCode: '12345', isPrimary: true }
+          { id: 'addr_1', label: 'Rumah', recipientName: 'Raihan Ananda', phone: '+6281234567890', fullAddress: 'Jl. Merdeka No. 45', city: 'Jakarta Selatan', postalCode: '12345', isPrimary: true }
         ];
         db.shipping = [
           { id: 'courier_jne', name: 'JNE Express (YES)', fee: 150000, isActive: true },
