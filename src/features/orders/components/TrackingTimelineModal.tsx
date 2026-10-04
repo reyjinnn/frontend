@@ -22,24 +22,24 @@ export function TrackingTimelineModal({ isOpen, onClose, trackingInfo, onReportI
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in-up">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl animate-fade-in-up max-h-[calc(100dvh-2rem)] flex flex-col">
         
-        {}
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 shrink-0">
           <div>
-            <h2 className="text-xl font-bold">Lacak Pengiriman</h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <h2 className="text-lg sm:text-xl font-bold">Lacak Pengiriman</h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
               {trackingInfo.courierName} ({trackingInfo.service}) - <span className="font-mono font-semibold text-pumpkin">{trackingInfo.receiptNumber}</span>
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+          <button onClick={onClose} aria-label="Tutup" className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {}
-        <div className="p-6 max-h-[60vh] overflow-y-auto">
+        {/* Timeline */}
+        <div className="p-4 sm:p-6 flex-1 overflow-y-auto">
           <div className="relative pl-8 space-y-8">
             {}
             <div className="absolute top-4 bottom-4 left-[2.25rem] w-px bg-slate-200 dark:bg-slate-800"></div>
@@ -81,7 +81,7 @@ export function TrackingTimelineModal({ isOpen, onClose, trackingInfo, onReportI
         </div>
 
         {}
-        <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#141414]">
+        <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] shrink-0">
           <button 
             onClick={() => {
               onClose();
