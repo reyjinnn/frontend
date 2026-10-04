@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../stores/useAuthStore';
+import { AuthService } from '../../../services/auth.service';
+import { DEMO_MODE } from '../../../lib/demoMode';
+import { readDemoDB } from '../../../lib/demoRepository';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { ShieldCheck, ArrowRight, Lock } from 'lucide-react';
@@ -12,23 +15,23 @@ export function AdminLoginView() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDemoLogin = () => {
+  const [error, setError] = useState('');
+  const handleLogin = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      login(
-        {
-          id: 'admin-999',
-          name: 'Super Admin',
-          email: 'admin@techvibe.id',
-          role: 'admin',
-          kycStatus: 'verified'
-        },
-        'mock-admin-token-123',
-        'mock-admin-refresh-123'
-      );
-      navigate('/admin');
+    setError('');
+    try {
+      const result = await AuthService.login(email, password);
+      if (result.user.role !== 'admin') {
+        useAuthStore.getState().logout();
+        throw new Error('Akun ini bukan admin.');
+      }
+      login();
+      navigate('/admin', { replace: true });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Login gagal');
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   return (
@@ -49,7 +52,7 @@ export function AdminLoginView() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-[#111] py-8 px-4 shadow-xl shadow-primary/5 sm:rounded-3xl sm:px-10 border border-slate-100 dark:border-slate-800">
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleDemoLogin(); }}>
+          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); void handleLogin(); }}>
             <Input
               label="Email Admin"
               type="email"
@@ -66,25 +69,8 @@ export function AdminLoginView() {
               placeholder="••••••••"
             />
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600 dark:text-slate-400">
-                  Ingat saya
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a href="#" className="font-semibold text-primary hover:text-primary-600">
-                  Lupa password?
-                </a>
-              </div>
-            </div>
+            {error && <p role="alert" className="text-red-600">{error}</p>}
+            <p className="text-sm text-slate-500">Sesi berlaku di tab ini. Hubungi pengelola untuk pemulihan akun.</p>
 
             <Button 
               type="submit" 
@@ -96,7 +82,7 @@ export function AdminLoginView() {
             </Button>
           </form>
 
-          <div className="mt-8">
+          {DEMO_MODE && <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200 dark:border-slate-800" />
@@ -108,18 +94,11 @@ export function AdminLoginView() {
               </div>
             </div>
 
-            <div className="mt-6">
-              <Button 
-                variant="outline"
-                className="w-full flex justify-center gap-2 border-dashed"
-                onClick={handleDemoLogin}
-                isLoading={isLoading}
-              >
-                1-Click Demo Login as Admin
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+            <p className="mt-6 text-sm text-slate-600 dark:text-slate-400">Gunakan kredensial admin dari repository demo. Akun seed baru: admin@techvibe.id / Admin123!. Akun lama dapat memiliki kredensial berbeda.</p>
+            <Button type="button" variant="outline" className="mt-4 w-full" onClick={() => { const account = readDemoDB().customers.find(c => c.role === 'admin'); if (account) setEmail(account.email); }}>
+              Isi email admin <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>}
         </div>
       </div>
     </div>
