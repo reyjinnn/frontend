@@ -37,11 +37,11 @@ export function TicketThreadModal({ isOpen, onClose, ticket, onReply }: TicketTh
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in-up flex flex-col h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white dark:bg-[#1A1A1A] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-fade-in-up flex flex-col h-[calc(100dvh-2rem)] max-h-[85vh]">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#141414]">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-mono text-xs font-bold text-slate-500 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded">
@@ -57,7 +57,7 @@ export function TicketThreadModal({ isOpen, onClose, ticket, onReply }: TicketTh
             </div>
             <h2 className="text-lg md:text-xl font-bold line-clamp-1">{ticket.subject}</h2>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+          <button onClick={onClose} aria-label="Tutup" className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
             <X className="w-5 h-5" />
           </button>
         </div>
