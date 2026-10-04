@@ -32,6 +32,7 @@ export function RepayModal({ installmentId, amount, isOpen, onClose, onSuccess }
       setTimeout(() => {
         onSuccess(); 
         setSuccess(false);
+        setIsSubmitting(false);
         onClose();
       }, 2000);
     } catch (e) {
