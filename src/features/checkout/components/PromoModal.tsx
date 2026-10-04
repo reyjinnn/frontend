@@ -48,12 +48,12 @@ export function PromoModal({ isOpen, onClose, cartTotal, onSelectPromo }: PromoM
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-md rounded-3xl shadow-2xl p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">Makin hemat pakai promo!</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+      <div className="relative bg-white dark:bg-[#1A1A1A] w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-3xl shadow-2xl p-4 sm:p-6">
+        <div className="flex justify-between items-center mb-6 shrink-0">
+          <h2 className="text-lg sm:text-xl font-bold">Makin hemat pakai promo!</h2>
+          <button onClick={onClose} aria-label="Tutup" className="p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
             <X className="w-5 h-5" />
           </button>
         </div>
