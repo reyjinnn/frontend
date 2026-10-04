@@ -8,6 +8,7 @@ import { TicketThreadModal } from '../components/TicketThreadModal';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useUIStore } from '../../../stores/useUIStore';
 import { useDemoSnapshot } from '../../../stores/useDemoSnapshot';
+import { useToast } from '../../../stores/useToastStore';
 
 const FAQS = [
   {
@@ -33,6 +34,7 @@ export function TechVibeCareView() {
   const user = useAuthStore(s => s.user);
   const openLogin = useUIStore(s => s.openLogin);
   const db = useDemoSnapshot();
+  const { toast } = useToast();
   const tickets = user?.role === 'customer' ? db.tickets.filter(t => t.userId === user.id) : [];
   const isLoading = false;
   
@@ -55,7 +57,7 @@ export function TechVibeCareView() {
 
   const handleCreateTicket = async (payload: CreateTicketPayload) => {
     await TicketsApi.createTicket(payload);
-    alert('Tiket berhasil dibuat. Tim kami akan segera merespon.');
+    toast({ title: 'Tiket berhasil dibuat', message: 'Tim kami akan segera merespon.', type: 'success' });
   };
 
   const handleReplyTicket = async (message: string) => {
@@ -84,7 +86,7 @@ export function TechVibeCareView() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
       {}
       <div className="bg-gradient-to-r from-orange-500 to-pumpkin rounded-3xl p-8 md:p-12 text-white mb-10 relative overflow-hidden shadow-xl shadow-pumpkin/20">
