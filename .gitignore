@@ -26,6 +26,9 @@ dist-ssr
 
 *.md
 !README.md
+!DEMO_GUIDE.md
+!QA_DEMO_CHECKLIST.md
+!AUDIT_DEMO_TECHVIBE.md
 user.html
 admin.html
 =======
