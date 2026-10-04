@@ -25,8 +25,8 @@ it('ignores legacy tokens and fabricated login data', () => {
 });
 
 it('restores only explicit AuthService session and clears it on logout', async () => {
-  await expect(AuthService.login('budi@example.com', 'wrong')).rejects.toThrow();
-  await AuthService.login('budi@example.com', 'Demo123!');
+  await expect(AuthService.login('raihan@example.com', 'wrong')).rejects.toThrow();
+  await AuthService.login('raihan@example.com', 'Demo123!');
   useAuthStore.getState().syncSession();
   expect(useAuthStore.getState().user?.role).toBe('customer');
   expect(useAuthStore.getState().user).not.toHaveProperty('password');
