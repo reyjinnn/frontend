@@ -5,6 +5,7 @@ import { AdminApi } from '../api/adminApi';
 import { Page } from './adminShared';
 import { useAdminData, panel, field, money, csv } from './adminState';
 import { Button } from '../../../components/ui/Button';
+import { Modal } from '../../../components/ui/Modal';
 
 export function AdminOrdersView() {
   const state = useAdminData();
@@ -12,6 +13,7 @@ export function AdminOrdersView() {
   const [filter, setFilter] = useState(() => new URLSearchParams(location.search).get('search') ?? '');
   const [status, setStatus] = useState('all');
   const [selected, setSelected] = useState<string | null>(null);
+  const [cancelOrderNumber, setCancelOrderNumber] = useState<string | null>(null);
   const db = state.db;
   const orders = (db?.orders ?? []).filter(o => (status === 'all' || o.status === status) && `${o.orderNumber} ${o.shippingAddress} ${o.tracking?.receiptNumber ?? ''} ${db?.customers.find(c => c.id === o.userId)?.name ?? ''}`.toLowerCase().includes(filter.toLowerCase()));
   const order = db?.orders.find(o => o.orderNumber === selected);
@@ -146,7 +148,7 @@ export function AdminOrdersView() {
             <Button size="sm" disabled={state.busy} onClick={() => act('paid')}>Konfirmasi Bayar</Button>
             <Button size="sm" variant="outline" disabled={state.busy} onClick={() => act('failed')}>Gagal Bayar</Button>
             <Button size="sm" variant="outline" disabled={state.busy} onClick={() => act('expired')}>Kedaluwarsa</Button>
-            <Button size="sm" variant="outline" disabled={state.busy} onClick={() => { if (window.confirm('Batalkan pesanan ini?')) act('cancel'); }}>Batalkan</Button>
+             <Button size="sm" variant="outline" disabled={state.busy} onClick={() => setCancelOrderNumber(order.orderNumber)}>Batalkan</Button>
           </div>}
           {order.status === 'shipping' && <form className="flex gap-2" onSubmit={e => { e.preventDefault(); const val = new FormData(e.currentTarget).get('resi'); act('ship', String(val)); }}>
             <input name="resi" required aria-label="Nomor resi" placeholder="Masukkan nomor resi..." className={`${field} flex-1 text-xs`} />
@@ -180,5 +182,31 @@ export function AdminOrdersView() {
         {!db?.refunds.length && <p className="py-4 text-center text-sm text-slate-500">Tidak ada permohonan pengembalian dana.</p>}
       </div>
     </section>
+
+    <Modal
+      isOpen={!!cancelOrderNumber}
+      onClose={() => { if (!state.busy) setCancelOrderNumber(null); }}
+      title="Batalkan Pesanan"
+    >
+      <div className="space-y-4">
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          Apakah Anda yakin ingin membatalkan pesanan <span className="font-mono font-bold text-orange-600 dark:text-orange-400">{cancelOrderNumber}</span>?
+        </p>
+        <div className="flex justify-end gap-3 pt-2">
+          <Button variant="outline" onClick={() => setCancelOrderNumber(null)}>
+            Tutup
+          </Button>
+          <Button
+            className="bg-red-600 hover:bg-red-700 text-white"
+            disabled={state.busy}
+            onClick={async () => {
+              if (cancelOrderNumber && await state.run(() => AdminApi.orderAction(cancelOrderNumber, 'cancel'), 'Pesanan diperbarui')) setCancelOrderNumber(null);
+            }}
+          >
+            Ya, Batalkan
+          </Button>
+        </div>
+      </div>
+    </Modal>
   </Page>;
 }
