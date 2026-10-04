@@ -54,8 +54,8 @@ export const LoginModal = ({ isOpen, onClose, onOpenRegister }: LoginModalProps)
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} fullscreen className="md:max-w-md">
-      <div className="flex flex-col h-full items-center justify-center py-10">
-        <div className="text-center mb-8">
+      <div className="flex flex-col min-h-full items-center justify-center py-4 sm:py-10 my-auto w-full">
+        <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-2xl font-bold font-logo text-slate-900 dark:text-white mb-2">Selamat Datang!</h2>
           <p className="text-slate-500 dark:text-slate-400">Masuk untuk melanjutkan belanja di Tech Vibe</p>
         </div>
