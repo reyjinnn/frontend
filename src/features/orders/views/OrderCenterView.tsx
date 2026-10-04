@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Package, MapPin, CreditCard, ExternalLink, Truck, MoreVertical } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useDemoSnapshot } from '../../../stores/useDemoSnapshot';
+import { Search, Package, MapPin, CreditCard, ExternalLink, Truck } from 'lucide-react';
 import { OrdersApi } from '../api/ordersApi';
 import type { Order, OrderStatus, TrackingInfo } from '../types';
 import { OrderDetailModal } from '../components/OrderDetailModal';
 import { TrackingTimelineModal } from '../components/TrackingTimelineModal';
+import { AfterSalesService } from '../../../lib/demoRepository';
+import { useToast } from '../../../stores/useToastStore';
 import { Button } from '../../../components/ui/Button';
+import { useAuthStore } from '../../../stores/useAuthStore';
 
 const TABS: { id: OrderStatus | 'all', label: string }[] = [
   { id: 'all', label: 'Semua' },
@@ -18,30 +22,30 @@ const TABS: { id: OrderStatus | 'all', label: string }[] = [
 
 export function OrderCenterView() {
   const navigate = useNavigate();
+  const [params, setParams] = useSearchParams();
+  const db = useDemoSnapshot();
+  const user = useAuthStore(s => s.user);
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<OrderStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const orders = user ? db.orders.filter(o => o.userId === user.id) : [];
+  const isLoading = false;
 
   // Modals state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [paymentOrder, setPaymentOrder] = useState<Order | null>(null);
+  const [paymentBusy, setPaymentBusy] = useState(false);
   
   const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isTrackingLoading, setIsTrackingLoading] = useState(false);
 
-  const fetchOrders = async () => {
-    setIsLoading(true);
-    const data = await OrdersApi.getOrders();
-    setOrders(data);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  const target = params.get('order');
+  const linkedOrder = target ? orders.find(o => o.orderNumber === target || o.id === target) : null;
+  const shownOrder = orders.find(o => o.id === selectedOrder?.id) ?? linkedOrder ?? null;
+  const detailOpen = isDetailModalOpen || !!linkedOrder;
 
   const handleOpenDetail = (order: Order) => {
     setSelectedOrder(order);
@@ -57,20 +61,42 @@ export function OrderCenterView() {
   };
 
   const handleCancelOrder = async () => {
-    if (!selectedOrder) return;
+    if (!shownOrder) return;
     const confirm = window.confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Stok dan limit (jika ada) akan dikembalikan.');
     if (confirm) {
-      await OrdersApi.cancelOrder(selectedOrder.orderNumber);
+      await OrdersApi.cancelOrder(shownOrder.orderNumber);
       setIsDetailModalOpen(false);
-      fetchOrders(); // Refresh
+      setSelectedOrder(null);
     }
   };
 
+  const handleSimulatePayment = async (success: boolean) => {
+    if (!paymentOrder || paymentBusy) return;
+    setPaymentBusy(true);
+    try {
+      const result = await OrdersApi.simulatePayment(paymentOrder.orderNumber, success);
+      toast({ title: result.payment?.status === 'expired' ? 'Pembayaran kedaluwarsa' : success ? 'Simulasi bayar sukses' : 'Simulasi bayar gagal', type: success && result.status === 'shipping' ? 'success' : 'error' });
+      if (result.status !== 'unpaid') setPaymentOrder(null);
+    } catch (e: any) {
+      toast({ title: 'Gagal bayar', message: e.message, type: 'error' });
+    } finally { setPaymentBusy(false); }
+  };
+
+  const handleExpirePayment = async () => {
+    if (!paymentOrder || paymentBusy) return;
+    setPaymentBusy(true);
+    try {
+      await OrdersApi.expirePayment(paymentOrder.orderNumber);
+      toast({ title: 'Pesanan ditandai kedaluwarsa & dibatalkan', type: 'info' });
+      setPaymentOrder(null);
+    } catch (e: any) {
+      toast({ title: 'Gagal', message: e.message, type: 'error' });
+    } finally { setPaymentBusy(false); }
+  };
   const handleCompleteOrder = async (orderNumber: string) => {
     const confirm = window.confirm('Pastikan paket telah diterima dengan baik sebelum menyelesaikan pesanan. Lanjutkan?');
     if (confirm) {
       await OrdersApi.completeOrder(orderNumber);
-      fetchOrders(); // Refresh
       alert('Pesanan selesai! Anda mendapatkan Vibe Poin 1% dari transaksi ini.');
     }
   };
@@ -219,7 +245,8 @@ export function OrderCenterView() {
 
                 <div className="flex gap-2 w-full sm:w-auto">
                   {order.status === 'unpaid' && (
-                    <Button size="sm" className="w-full sm:w-auto">Bayar Sekarang</Button>
+                    <Button size="sm" className="w-full sm:w-auto" onClick={() => setPaymentOrder(order)}>Bayar</Button>
+
                   )}
                   {order.status === 'shipped' && (
                     <>
@@ -234,15 +261,31 @@ export function OrderCenterView() {
                       Lacak Pengiriman
                     </Button>
                   )}
-                  {order.status === 'completed' && (
-                    <>
-                      <Button size="sm" variant="outline" onClick={() => navigate('/care?topic=warranty')}>Ajukan Garansi</Button>
-                      <Button size="sm">Beri Ulasan</Button>
+{order.status === 'completed' && !(order as Order & { refunded?: boolean }).refunded && (
+                      <Button size="sm" variant="outline" onClick={async () => {
+                        const reason = window.prompt('Alasan retur');
+                        if (reason) {
+                          try { await AfterSalesService.requestRefund(order.orderNumber, reason); toast({ title: 'Permintaan retur terkirim', type: 'success' }); }
+                          catch(e: any) { toast({ title: 'Gagal', message: e.message, type: 'error' }); }
+                        }
+                      }}>Retur</Button>
+                    )}
+                    {order.status === 'completed' && (order as Order & { refunded?: boolean }).refunded && (
+                      <span className="text-sm font-bold text-orange-500">Refund Diproses</span>
+                    )}
+                    {order.status === 'completed' && (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => navigate('/care?topic=warranty')}>Ajukan Garansi</Button>
+                        <Button size="sm" onClick={async () => {
+                         const rating = Number(window.prompt('Rating 1–5'));
+                         const comment = window.prompt('Ulasan produk');
+                         if (!comment) return;
+                         try { await AfterSalesService.reviewProduct(Number(order.items[0].productId), rating, comment); toast({ title: 'Ulasan tersimpan', type: 'success' }); }
+                         catch (e: any) { toast({ title: 'Ulasan gagal', message: e.message, type: 'error' }); }
+                       }}>Beri Ulasan</Button>
                     </>
                   )}
-                  <button className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block">
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
+
                 </div>
               </div>
 
@@ -253,12 +296,14 @@ export function OrderCenterView() {
 
       {}
       <OrderDetailModal 
-        isOpen={isDetailModalOpen} 
-        onClose={() => setIsDetailModalOpen(false)} 
-        order={selectedOrder}
+        isOpen={detailOpen} 
+        onClose={() => { setIsDetailModalOpen(false); setSelectedOrder(null); if (target) setParams({}); }} 
+        order={shownOrder}
         onCancelClick={handleCancelOrder}
+        onPayClick={() => { if (shownOrder) { setPaymentOrder(shownOrder); setIsDetailModalOpen(false); setSelectedOrder(null); if (target) setParams({}); } }}
       />
 
+      {paymentOrder && <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-label="Simulasi Pembayaran"><div className="bg-white dark:bg-[#1A1A1A] rounded-2xl p-6 w-full max-w-md space-y-4"><h2 className="font-bold text-xl">Bayar {paymentOrder.orderNumber}</h2><p>Tagihan: Rp {(paymentOrder.payment?.cashAmount ?? paymentOrder.grandTotal).toLocaleString('id-ID')}</p><p>VA: {paymentOrder.payment?.virtualAccountNumber ?? '-'}</p><p>Batas: {paymentOrder.payment?.expiresAt ? new Date(paymentOrder.payment.expiresAt).toLocaleString('id-ID') : '-'}</p><div className="flex flex-wrap gap-2"><Button disabled={paymentBusy} onClick={() => void handleSimulatePayment(true)}>Sukses</Button><Button disabled={paymentBusy} variant="outline" onClick={() => void handleSimulatePayment(false)}>Gagal</Button><Button disabled={paymentBusy} variant="outline" onClick={() => void handleExpirePayment()}>Kedaluwarsa</Button><Button disabled={paymentBusy} variant="outline" onClick={() => setPaymentOrder(null)}>Tutup</Button></div></div></div>}
       <TrackingTimelineModal
         isOpen={isTrackingModalOpen}
         onClose={() => setIsTrackingModalOpen(false)}
