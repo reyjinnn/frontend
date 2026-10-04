@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { AdminApi } from '../api/adminApi';
 import type { DemoDB } from '../../../lib/demoRepository';
 
-export const panel = 'bg-white dark:bg-[#111] border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4';
-export const field = 'w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#1a1a1a] px-3 py-2';
+export const panel = 'rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/5 dark:border-slate-800 dark:bg-[#171b22] sm:p-6 space-y-4';
+export const field = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 dark:border-slate-700 dark:bg-[#101419] dark:text-slate-100 dark:focus:border-orange-400';
 export const money = (value: number) => `Rp ${value.toLocaleString('id-ID')}`;
 function initialData() {
   try { return { db: AdminApi.snapshot(), error: '' }; }
