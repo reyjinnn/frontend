@@ -7,9 +7,10 @@ import { CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 interface InstallmentTableProps {
   loanCode: string;
   onRepay: (installmentId: number, amount: number) => void;
+  revision?: number;
 }
 
-export function InstallmentTable({ loanCode, onRepay }: InstallmentTableProps) {
+export function InstallmentTable({ loanCode, onRepay, revision }: InstallmentTableProps) {
   const [loan, setLoan] = useState<TlaterLoan | null>(null);
   const [installments, setInstallments] = useState<TlaterInstallment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +21,7 @@ export function InstallmentTable({ loanCode, onRepay }: InstallmentTableProps) {
       setInstallments(res.installments);
       setIsLoading(false);
     });
-  }, [loanCode]);
+  }, [loanCode, revision]);
 
   if (isLoading) return <div className="text-center p-8">Memuat jadwal angsuran...</div>;
   if (!loan) return null;
