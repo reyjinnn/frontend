@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { TicketCategory, TicketPriority, CreateTicketPayload } from '../types';
 import { Button } from '../../../components/ui/Button';
@@ -12,21 +12,10 @@ interface CreateTicketModalProps {
 
 export function CreateTicketModal({ isOpen, onClose, onSubmit, initialCategory }: CreateTicketModalProps) {
   const [subject, setSubject] = useState('');
-  const [category, setCategory] = useState<TicketCategory>('Lainnya');
+  const [category, setCategory] = useState<TicketCategory>((initialCategory as TicketCategory) || 'Lainnya');
   const [priority, setPriority] = useState<TicketPriority>('medium');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (initialCategory) {
-      setCategory(initialCategory as TicketCategory);
-      if (initialCategory === 'Pengiriman') {
-        setSubject('Kendala Pengiriman Pesanan');
-      } else if (initialCategory === 'Garansi') {
-        setSubject('Klaim Garansi Produk');
-      }
-    }
-  }, [initialCategory]);
 
   if (!isOpen) return null;
 
