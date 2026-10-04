@@ -1,87 +1,32 @@
 import api from '../../../lib/axios';
+import { readDemoDB, requireDemoUser, transactDemoDB, nextDemoId } from '../../../lib/demoRepository';
+import { DEMO_MODE } from '../../../lib/demoMode';
 
-export interface PointsWallet {
-  userId: number;
-  balance: number;
-  lockedBalance: number;
-  availableBalance: number;
-  updatedAt: string;
-}
-
-export interface LedgerEntry {
-  id: number;
-  idempotencyKey: string;
-  type: 'credit' | 'debit';
-  amount: number;
-  balanceAfter: number;
-  referenceType: string;
-  referenceId: string;
-  description: string;
-  createdAt: string;
-}
-
-export let mockWallet: PointsWallet = {
-  userId: 101,
-  balance: 50000,
-  lockedBalance: 0,
-  availableBalance: 50000,
-  updatedAt: new Date().toISOString()
-};
-
-export const mockLedger: LedgerEntry[] = [
-  {
-    id: 901,
-    idempotencyKey: "pt-reward-TV-801A",
-    type: "credit",
-    amount: 50000,
-    balanceAfter: 50000,
-    referenceType: "order_reward",
-    referenceId: "TV-20260920-801A",
-    description: "Reward Registrasi Akun Perdana",
-    createdAt: new Date(Date.now() - 86400000).toISOString()
-  }
-];
+export interface PointsWallet { userId: number; balance: number; lockedBalance: number; availableBalance: number; updatedAt: string }
+export interface LedgerEntry { id: number; idempotencyKey: string; type: 'credit' | 'debit'; amount: number; balanceAfter: number; referenceType: string; referenceId: string; description: string; createdAt: string }
 
 export const PointsApi = {
-  getWallet: async (): Promise<PointsWallet> => {
-    try {
-      const res = await api.get('localhost:3000/api/v1/points/wallet');
-      return res.data;
-    } catch (e) {
-      return mockWallet;
-    }
+  async getWallet(): Promise<PointsWallet> {
+    if (!DEMO_MODE) return (await api.get('/api/v1/points/wallet')).data;
+    const user = requireDemoUser('customer'); const db = readDemoDB();
+    const balance = db.points[user.id] ?? 0;
+    return { userId: Number(user.id), balance, lockedBalance: 0, availableBalance: balance, updatedAt: new Date().toISOString() };
   },
-
-  getHistory: async (): Promise<{ items: LedgerEntry[], total: number }> => {
-    try {
-      const res = await api.get('localhost:3000/api/v1/points/history');
-      return res.data;
-    } catch (e) {
-      return { items: mockLedger, total: mockLedger.length };
-    }
+  async getHistory(): Promise<{ items: LedgerEntry[], total: number }> {
+    if (!DEMO_MODE) return (await api.get('/api/v1/points/history')).data;
+    const user = requireDemoUser('customer'); const db = readDemoDB();
+    const items = db.ledger.filter(l => l.userId === user.id).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+    return { items, total: items.length };
   },
-
-  creditPoints: async (amount: number, description: string, referenceId: string): Promise<void> => {
-    
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        mockWallet.balance += amount;
-        mockWallet.availableBalance += amount;
-        mockWallet.updatedAt = new Date().toISOString();
-        
-        mockLedger.unshift({
-          id: Date.now(),
-          idempotencyKey: `pt-reward-${referenceId}-${Date.now()}`,
-          type: 'credit',
-          amount,
-          balanceAfter: mockWallet.availableBalance,
-          referenceType: 'order_reward',
-          referenceId,
-          description,
-          createdAt: new Date().toISOString()
-        });
-        resolve();
-      }, 500);
+  async creditPoints(amount: number, description: string, referenceId: string, customerId = '101'): Promise<void> {
+    if (!DEMO_MODE) return (await api.post('/api/v1/points/credit', { amount, description, referenceId, customerId })).data;
+    requireDemoUser('admin');
+    if (!Number.isSafeInteger(amount) || amount <= 0) throw new Error('Invalid points amount');
+    await transactDemoDB(db => {
+      if (db.ledger.some(l => l.idempotencyKey === `pt-reward-${referenceId}`)) return;
+      const balance = (db.points[customerId] ?? 0) + amount;
+      db.points[customerId] = balance;
+      db.ledger.push({ id: nextDemoId(db), userId: customerId, idempotencyKey: `pt-reward-${referenceId}`, type: 'credit', amount, balanceAfter: balance, referenceType: 'order_reward', referenceId, description, createdAt: new Date().toISOString() });
     });
   }
 };

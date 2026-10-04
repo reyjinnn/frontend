@@ -1,237 +1,55 @@
 import api from '../../../lib/axios';
 import type { Order, TrackingInfo } from '../types';
-import { PointsApi } from '../../points/api/pointsApi';
+import { demoRepository, requireDemoUser, transactDemoDB, nextDemoId } from '../../../lib/demoRepository';
+import { DEMO_MODE } from '../../../lib/demoMode';
 
-let mockOrders: Order[] = [
-  {
-    id: '1',
-    orderNumber: 'TVB-20260901-001',
-    date: new Date(Date.now() - 86400000 * 2).toISOString(),
-    status: 'unpaid',
-    items: [
-      {
-        id: 'i1',
-        productId: 'p1',
-        productName: 'MacBook Pro M3 Max 16-inch 36GB/1TB',
-        quantity: 1,
-        price: 54999000,
-        imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=200&h=200'
-      }
-    ],
-    subtotal: 54999000,
-    shippingFee: 150000,
-    protectionFee: 45000,
-    promoDiscount: 500000,
-    grandTotal: 54694000,
-    paymentMethod: 'Bank Transfer (BCA Virtual Account)',
-    courier: 'JNE Express (YES)',
-    estimatedArrival: '2-3 Hari Kerja',
-    shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890',
-    hasTlater: false
-  },
-  {
-    id: '2',
-    orderNumber: 'TVB-20260910-002',
-    date: new Date(Date.now() - 86400000 * 5).toISOString(),
-    status: 'shipping',
-    items: [
-      {
-        id: 'i2',
-        productId: 'p2',
-        productName: 'iPhone 15 Pro Max 256GB - Natural Titanium',
-        quantity: 1,
-        price: 24999000,
-        imageUrl: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&q=80&w=200&h=200'
-      }
-    ],
-    subtotal: 24999000,
-    shippingFee: 50000,
-    protectionFee: 45000,
-    promoDiscount: 0,
-    grandTotal: 25094000,
-    paymentMethod: 'TechVibe PayLater (Cicilan 3x)',
-    courier: 'SiCepat (REG)',
-    estimatedArrival: 'Besok',
-    shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890',
-    hasTlater: true
-  },
-  {
-    id: '3',
-    orderNumber: 'TVB-20260912-003',
-    date: new Date(Date.now() - 86400000 * 7).toISOString(),
-    status: 'shipped',
-    items: [
-      {
-        id: 'i3',
-        productId: 'p3',
-        productName: 'AirPods Pro (2nd Generation)',
-        quantity: 1,
-        price: 3999000,
-        imageUrl: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&q=80&w=200&h=200'
-      }
-    ],
-    subtotal: 3999000,
-    shippingFee: 0,
-    protectionFee: 15000,
-    promoDiscount: 0,
-    grandTotal: 4014000,
-    paymentMethod: 'Gopay',
-    courier: 'GoSend (Instant)',
-    estimatedArrival: 'Hari ini',
-    shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890',
-    hasTlater: false
-  },
-  {
-    id: '4',
-    orderNumber: 'TVB-20260815-004',
-    date: new Date(Date.now() - 86400000 * 30).toISOString(),
-    status: 'completed',
-    items: [
-      {
-        id: 'i4',
-        productId: 'p4',
-        productName: 'Sony WH-1000XM5 Wireless Noise Cancelling Headphones',
-        quantity: 1,
-        price: 5599000,
-        imageUrl: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=200&h=200'
-      }
-    ],
-    subtotal: 5599000,
-    shippingFee: 20000,
-    protectionFee: 0,
-    promoDiscount: 100000,
-    grandTotal: 5519000,
-    paymentMethod: 'Credit Card (Visa)',
-    courier: 'JNT (Regular)',
-    estimatedArrival: 'Tiba pada 17 Agustus 2026',
-    shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890',
-    hasTlater: false
-  }
+export const legacyOrderSeed: Order[] = [
+  { id: '1', orderNumber: 'TVB-20260901-001', date: '2026-09-01', status: 'unpaid', items: [{ id: 'i1', productId: '207', productName: 'Apple MacBook Pro 14 M3 Pro 18GB/512GB', quantity: 1, price: 35999000, imageUrl: '/images/products/macbook-pro-14.webp' }], subtotal: 35999000, shippingFee: 150000, protectionFee: 45000, promoDiscount: 500000, grandTotal: 35694000, paymentMethod: 'Bank Transfer (BCA Virtual Account)', courier: 'JNE Express (YES)', estimatedArrival: '2-3 Hari Kerja', shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890', hasTlater: false },
+  { id: '2', orderNumber: 'TVB-20260910-002', date: '2026-09-10', status: 'shipping', items: [{ id: 'i2', productId: '201', productName: 'iPhone 15 128GB - Black Titanium', quantity: 1, price: 14299000, imageUrl: '/images/products/iphone-15.jpg' }], subtotal: 14299000, shippingFee: 50000, protectionFee: 45000, promoDiscount: 0, grandTotal: 14394000, paymentMethod: 'TechVibe PayLater (Cicilan 3x)', courier: 'SiCepat (REG)', estimatedArrival: 'Besok', shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890', hasTlater: true },
+  { id: '3', orderNumber: 'TVB-20260912-003', date: '2026-09-12', status: 'shipped', items: [{ id: 'i3', productId: '223', productName: 'Apple AirPods (3rd Generation)', quantity: 1, price: 2999000, imageUrl: '/images/products/airpods-3.webp' }], subtotal: 2999000, shippingFee: 0, protectionFee: 15000, promoDiscount: 0, grandTotal: 3014000, paymentMethod: 'Gopay', courier: 'GoSend (Instant)', estimatedArrival: 'Hari ini', shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890', hasTlater: false },
+  { id: '4', orderNumber: 'TVB-20260815-004', date: '2026-08-15', status: 'completed', items: [{ id: 'i4', productId: '222', productName: 'Sony WH-1000XM4 Wireless Noise Cancelling Headphones', quantity: 1, price: 4299000, imageUrl: '/images/products/sony-wh-1000xm4.jpg' }], subtotal: 4299000, shippingFee: 20000, protectionFee: 0, promoDiscount: 100000, grandTotal: 4219000, paymentMethod: 'Credit Card (Visa)', courier: 'JNT (Regular)', estimatedArrival: 'Tiba pada 17 Agustus 2026', shippingAddress: 'Budi Santoso\nJl. Sudirman No. 123, Lt 4\nJakarta Pusat, 10220\n081234567890', hasTlater: false }
 ];
 
+if (DEMO_MODE) demoRepository.init([], legacyOrderSeed, [], [], []);
+
 export const OrdersApi = {
-  getOrders: async (): Promise<Order[]> => {
-    try {
-      const res = await api.get('localhost:3000/api/v1/orders');
-      return res.data;
-    } catch (e) {
-      // Simulate network delay
-      return new Promise(resolve => setTimeout(() => resolve([...mockOrders]), 600));
-    }
+  async getOrders(): Promise<Order[]> {
+    if (!DEMO_MODE) return (await api.get('/api/v1/orders')).data;
+    const user = requireDemoUser();
+    return demoRepository.read().orders.filter(o => user.role === 'admin' || o.userId === user.id);
   },
-
-  getOrder: async (orderNumber: string): Promise<Order> => {
-    try {
-      const res = await api.get(`localhost:3000/api/v1/orders/${orderNumber}`);
-      return res.data;
-    } catch (e) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const order = mockOrders.find(o => o.orderNumber === orderNumber);
-          if (order) resolve({ ...order });
-          else reject(new Error('Order not found'));
-        }, 300);
-      });
-    }
+  async getOrder(orderNumber: string): Promise<Order> {
+    if (!DEMO_MODE) return (await api.get(`/api/v1/orders/${orderNumber}`)).data;
+    const order = (await this.getOrders()).find((o: Order) => o.orderNumber === orderNumber || o.id === orderNumber);
+    if (!order) throw new Error('Order not found');
+    return order;
   },
-
-  cancelOrder: async (orderNumber: string): Promise<void> => {
-    try {
-      await api.post(`localhost:3000/api/v1/orders/${orderNumber}/cancel`);
-    } catch (e) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const idx = mockOrders.findIndex(o => o.orderNumber === orderNumber);
-          if (idx !== -1 && mockOrders[idx].status === 'unpaid') {
-            mockOrders[idx].status = 'cancelled';
-            resolve();
-          } else {
-            reject(new Error('Cannot cancel this order'));
-          }
-        }, 500);
-      });
-    }
+  async cancelOrder(orderNumber: string): Promise<void> {
+    if (!DEMO_MODE) { await api.post(`/api/v1/orders/${orderNumber}/cancel`); return; }
+    await demoRepository.cancel(orderNumber);
   },
-
-  completeOrder: async (orderNumber: string): Promise<void> => {
-    try {
-      await api.patch(`localhost:3000/api/v1/orders/${orderNumber}/complete`);
-    } catch (e) {
-      return new Promise((resolve, reject) => {
-        setTimeout(async () => {
-          const idx = mockOrders.findIndex(o => o.orderNumber === orderNumber);
-          if (idx !== -1 && mockOrders[idx].status === 'shipped') {
-            mockOrders[idx].status = 'completed';
-
-            const cashback = Math.floor(mockOrders[idx].grandTotal * 0.01);
-            await PointsApi.creditPoints(
-              cashback,
-              `Cashback 1% Pesanan ${orderNumber}`,
-              orderNumber
-            );
-
-            resolve();
-          } else {
-            reject(new Error('Cannot complete this order'));
-          }
-        }, 600);
-      });
-    }
+  async completeOrder(orderNumber: string): Promise<void> {
+    if (!DEMO_MODE) { await api.patch(`/api/v1/orders/${orderNumber}/complete`); return; }
+    await demoRepository.complete(orderNumber);
   },
-
-  getTrackingInfo: async (orderId: string): Promise<TrackingInfo> => {
-    try {
-      const res = await api.get(`localhost:3000/api/v1/orders/${orderId}/tracking`);
-      return res.data;
-    } catch (e) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const order = mockOrders.find(o => o.id === orderId || o.orderNumber === orderId);
-          resolve({
-            orderId: order?.id || orderId,
-            courierName: order?.courier || 'Kurir Standard',
-            service: 'Regular',
-            receiptNumber: `RESI-${Math.floor(Math.random() * 100000000)}`,
-            currentStatus: order?.status === 'completed' ? 'Delivered' : 
-                          order?.status === 'shipped' ? 'On Delivery' : 
-                          order?.status === 'shipping' ? 'Packed' : 'Pending',
-            timeline: [
-              {
-                id: 't1',
-                status: 'Pesanan Selesai Dikemas',
-                description: 'Paket telah selesai dikemas di Gudang TechVibe Official Store.',
-                timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
-                completed: true,
-                active: false
-              },
-              {
-                id: 't2',
-                status: 'Diserahkan ke Agen Kurir',
-                description: 'Paket telah diserahkan ke Hub Logistik kurir.',
-                timestamp: new Date(Date.now() - 86400000 * 1.5).toISOString(),
-                completed: order?.status === 'shipped' || order?.status === 'completed',
-                active: order?.status === 'shipping'
-              },
-              {
-                id: 't3',
-                status: 'Dalam Perjalanan',
-                description: 'Paket sedang dalam perjalanan menuju kota tujuan.',
-                timestamp: new Date(Date.now() - 86400000 * 1).toISOString(),
-                completed: order?.status === 'completed',
-                active: order?.status === 'shipped'
-              },
-              {
-                id: 't4',
-                status: 'Kurir Menuju Alamat',
-                description: 'Kurir sedang mengantar paket ke alamat penerima.',
-                timestamp: new Date(Date.now() - 3600000).toISOString(),
-                completed: order?.status === 'completed',
-                active: order?.status === 'shipped' && false 
-              }
-            ]
-          });
-        }, 500);
-      });
-    }
+  async expirePayment(orderNumber: string): Promise<void> {
+    if (!DEMO_MODE) { await api.post(`/api/v1/orders/${orderNumber}/expire`); return; }
+    await demoRepository.expirePayment(orderNumber);
+  },
+  async simulatePayment(orderNumber: string, success = true) { return demoRepository.pay(orderNumber, success); },
+  async getTrackingInfo(orderId: string): Promise<TrackingInfo> {
+    if (!DEMO_MODE) return (await api.get(`/api/v1/orders/${orderId}/tracking`)).data;
+    const order = await this.getOrder(orderId);
+    return demoRepository.read().orders.find(o => o.id === order.id)?.tracking ?? { orderId: order.id, courierName: order.courier, service: 'Regular', receiptNumber: '', currentStatus: order.status, timeline: [] };
+  },
+  async shipOrder(orderNumber: string, receiptNumber: string): Promise<void> {
+    requireDemoUser('admin');
+    if (!receiptNumber.trim()) throw new Error('Receipt required');
+    await transactDemoDB(db => {
+      const order = db.orders.find(o => o.orderNumber === orderNumber || o.id === orderNumber);
+      if (!order || order.status !== 'shipping') throw new Error('Order not ready for shipping');
+      order.status = 'shipped';
+      order.tracking = { orderId: order.id, courierName: order.courier, service: 'Regular', receiptNumber, currentStatus: 'On Delivery', timeline: [{ id: String(nextDemoId(db)), status: 'Diserahkan ke Agen Kurir', description: receiptNumber, timestamp: new Date().toISOString(), completed: true, active: true }] };
+    });
   }
 };

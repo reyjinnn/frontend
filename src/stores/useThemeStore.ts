@@ -14,9 +14,9 @@ export const useThemeStore = create<ThemeState>((set) => {
     : false;
 
   if (isDark && typeof document !== 'undefined') {
-    document.body.classList.add('dark-theme');
+    document.documentElement.classList.add('dark');
   } else if (typeof document !== 'undefined') {
-    document.body.classList.remove('dark-theme');
+    document.documentElement.classList.remove('dark');
   }
 
   return {
@@ -24,20 +24,20 @@ export const useThemeStore = create<ThemeState>((set) => {
     toggleTheme: () => set((state) => {
       const newIsDark = !state.isDarkMode;
       if (newIsDark) {
-        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
       } else {
-        document.body.classList.remove('dark-theme');
+        document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');
       }
       return { isDarkMode: newIsDark };
     }),
     setTheme: (isDark) => set(() => {
       if (isDark) {
-        document.body.classList.add('dark-theme');
+        document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
       } else {
-        document.body.classList.remove('dark-theme');
+        document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');
       }
       return { isDarkMode: isDark };

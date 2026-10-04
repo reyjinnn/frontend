@@ -1,142 +1,30 @@
-import api from '../../../lib/axios';
-import { calculateAmortization } from '../../../lib/financial';
-
-export interface TlaterAccount {
-  id: number;
-  userId: number;
-  creditLimit: number;
-  availableLimit: number;
-  usedLimit: number;
-  interestRateMonthly: number;
-  lateFeeDaily: number;
-  status: string;
-}
-
-export interface TlaterLoan {
-  id: number;
-  loanCode: string;
-  orderId: number;
-  principalAmount: number;
-  adminFee: number;
-  interestRate: number;
-  totalInterest: number;
-  totalLoanAmount: number;
-  tenorMonths: number;
-  status: string;
-  disbursedAt: string;
-}
-
-export interface TlaterInstallment {
-  id: number;
-  installmentNumber: number;
-  principalDue: number;
-  interestDue: number;
-  lateFee: number;
-  totalDue: number;
-  totalPaid: number;
-  dueDate: string;
-  status: 'unpaid' | 'paid' | 'overdue';
-  isAdjusted?: boolean;
-}
-
-export interface RepaymentRequest {
-  installmentId: number;
-  amount: number;
-  paymentMethod: string;
-}
-
-let mockAccount: TlaterAccount = {
-  id: 301,
-  userId: 101,
-  creditLimit: 10000000.0,
-  availableLimit: 6500000.0,
-  usedLimit: 3500000.0,
-  interestRateMonthly: 2.5,
-  lateFeeDaily: 0.1,
-  status: "active"
-};
-
-let mockLoans: TlaterLoan[] = [
-  {
-    id: 401,
-    loanCode: "LN-20260920-401",
-    orderId: 801,
-    principalAmount: 3500000.0,
-    adminFee: 15000.0,
-    interestRate: 2.5,
-    totalInterest: 262500.0,
-    totalLoanAmount: 3777500.0,
-    tenorMonths: 3,
-    status: "active",
-    disbursedAt: new Date().toISOString()
-  }
-];
+export interface TlaterAccount { id: number; userId: number; creditLimit: number; availableLimit: number; usedLimit: number; interestRateMonthly: number; lateFeeDaily: number; status: string }
+export interface TlaterLoan { id: number; loanCode: string; orderId: number; principalAmount: number; adminFee: number; interestRate: number; totalInterest: number; totalLoanAmount: number; tenorMonths: number; status: string; disbursedAt: string }
+export interface TlaterInstallment { id: number; installmentNumber: number; principalDue: number; interestDue: number; adminFeeDue?: number; lateFee: number; totalDue: number; totalPaid: number; dueDate: string; status: 'unpaid' | 'paid' | 'overdue'; isAdjusted?: boolean }
+export interface RepaymentRequest { installmentId: number; amount: number; paymentMethod: string }
+import { readDemoDB, requireDemoUser, demoRepository } from '../../../lib/demoRepository';
 
 export const TlaterApi = {
-  getAccount: async (): Promise<TlaterAccount> => {
-    try {
-      const res = await api.get('localhost:3000/api/v1/tlater/account');
-      return res.data;
-    } catch (e) {
-      return mockAccount;
-    }
+  async getAccount(): Promise<TlaterAccount> {
+    const user = requireDemoUser('customer');
+    const db = readDemoDB();
+    const used = db.loans.filter(l => l.userId === user.id).reduce((sum, l) => sum + l.installments.reduce((s, i) => s + (i.status === 'paid' ? 0 : i.principalDue), 0), 0);
+    return { id: 301, userId: Number(user.id), creditLimit: db.settings.creditLimit, availableLimit: Math.max(0, db.settings.creditLimit - used), usedLimit: used, interestRateMonthly: 2.5, lateFeeDaily: 0.1, status: db.customers.find(c => c.id === user.id)?.kycStatus === 'verified' ? 'active' : 'inactive' };
   },
-
-  getLoans: async (): Promise<{ items: TlaterLoan[], total: number }> => {
-    try {
-      const res = await api.get('localhost:3000/api/v1/tlater/loans');
-      return res.data;
-    } catch (e) {
-      return { items: mockLoans, total: mockLoans.length };
-    }
+  async getLoans(): Promise<{ items: TlaterLoan[], total: number }> {
+    const user = requireDemoUser('customer');
+    const items = readDemoDB().loans.filter(l => l.userId === user.id).map(l => l.loan);
+    return { items, total: items.length };
   },
-
-  getLoanDetails: async (loanCode: string): Promise<{ loan: TlaterLoan, installments: TlaterInstallment[] }> => {
-    try {
-      const res = await api.get(`localhost:3000/api/v1/tlater/loans/${loanCode}`);
-      return res.data;
-    } catch (e) {
-      const loan = mockLoans.find(l => l.loanCode === loanCode) || mockLoans[0];
-      const am = calculateAmortization(loan.principalAmount, loan.tenorMonths, loan.interestRate, loan.adminFee);
-      
-      const installments: TlaterInstallment[] = am.installments.map((inst, i) => {
-        const due = new Date();
-        due.setMonth(due.getMonth() + i + 1);
-        return {
-          id: 1200 + i,
-          installmentNumber: inst.installmentNumber,
-          principalDue: inst.principalDue,
-          interestDue: inst.interestDue,
-          lateFee: 0,
-          totalDue: inst.totalDue,
-          totalPaid: 0,
-          dueDate: due.toISOString().split('T')[0],
-          status: 'unpaid',
-          isAdjusted: inst.isAdjusted
-        };
-      });
-
-      return { loan, installments };
-    }
+  async getLoanDetails(loanCode: string): Promise<{ loan: TlaterLoan, installments: TlaterInstallment[] }> {
+    const user = requireDemoUser('customer');
+    const record = readDemoDB().loans.find(l => l.userId === user.id && l.loan.loanCode === loanCode);
+    if (!record) throw new Error('Loan not found');
+    return record;
   },
-
-  repayInstallment: async (req: RepaymentRequest, idempotencyKey: string): Promise<any> => {
-    try {
-      const res = await api.post('localhost:3000/api/v1/tlater/repayments', req, {
-        headers: { 'Idempotency-Key': idempotencyKey }
-      });
-      return res.data;
-    } catch (e) {
-      
-      mockAccount.availableLimit += req.amount; 
-      mockAccount.usedLimit -= req.amount;
-      return {
-        paymentReference: "PAY-TL-849202",
-        installmentId: req.installmentId,
-        status: "paid",
-        amountPaid: req.amount,
-        newAvailableLimit: mockAccount.availableLimit
-      };
-    }
+  async repayInstallment(req: RepaymentRequest, idempotencyKey: string): Promise<any> {
+    return demoRepository.repay(req.installmentId, req.amount, idempotencyKey);
   }
 };
+
+

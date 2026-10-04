@@ -16,10 +16,10 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     set({ isLoading: true });
     try {
       const data = await WishlistService.getWishlist();
-      const ids = new Set<number>(data.map((i: any) => i.productId));
+      const ids = new Set<number>(data.map((i: any) => i.id));
       set({ items: ids, isLoading: false });
-    } catch (e) {
-      set({ isLoading: false });
+    } catch {
+      set({ items: new Set<number>(), isLoading: false });
     }
   },
   toggleWishlist: async (productId: number) => {
@@ -37,8 +37,8 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     try {
       
       await WishlistService.toggleWishlist(productId);
-    } catch (e) {
-      
+    } catch {
+
       const reverted = new Set(get().items);
       if (wasInWishlist) {
         reverted.add(productId);

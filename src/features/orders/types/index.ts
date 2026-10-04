@@ -25,6 +25,12 @@ export interface Order {
   estimatedArrival: string;
   shippingAddress: string;
   hasTlater: boolean;
+  payment?: {
+    status: 'pending' | 'paid' | 'failed' | 'expired';
+    expiresAt: string;
+    virtualAccountNumber: string;
+    cashAmount: number;
+  };
 }
 
 export interface TrackingPoint {

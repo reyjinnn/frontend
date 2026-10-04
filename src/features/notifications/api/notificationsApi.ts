@@ -1,79 +1,19 @@
 import api from '../../../lib/axios';
 import type { AppNotification } from '../types';
-
-let mockNotifications: AppNotification[] = [
-  {
-    id: 'n1',
-    type: 'order',
-    title: 'Pesanan Telah Dikirim',
-    message: 'Hore! Pesanan iPhone 15 Pro Max Anda sedang dalam perjalanan dengan kurir SiCepat.',
-    isRead: false,
-    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-    referenceId: 'TVB-20260910-002'
-  },
-  {
-    id: 'n2',
-    type: 'promo',
-    title: 'Flash Sale: Diskon 50%!',
-    message: 'Jangan lewatkan Flash Sale aksesoris Apple diskon hingga 50%. Berlaku hari ini saja.',
-    isRead: false,
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
-  },
-  {
-    id: 'n3',
-    type: 'ticket',
-    title: 'Balasan Tiket #TVC-20260901-001',
-    message: 'Tim Customer Success telah membalas tiket Anda mengenai klaim garansi.',
-    isRead: false,
-    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-    referenceId: 'TVC-20260901-001'
-  },
-  {
-    id: 'n4',
-    type: 'tlater',
-    title: 'Tagihan TLater Bulan Ini',
-    message: 'Tagihan TechVibe Later Anda sebesar Rp 1.500.000 akan jatuh tempo dalam 3 hari. Bayar sekarang untuk menghindari denda.',
-    isRead: true,
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
-  }
-];
+import { readDemoDB, requireDemoUser, transactDemoDB } from '../../../lib/demoRepository';
+import { DEMO_MODE } from '../../../lib/demoMode';
 
 export const NotificationsApi = {
-  getNotifications: async (): Promise<AppNotification[]> => {
-    try {
-      const res = await api.get('localhost:3000/api/v1/notifications');
-      return res.data;
-    } catch (e) {
-      return new Promise(resolve => setTimeout(() => resolve([...mockNotifications]), 400));
-    }
+  async getNotifications(): Promise<AppNotification[]> {
+    if (!DEMO_MODE) return (await api.get('/api/v1/notifications')).data;
+    const u = requireDemoUser(); return readDemoDB().notifications.filter(n => n.userId === u.id);
   },
-
-  markAsRead: async (id: string): Promise<void> => {
-    try {
-      await api.patch(`localhost:3000/api/v1/notifications/${id}/read`);
-    } catch (e) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const idx = mockNotifications.findIndex(n => n.id === id);
-          if (idx !== -1) {
-            mockNotifications[idx].isRead = true;
-          }
-          resolve();
-        }, 200);
-      });
-    }
+  async markAsRead(id: string): Promise<void> {
+    if (!DEMO_MODE) { await api.patch(`/api/v1/notifications/${id}/read`); return; }
+    const u = requireDemoUser(); await transactDemoDB(db => { const n = db.notifications.find(n => n.id === id && n.userId === u.id); if (!n) throw new Error('Notification not found'); n.isRead = true; });
   },
-
-  markAllAsRead: async (): Promise<void> => {
-    try {
-      await api.patch('localhost:3000/api/v1/notifications/read-all');
-    } catch (e) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          mockNotifications = mockNotifications.map(n => ({ ...n, isRead: true }));
-          resolve();
-        }, 300);
-      });
-    }
+  async markAllAsRead(): Promise<void> {
+    if (!DEMO_MODE) { await api.patch('/api/v1/notifications/read-all'); return; }
+    const u = requireDemoUser(); await transactDemoDB(db => { db.notifications.filter(n => n.userId === u.id).forEach(n => { n.isRead = true; }); });
   }
 };

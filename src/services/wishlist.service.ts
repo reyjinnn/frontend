@@ -1,22 +1,20 @@
-import api from '../lib/axios';
+import { readDemoDB, requireDemoUser, transactDemoDB } from '../lib/demoRepository';
 
 export const WishlistService = {
   async getWishlist() {
-    try {
-      const res = await api.get('localhost:3000/api/v1/catalog/wishlist');
-      return res.data;
-    } catch (e) {
-      console.warn("API wishlist unavailable, using mock");
-      return []; 
-    }
+    const user = requireDemoUser('customer');
+    const ids = readDemoDB().wishlists[user.id] ?? [];
+    return readDemoDB().products.filter(p => ids.includes(p.id));
   },
   async toggleWishlist(productId: number) {
-    try {
-      const res = await api.post(`localhost:3000/api/v1/catalog/products/${productId}/wishlist`);
-      return res.data;
-    } catch (e) {
-      console.warn("API wishlist toggle unavailable, using mock");
-      return { success: true };
-    }
+    const user = requireDemoUser('customer');
+    return transactDemoDB(db => {
+      const list = db.wishlists[user.id] ??= [];
+      const index = list.indexOf(productId);
+      const isSaved = index < 0;
+      if (isSaved) list.push(productId);
+      else list.splice(index, 1);
+      return { success: true, isSaved };
+    });
   }
-}
+};

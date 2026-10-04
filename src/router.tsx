@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { CustomerRoute } from './components/layout/CustomerRoute';
 import { RootLayout } from './components/layout/RootLayout';
 import { ProfileView } from './features/profile/views/ProfileView';
 import { StorefrontView } from './features/catalog/views/StorefrontView';
@@ -29,19 +30,21 @@ export const router = createBrowserRouter([
       { index: true, element: <StorefrontView /> },
       { path: 'catalog', element: <CatalogView /> },
       { path: 'product/:slug', element: <ProductDetailView /> },
-      { path: 'wishlist', element: <WishlistView /> },
-      { path: 'checkout', element: <CheckoutView /> },
-      { path: 'tlater', element: <TlaterHubView /> },
-      { path: 'points', element: <PointsWalletView /> },
-      { path: 'orders', element: <OrderCenterView /> },
+      { path: 'wishlist', element: <CustomerRoute><WishlistView /></CustomerRoute> },
+      { path: 'checkout', element: <CustomerRoute><CheckoutView /></CustomerRoute> },
+      { path: 'tlater', element: <CustomerRoute><TlaterHubView /></CustomerRoute> },
+      { path: 'points', element: <CustomerRoute><PointsWalletView /></CustomerRoute> },
+      { path: 'orders', element: <CustomerRoute><OrderCenterView /></CustomerRoute> },
       { path: 'care', element: <TechVibeCareView /> },
       { path: 'help', element: <Navigate to="/care" replace /> },
       { 
         path: 'profile', 
         element: (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-            <ProfileView />
-          </div>
+          <CustomerRoute>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+              <ProfileView />
+            </div>
+          </CustomerRoute>
         )
       },
       { path: '*', element: <Navigate to="/" replace /> }

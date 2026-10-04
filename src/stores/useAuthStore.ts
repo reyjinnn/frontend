@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { demoRepository } from '../lib/demoRepository';
+import { authService } from '../services/auth.service';
 
 interface User {
   id: string;
@@ -14,64 +16,60 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  intendedAction: string | null;
+  setIntendedAction: (action: string | null) => void;
+  syncSession: () => void;
+  logout: () => void;
+  login: (user?: User, accessToken?: string, refreshToken?: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   setUser: (user: User) => void;
-  login: (user: User, accessToken: string, refreshToken: string) => void;
-  logout: () => void;
-  setKycStatus: (status: 'unverified' | 'pending' | 'verified' | 'rejected') => void;
+  setKycStatus: (status: NonNullable<User['kycStatus']>) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => {
-  let initialUser = null;
-  if (typeof window !== 'undefined') {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        initialUser = JSON.parse(storedUser);
-      } catch (e) {
-        console.error('Failed to parse user from localStorage', e);
-      }
-    }
-  }
-
-  return {
-    user: initialUser,
-    accessToken: typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null,
-    refreshToken: typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null,
-    isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('accessToken') : false,
-    
-    setTokens: (accessToken, refreshToken) => {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      set({ accessToken, refreshToken, isAuthenticated: true });
-    },
-    
-    setUser: (user) => {
-      localStorage.setItem('user', JSON.stringify(user));
-      set({ user });
-    },
-    
-    login: (user, accessToken, refreshToken) => {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      set({ user, accessToken, refreshToken, isAuthenticated: true });
-    },
-    
-    logout: () => {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  accessToken: null,
+  refreshToken: null,
+  isAuthenticated: false,
+  intendedAction: null,
+  setIntendedAction: (action) => set({ intendedAction: action?.startsWith('/') && !action.startsWith('//') && !action.includes('\\') ? action : null }),
+  syncSession: () => {
+    const session = demoRepository.session();
+    if (!session) {
       set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
-    },
-    
-    setKycStatus: (status) => set((state) => {
-      const updatedUser = state.user ? { ...state.user, kycStatus: status } : null;
-      if (updatedUser) {
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-      return { user: updatedUser };
-    }),
-  };
-});
+      return;
+    }
+    const db = demoRepository.read();
+    const user = db.customers.find(c => c.id === session.id);
+    if (!user) {
+      set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+      return;
+    }
+    const { password: _password, ...safeUser } = user;
+    set({ 
+      user: safeUser, 
+      accessToken: `demo-${safeUser.id}`, 
+      refreshToken: `demo-refresh-${safeUser.id}`, 
+      isAuthenticated: true 
+    });
+  },
+  login: () => useAuthStore.getState().syncSession(),
+  setTokens: () => useAuthStore.getState().syncSession(),
+  setUser: () => useAuthStore.getState().syncSession(),
+  setKycStatus: () => useAuthStore.getState().syncSession(),
+  logout: () => {
+    authService.logout();
+    set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+  }
+}));
+
+if (typeof window !== 'undefined') {
+  useAuthStore.getState().syncSession();
+  window.addEventListener('focus', () => useAuthStore.getState().syncSession());
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'techvibe.session' || e.key === 'techvibe.demo.db.v1') {
+      useAuthStore.getState().syncSession();
+    }
+  });
+}
+
