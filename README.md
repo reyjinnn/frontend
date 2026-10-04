@@ -1,80 +1,25 @@
-# Tech Vibe Frontend
+# TechVibe
 
-Tech Vibe is a modern E-Commerce and FinTech platform frontend built with React, TypeScript, Vite, and Tailwind CSS. It is designed to deliver a premium, high-performance shopping experience with integrated financial features.
+Frontend React 19 + TypeScript + Vite + Tailwind + Zustand untuk demo e-commerce sintetis. Tidak ada backend produksi atau gateway pembayaran nyata. Mock mode dipilih melalui `src/lib/demoMode.ts`; data bisnis disimpan di `localStorage` key `techvibe.demo.db.v1`, sedangkan login per tab di `sessionStorage` key `techvibe.session`. Data hanya berbagi antar tab pada origin dan profil browser yang sama; tidak sinkron lintas browser/perangkat. Data demo bukan penyimpanan aman untuk data pribadi nyata. Jika storage rusak, pembacaan kembali ke data kosong dan write menolak data rusak; backup tidak otomatis dibuat.
 
-## Features Implemented
+## Menjalankan
 
-- **Storefront & Catalog**: Dynamic homepage banners, product grids, and advanced filtering/search capabilities.
-- **Product Details & Wishlist**: Rich product pages with image galleries, reviews, and wishlist management.
-- **Cart & Checkout**: Seamless shopping cart and a multi-step checkout process with various shipping and payment options.
-- **TechVibe Later (TLater)**: Integrated PayLater financing solution with credit limit visualization, installment plans, and transaction history.
-- **Vibe Poin (Loyalty Program)**: A double-entry immutable ledger system for point accrual and redemption.
-- **Order Center**: Comprehensive order management with status filtering, contextual actions (Pay, Cancel, Complete), and detailed invoices.
-- **Logistics Tracking**: Visual stepper timeline for real-time courier tracking.
-- **TechVibe Care**: Interactive help center with FAQs, categorized ticketing system, and real-time conversation threads.
-- **Notification Center**: Global notification dropdown for order updates, promos, and ticket replies.
-- **Dark Mode & Responsive Design**: Fully responsive UI with a seamless dark mode experience.
+Gunakan Node.js versi yang didukung Vite 8 (minimal 20.19 atau 22.12) dan npm. Jalankan `npm ci`, lalu `npm run dev`; buka URL yang ditampilkan Vite. `npm run build` menjalankan `tsc -b && vite build`, `npm run lint` menjalankan `oxlint`, `npm test` menjalankan Vitest (bukan browser), dan `npx playwright test` menjalankan Chromium E2E dengan server Vite otomatis. Jika browser belum terpasang: `npx playwright install chromium`. Playwright memakai `http://localhost:5173`; hentikan proses yang menggunakan port itu sebelum menjalankan E2E bila bukan server repo ini.
 
-## Tech Stack
+## Akun seed
 
-- **Framework**: [React 18](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **State Management**: Zustand (Context/Hooks)
-- **Routing**: React Router DOM
-- **API Mocking**: Axios (Interceptors/Mock Services)
+Akun berikut berasal dari `src/lib/demoRepository.ts:138-142` dan login divalidasi di `src/services/auth.service.ts:15-20`:
 
-## Getting Started
+| Peran | Email | Password | KYC |
+|---|---|---|---|
+| Customer | budi@example.com | Demo123! | unverified |
+| Customer | siti@example.com | Demo123! | pending |
+| Customer | agus@example.com | Demo123! | verified |
+| Customer | rina@example.com | Demo123! | rejected |
+| Admin | admin@techvibe.id | Admin123! | verified |
 
-### Prerequisites
+Akun seed hanya ditambahkan saat database pertama kali diinisialisasi. Browser dengan database yang sudah diubah mungkin mempunyai kredensial berbeda. Jangan memasukkan identitas atau pembayaran sungguhan. Untuk demo dua tab, **buat tab baru dari address bar**, bukan Duplicate Tab; sejumlah browser menyalin `sessionStorage` saat menduplikasi tab. Logout menghapus sesi tab, bukan database. Reset namespace demo harus dilakukan lewat kontrol UI bila tersedia; jangan gunakan `localStorage.clear()` karena menghapus storage milik aplikasi lain pada origin yang sama. Jika butuh mengulang dari seed dan kontrol reset tidak tersedia, hapus hanya key `techvibe.demo.db.v1` dari DevTools dan reload, lalu hapus sesi tab `techvibe.session` di setiap tab.
 
-- Node.js (v18 or higher recommended)
-- npm or yarn
+## Cakupan verifikasi
 
-### Installation
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-3. Open your browser and navigate to the URL provided in the terminal (usually `http://localhost:5173`).
-
-### Build for Production
-
-To create a production-ready bundle:
-
-```bash
-npm run build
-```
-
-## Project Structure
-
-```text
-src/
-├── assets/
-├── components/
-├── features/
-│   ├── [feature]/
-│   │   ├── api/
-│   │   ├── components/
-│   │   ├── views/
-│   │   └── types/
-├── lib/
-├── stores/
-├── App.css
-├── index.css
-├── router.tsx
-└── main.tsx
-```
-
-## License
-
-© 2026 Tech Vibe. Hak Cipta Dilindungi.
+`QA_DEMO_CHECKLIST.md` memisahkan hasil Chromium yang diamati dari skenario yang belum diuji. Tes E2E adalah smoke saja, **bukan** bukti bahwa checkout, pembayaran, KYC, dan semua 22 kriteria penerimaan lulus. Ada overflow horizontal katalog pada viewport 390px. Lihat `DEMO_GUIDE.md` untuk urutan presentasi dan pemulihan.
